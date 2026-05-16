@@ -548,9 +548,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     #endregion
                     #region When
                     this.gbSyncOptions_When.SuspendLayout();
+                    setMaxSyncRange();
                     tbDaysInThePast.Text = profile.DaysInThePast.ToString();
                     tbDaysInTheFuture.Text = profile.DaysInTheFuture.ToString();
-                    setMaxSyncRange();
                     tbInterval.ValueChanged -= new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
                     tbInterval.Value = profile.SyncInterval;
                     tbInterval.ValueChanged += new System.EventHandler(this.tbMinuteOffsets_ValueChanged);
