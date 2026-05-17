@@ -327,7 +327,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     updatesMade++;
-                                } catch (Microsoft.Graph.ServiceException ex) {
+                                } catch (Microsoft.Graph.Models.ODataErrors.ODataError ex) {
                                     if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
@@ -413,7 +413,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     updatesMade++;
-                                } catch (Microsoft.Graph.ServiceException ex) {
+                                } catch (Microsoft.Graph.Models.ODataErrors.ODataError ex) {
                                     if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +

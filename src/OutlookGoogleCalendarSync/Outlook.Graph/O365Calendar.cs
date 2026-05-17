@@ -30,12 +30,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
         public Calendar() { }
 
-        public enum ApiException {
-            justContinue,
-            backoffThenRetry,
-            throwException
-        }
-
         public Ogcs.Outlook.Graph.Authenticator Authenticator;
         private GraphServiceClient graphClient;
         public GraphServiceClient GraphClient {
@@ -94,11 +88,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     cals.AddRange(calPage.Value ?? new());
                 }
             } catch (System.Exception ex) {
-                switch (HandleAPIlimits(ref ex)) {
+                switch (O365Errors.HandleAPIlimits(ref ex)) {
                     case ApiException.throwException: throw ex;
+                    default: throw ex;
                 }
-                ex.Analyse();
-                throw;
             }
 
             foreach (MsGraph.Calendar cal in cals) {
@@ -434,11 +427,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     //Add the Google event IDs into Outlook appointment.
                     //This needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
                     MsGraph.Event aiPatch = new MsGraph.Event() { 
-                        Id = createdAi.Id, 
+                        Id = createdAi.Id,
                         Start = createdAi.Start,
                         Subject = createdAi.Subject,
-                        SeriesMasterId = createdAi.SeriesMasterId, 
-                        Recurrence = createdAi.Recurrence 
+                        SeriesMasterId = createdAi.SeriesMasterId,
+                        Recurrence = createdAi.Recurrence
                     };
                     CustomProperty.AddGoogleIDs(ref aiPatch, ev);
                     UpdateCalendarEntry_save(ref aiPatch);
@@ -564,15 +557,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             MsGraph.Event createdAi = null;
             try {
                 createdAi = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.PostAsync(ai).Result;
-            } catch (System.AggregateException ex) {
-                if (ex.InnerException is Microsoft.Graph.ServiceException) {
-                    ServiceException gex = ex.InnerException as ServiceException;
-                    if (gex.Error.Code == "InvalidAuthenticationToken") {
-                        this.Authenticator.GetAuthenticated(true);
-                    } else
-                        throw ex.InnerException;
+            } catch (System.Exception ex) {
+                MsGraph.ODataErrors.ODataError oDataErr = O365Errors.GetODataError(ex);
+                if (oDataErr?.Error?.Code == "InvalidAuthenticationToken") {
+                    this.Authenticator.GetAuthenticated(true);
+                } else {
+                    switch (O365Errors.HandleAPIlimits(ref ex)) {
+                        case ApiException.throwException: throw ex;
+                        default: throw ex;
+                    }
                 }
-                //*** Need API handling
             }
 
             if (createdAi != null && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev))) {
@@ -642,7 +636,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                         log.Debug("Doing a dummy update in order to update the last modified date.");
                         CustomProperty.SetOGCSlastModified(ref ai);
-                        UpdateCalendarEntry_save(ref ai);
+                        try {
+                            UpdateCalendarEntry_save(ref ai);
+                        } catch (System.Exception ex) {
+                            Forms.Main.Instance.Console.UpdateWithError(Ogcs.Google.Calendar.GetEventSummary("Updated appointment failed to save.", compare.Value, out String anonSummary, true), ex, logEntry: anonSummary);
+                            Ogcs.Exception.Analyse(ex, true);
+                            if (Ogcs.Extensions.MessageBox.Show("Updated Outlook appointment failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                continue;
+                            else
+                                throw new UserCancelledSyncException("User chose not to continue sync.");
+                        }
                     }
                 }
             }
@@ -976,6 +979,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         public void UpdateCalendarEntry_save(ref MsGraph.Event ai) {
+            ai.BackingStore.InitializationCompleted = false;
+
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
@@ -997,17 +1002,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         ogcsExtension.AdditionalData = ogcsExtension.AdditionalData.Except(deletedProperties).ToDictionary(k => k.Key, k => k.Value);
                         patchExtension = true;
                     }
-                    if (patchExtension) 
+                    if (patchExtension) {
                         ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].PatchAsync(ogcsExtension).Result;
+                        ai.Extensions = new();
+                    }
                 }
                 ai = GraphClient.Me.Events[ai.Id].PatchAsync(ai).Result;
-                
+
                 if (ogcsExtension != null)
                     ai = ai.UpdateOgcsExtension(ogcsExtension);
 
-            } catch (System.AggregateException ex) {
-                if (ex.InnerException is Microsoft.Graph.ServiceException) throw ex.InnerException;
-                //*** Need API handling
+            } catch (System.Exception ex) {
+                switch (O365Errors.HandleAPIlimits(ref ex)) {
+                    case ApiException.throwException: throw ex;
+                    default: throw ex;
+                }
             }
         }
         #endregion
@@ -1035,18 +1044,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     if (doDelete) DeleteCalendarEntry_save(ai);
                     else oAppointments.Remove(ai);
                 } catch (System.Exception ex) {
-                    if (ex is Microsoft.Graph.ServiceException) {
-                        Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
-                        if (gex.Error != null && gex.Error.Code == "ErrorItemNotFound") { //Resource has been deleted
-                            log.Fail("This event is already deleted! Ignoring failed request to delete.");
-                            continue;
-                        }
-                    }
                     oAppointments.Remove(ai);
                     if (ex is ApplicationException) {
                         String summary = GetEventSummary("<br/>Appointment deletion skipped.<br/>" + ex.Message, ai, out String anonSummary);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
-                        if (ex.InnerException is Microsoft.Graph.ServiceException) break;
+                        if (ex.InnerException is MsGraph.ODataErrors.ODataError) break;
                         continue;
                     } else {
                         String summary = GetEventSummary("<br/>Appointment deletion failed.", ai, out String anonSummary);
@@ -1092,9 +1094,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public void DeleteCalendarEntry_save(MsGraph.Event ai) {
             try {
                 GraphClient.Me.Events[ai.Id].DeleteAsync().Wait();
-            } catch (System.AggregateException ex) {
-                if (ex.InnerException is Microsoft.Graph.ServiceException) throw ex.InnerException;
-                //*** Need API handling
+            } catch (System.Exception ex) {
+                MsGraph.ODataErrors.ODataError oDataErr = O365Errors.GetODataError(ex);
+                if (oDataErr != null) {
+                    if (oDataErr.Error?.Code == "ErrorItemNotFound") { //Resource has been deleted
+                        log.Fail("This event is already deleted! Ignoring failed request to delete.");
+                        return;
+                    }
+                }
+                switch (O365Errors.HandleAPIlimits(ref ex)) {
+                    case ApiException.throwException: throw ex;
+                    default: throw ex;
+                }
             }
         }
         #endregion
@@ -1417,53 +1428,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return eventSummary;
         }
 
-        public static ApiException HandleAPIlimits(ref System.Exception ex) {
-            if (ex is ServiceException sex)
-                return HandleAPIlimits(ref sex);
-
-            if (ex is AggregateException aex) {
-                sex = aex.InnerExceptions.FirstOrDefault(ie => ie is ServiceException) as ServiceException;
-                if (sex != null) {
-                    //Analyse the Graph Service exception and then replace the aggregate exception with it
-                    ApiException retVal = HandleAPIlimits(ref sex);
-                    ex = sex;
-                    return retVal;
-                } else
-                    aex.AnalyseAggregate();
-            } else {
-                ex.Analyse();
-            }
-         
-            log.Warn("Unhandled API exception.");
-            return ApiException.throwException;
-        }
-
-        public static ApiException HandleAPIlimits(ref Microsoft.Graph.ServiceException ex/*, Event ev*/) {
-            log.Fail(ex.FriendlyMessage());
-
-            try {
-                new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.ogcs_error)
-                    .AddParameter("api_graph_error", ex.Message)
-                    .AddParameter("reason", ex.StatusCode)
-                    .AddParameter("code", ex.Error?.Code)
-                    .AddParameter("message", ex.Error?.Message)
-                    .Send();
-            } catch (System.Exception gaEx) {
-                Ogcs.Exception.Analyse(gaEx);
-            }
-
-            if (ex.StatusCode == System.Net.HttpStatusCode.Forbidden) {
-                if (ex.Message.Contains("Check credentials and try again")) {
-                    Forms.Main.Instance.Console.Update("You are not properly authenticated to Microsoft.<br/>" +
-                        "On the Settings > Outlook tab, please disconnect and re-authenticate your account.", Console.Markup.error);
-                    ex.Data.Add("OGCS", "Unauthenticated access to Microsoft account attempted. Authentication required.");
-                }
-                return ApiException.throwException;
-            }
-
-            log.Warn("Unhandled API exception.");
-            return ApiException.throwException;
-        }
 
         public static void IdentifyEventDifferences(
             ref List<GcalData.Event> google,          //need creating

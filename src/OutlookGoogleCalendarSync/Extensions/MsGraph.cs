@@ -22,7 +22,7 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
 
         public static MsGraph.Event UpdateOgcsExtension(this MsGraph.Event ai, MsGraph.Extension updatedExt) {
             if (ai.Extensions == null) {
-                ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
+                ai.Extensions = new();
             } else {
                 MsGraph.Extension staleExt = ai.OgcsExtension();
                 ai.Extensions.Remove(staleExt);

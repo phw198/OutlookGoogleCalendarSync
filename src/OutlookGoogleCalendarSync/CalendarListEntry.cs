@@ -97,7 +97,7 @@ namespace OutlookGoogleCalendarSync {
             Name = calendarFolder.Name;
         }
 
-        public OutlookCalendarListEntry(Microsoft.Graph.Calendar calendarFolder) {
+        public OutlookCalendarListEntry(Microsoft.Graph.Models.Calendar calendarFolder) {
             Id = calendarFolder.Id;
             Name = calendarFolder.Name;
         }

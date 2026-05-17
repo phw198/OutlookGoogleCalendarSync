@@ -347,19 +347,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } finally {
                     bubbleText += "Outlook: " + outlookEntriesToBeCreated.Count + " created; " +
                         outlookEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
-
-                    /*while (outlookEntriesToBeCreated.Count() > 0) {
-                        Outlook.Calendar.ReleaseObject(outlookEntriesToBeCreated.Last());
-                        outlookEntriesToBeCreated.Remove(outlookEntriesToBeCreated.Last());
-                    }
-                    while (outlookEntriesToBeDeleted.Count() > 0) {
-                        Outlook.Calendar.ReleaseObject(outlookEntriesToBeDeleted.Last());
-                        outlookEntriesToBeDeleted.Remove(outlookEntriesToBeDeleted.Last());
-                    }
-                    while (entriesToBeCompared.Count() > 0) {
-                        Outlook.Calendar.ReleaseObject(entriesToBeCompared.Keys.Last());
-                        entriesToBeCompared.Remove(entriesToBeCompared.Keys.Last());
-                    }*/
                 }
                 return true;
             }
