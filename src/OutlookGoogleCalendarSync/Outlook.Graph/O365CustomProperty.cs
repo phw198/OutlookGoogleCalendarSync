@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } else
                 addkeyName = currentKeyName; //Might be suffixed with "-01"
 
-            ai.Extensions ??= new Microsoft.Graph.EventExtensionsCollectionPage();
+            ai.Extensions ??= new();
 
             if (ai.Extensions.Count == 0)
                 ai.Extensions.Add(new MsGraph.OpenTypeExtension {
@@ -355,7 +355,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             MsGraph.Extension ogcsExt = ai.OgcsExtension();
             if (ogcsExt == null) return false;
 
-            Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().DeleteAsync().Wait();
+            Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].DeleteAsync().Wait();
             return true;
         }
 

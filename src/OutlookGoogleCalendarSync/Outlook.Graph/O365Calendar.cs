@@ -9,7 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using CVRB = Microsoft.Graph.Me.Calendars.Item.CalendarView.CalendarViewRequestBuilder;
 using GcalData = Google.Apis.Calendar.v3.Data;
+using Kiota = Microsoft.Kiota.Abstractions;
 using MsGraph = Microsoft.Graph.Models;
 using Ogcs = OutlookGoogleCalendarSync;
 
@@ -79,13 +81,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             List<MsGraph.Calendar > cals = new();
 
             try {
-                Microsoft.Graph.IUserCalendarsCollectionRequest calReq = GraphClient.Me.Calendars.Request();
-                calReq.Select("id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner");
-                Microsoft.Graph.IUserCalendarsCollectionPage calPage = calReq.GetAsync().Result;
-                cals.AddRange(calPage.CurrentPage);
-                while (calPage.NextPageRequest != null) {
-                    calPage = calPage.NextPageRequest.GetAsync().Result;
-                    cals.AddRange(calPage.CurrentPage);
+                Microsoft.Graph.Me.Calendars.CalendarsRequestBuilder calendarsRequest = GraphClient.Me.Calendars;
+                MsGraph.CalendarCollectionResponse calPage = calendarsRequest.GetAsync(config => {
+                    config.QueryParameters.Select = new[] {
+                        "id", "name", "color", "changeKey", "canShare", "canViewPrivateItems", "hexColor", "canEdit", "isTallyingResponses", "isRemovable", "owner"
+                    };
+                }).Result;
+
+                cals.AddRange(calPage.Value ?? new());
+                while (!String.IsNullOrEmpty(calPage.OdataNextLink)) {
+                    calPage = calendarsRequest.WithUrl(calPage.OdataNextLink).GetAsync(config => { }).Result;
+                    cals.AddRange(calPage.Value ?? new());
                 }
             } catch (System.Exception ex) {
                 switch (HandleAPIlimits(ref ex)) {
@@ -116,15 +122,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Debug("Retrieving specific Graph Event with ID " + eventId);
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
-                IEventRequest er = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[eventId].Request();
-                er.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
-                er.Select("*"); //This returns undocumented "hidden" beta property cancelledOccurrences
-                System.Net.Http.HttpRequestMessage httpMessage = er.GetHttpRequestMessage().AddAuthorisation();
-                System.Net.Http.HttpResponseMessage response = graphClient.HttpProvider.SendAsync(httpMessage).Result;
-                String jsonContent = response.Content.ReadAsStringAsync().Result;
-                ai = Newtonsoft.Json.JsonConvert.DeserializeObject<MsGraph.Event>(jsonContent, new Newtonsoft.Json.JsonSerializerSettings { DateParseHandling = Newtonsoft.Json.DateParseHandling.None });
-                Newtonsoft.Json.Linq.JToken tk = Newtonsoft.Json.Linq.JObject.Parse(jsonContent).SelectToken("cancelledOccurrences");
-                foreach (String cancelledOccurrence in tk) {
+                ai = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[eventId].GetAsync(cfg => {
+                    cfg.QueryParameters.Expand = new string[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
+                    cfg.QueryParameters.Select = new string[] { "*" }; 
+                }).Result;
+
+                foreach (String cancelledOccurrence in (ai?.CancelledOccurrences ?? new())) {
                     System.DateTime cancelledDate = System.DateTime.ParseExact(cancelledOccurrence.Replace($"OID.{eventId}.", ""), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
                     if (cancelledDate < profile.SyncStart.Date || cancelledDate > profile.SyncEnd.Date) {
                         log.Fine("Exception is deleted and outside date range being synced: " + cancelledDate.Date.ToString("dd/MM/yyyy"));
@@ -155,25 +158,27 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Debug("Retrieving occurrences for recurring master Graph Event with ID " + seriesId);
                 SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
-                List<QueryOption> queryOptions = new List<QueryOption>() {
-                    new QueryOption("startDateTime", profile.SyncStart.ToString("yyyy-MM-dd")),
-                    new QueryOption("endDateTime", profile.SyncEnd.ToString("yyyy-MM-dd"))
-                };
-                IEventInstancesCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[seriesId].Instances.Request(queryOptions);
-                req.Top(250);
-                req.Select("*");
-                req.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
-                req.OrderBy("start/dateTime");
-                log.Fine(req.GetHttpRequestMessage().RequestUri.ToString());
-
-                Int16 pageNum = 1;
-                IEventInstancesCollectionPage eventPage = req.GetAsync().Result;
-                occurrences.AddRange(eventPage.CurrentPage);
-                while (eventPage.NextPageRequest != null) {
-                    pageNum++;
-                    eventPage = eventPage.NextPageRequest.GetAsync().Result;
-                    log.Fine("Page " + pageNum + " received.");
-                    occurrences.AddRange(eventPage.CurrentPage);
+                Microsoft.Graph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder itemInstancesReq = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[seriesId].Instances;
+                Kiota.RequestConfiguration<Microsoft.Graph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder.InstancesRequestBuilderGetQueryParameters> reqCfg = new();
+                reqCfg.QueryParameters.StartDateTime = profile.SyncStart.ToString("yyyy-MM-dd");
+                reqCfg.QueryParameters.EndDateTime = profile.SyncEnd.ToString("yyyy-MM-dd");
+                reqCfg.QueryParameters.Top = 250;
+                reqCfg.QueryParameters.Select = new string[] { "*" };
+                reqCfg.QueryParameters.Expand = new string[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
+                reqCfg.QueryParameters.Orderby = new string[] { "start/dateTime" };
+                reqCfg.QueryParameters.Count = true;
+                
+                Kiota.RequestInformation reqInfo = itemInstancesReq.ToGetRequestInformation(cfg => cfg.QueryParameters = reqCfg.QueryParameters);
+                log.Fine(reqInfo.URI.ToString());
+                MsGraph.EventCollectionResponse instancesPage = itemInstancesReq.GetAsync(cfg => cfg.QueryParameters = reqCfg.QueryParameters).Result;
+                int pageCnt = 1;
+                log.Fine($"Page {pageCnt} retrieved with {instancesPage.OdataCount} items.");
+                occurrences.AddRange(instancesPage.Value ?? new());
+                while (!String.IsNullOrEmpty(instancesPage.OdataNextLink)) {
+                    pageCnt++;
+                    instancesPage = itemInstancesReq.WithUrl(instancesPage.OdataNextLink).GetAsync().Result;
+                    log.Fine($"Page {pageCnt} retrieved with {instancesPage.OdataCount} items.");
+                    occurrences.AddRange(instancesPage.Value ?? new());
                 }
 
             } catch (System.Exception ex) {
@@ -207,8 +212,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             profile ??= Settings.Profile.InPlay();
 
-            System.DateTime min = System.DateTime.MinValue;
-            System.DateTime max = System.DateTime.MaxValue;
+            System.DateTimeOffset min = System.DateTimeOffset.MinValue;
+            System.DateTimeOffset max = System.DateTimeOffset.MaxValue;
             min = profile.SyncStart;
             max = profile.SyncEnd;
 
@@ -226,26 +231,27 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //1. Get all single instances, occurrences and exceptions within date range
                 //2. Get distinct list of series IDs for which there is no master series
                 //3. Get the specific missing master event(s)
-                List<QueryOption> queryOptions = new List<QueryOption>() {
-                    new QueryOption("startDateTime", min.ToString("yyyy-MM-dd")),
-                    new QueryOption("endDateTime", max.ToString("yyyy-MM-dd"))
-                };
-                ICalendarCalendarViewCollectionRequest req = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView.Request(queryOptions);
+                CVRB calendarViewRequest = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView;
+                Kiota.RequestConfiguration<CVRB.CalendarViewRequestBuilderGetQueryParameters> reqCfg = new();
+                reqCfg.QueryParameters.StartDateTime = min.ToPreciseString();
+                reqCfg.QueryParameters.EndDateTime = max.ToPreciseString();
+                reqCfg.QueryParameters.Top = 250;
+                reqCfg.QueryParameters.Expand = new String[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
+                reqCfg.QueryParameters.Select = new String[] { "*" }; //Otherwise OriginalStart is always null
+                reqCfg.QueryParameters.Orderby = new String[] { "start/dateTime" };
+                reqCfg.QueryParameters.Count = true;
 
-                req.Top(250);
-                req.Expand("extensions($filter=Id eq '" + CustomProperty.ExtensionName() + "')");
-                req.Select("*"); //Otherwise OriginalStart is always null
-                req.OrderBy("start/dateTime");
-                log.Fine(req.GetHttpRequestMessage().RequestUri.ToString());
-
-                Int16 pageNum = 1;
-                ICalendarCalendarViewCollectionPage eventPage = req.GetAsync().Result;
-                result.AddRange(eventPage.CurrentPage);
-                while (eventPage.NextPageRequest != null) {
-                    pageNum++;
-                    eventPage = eventPage.NextPageRequest.GetAsync().Result;
-                    log.Fine("Page " + pageNum + " received.");
-                    result.AddRange(eventPage.CurrentPage);
+                Kiota.RequestInformation reqInfo = calendarViewRequest.ToGetRequestInformation(cfg => { cfg.QueryParameters = reqCfg.QueryParameters; });
+                log.Fine(reqInfo.URI.ToString());
+                MsGraph.EventCollectionResponse eventsPage = calendarViewRequest.GetAsync(cfg => { cfg.QueryParameters = reqCfg.QueryParameters; }).Result;
+                int pageCnt = 1;
+                log.Fine($"Page {pageCnt} retrieved with {eventsPage.OdataCount} items.");
+                result.AddRange(eventsPage.Value ?? new());
+                while (!String.IsNullOrEmpty(eventsPage.OdataNextLink)) {
+                    pageCnt++;
+                    eventsPage = calendarViewRequest.WithUrl(eventsPage.OdataNextLink).GetAsync().Result;
+                    log.Fine($"Page {pageCnt} retrieved with {eventsPage.OdataCount} items.");
+                    result.AddRange(eventsPage.Value ?? new());
                 }
 
             } catch {
@@ -253,7 +259,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 throw;
             }
 
-            log.Fine(result.Count + " calendar items exist.");
+            log.Fine(result.Count + " calendar items exist in total.");
 
             Recurrence.GetOutlookMasterEvent(result);
             List<MsGraph.Event> seriesOccurrences = result.Where(ai => ai.Type == MsGraph.EventType.Occurrence).ToList();
@@ -557,8 +563,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             MsGraph.Event createdAi = null;
             try {
-                System.Threading.Tasks.Task<MsGraph.Event> createThread =  GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.Request().AddAsync(ai);
-                createdAi = createThread.Result;
+                createdAi = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.PostAsync(ai).Result;
             } catch (System.AggregateException ex) {
                 if (ex.InnerException is Microsoft.Graph.ServiceException) {
                     ServiceException gex = ex.InnerException as ServiceException;
@@ -988,14 +993,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     //Graph doesn't support removing properties via PATCH with null values. Have to manually delete and recreate
                     List<KeyValuePair<String, Object>> deletedProperties = ogcsExtension.AdditionalData.Where(prop => prop.Value == null).ToList();
                     if (deletedProperties.Count > 0) {
-                        GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().DeleteAsync().Wait();
+                        GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].DeleteAsync().Wait();
                         ogcsExtension.AdditionalData = ogcsExtension.AdditionalData.Except(deletedProperties).ToDictionary(k => k.Key, k => k.Value);
                         patchExtension = true;
                     }
                     if (patchExtension) 
-                        ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].Request().UpdateAsync(ogcsExtension).Result;
+                        ogcsExtension = GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].PatchAsync(ogcsExtension).Result;
                 }
-                ai = GraphClient.Me.Events[ai.Id].Request().UpdateAsync(ai).Result;
+                ai = GraphClient.Me.Events[ai.Id].PatchAsync(ai).Result;
                 
                 if (ogcsExtension != null)
                     ai = ai.UpdateOgcsExtension(ogcsExtension);
@@ -1086,7 +1091,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public void DeleteCalendarEntry_save(MsGraph.Event ai) {
             try {
-                GraphClient.Me.Events[ai.Id].Request().DeleteAsync().Wait();
+                GraphClient.Me.Events[ai.Id].DeleteAsync().Wait();
             } catch (System.AggregateException ex) {
                 if (ex.InnerException is Microsoft.Graph.ServiceException) throw ex.InnerException;
                 //*** Need API handling
