@@ -3493,6 +3493,13 @@
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.AdditionalGuests">
             <summary>Number of additional guests. Optional. The default is 0.</summary>
         </member>
+        <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.AsyncOperation">
+            <summary>
+            If present, indicates the status of an asynchronous operation ongoing for this attendee (e.g. listing of
+            members of large attendee groups). Read-only. The default is to not be present. Possible values are:   -
+            "inProgress" - The asynchronous operation is in progress.  - (not present) - Otherwise.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Calendar.v3.Data.EventAttendee.Comment">
             <summary>The attendee's response comment. Optional.</summary>
         </member>

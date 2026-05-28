@@ -54,7 +54,7 @@
             </summary>
         </member>
         <member name="M:Azure.Core.AccessToken.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.AccessToken.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -448,7 +448,7 @@
             <param name="location"> AzureLocation object to be assigned. </param>
         </member>
         <member name="M:Azure.Core.AzureLocation.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.AzureLocation.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -538,7 +538,7 @@
             <param name="position">The position of policy in the pipeline.</param>
         </member>
         <member name="M:Azure.Core.ClientOptions.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.ClientOptions.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -579,13 +579,13 @@
             <param name="contentType">The content type string.</param>
         </member>
         <member name="M:Azure.Core.ContentType.Equals(Azure.Core.ContentType)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.ContentType.Equals(System.String)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.ContentType.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.ContentType.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -906,10 +906,10 @@
             <summary>Sets the enumerator to its initial position, which is before the first element in the collection.</summary><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="P:Azure.Core.Serialization.DynamicData.ArrayEnumerator.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.ArrayEnumerator.MoveNext">
-            <summary>Advances the enumerator to the next element of the collection.</summary><returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
+            <summary>Advances the enumerator to the next element of the collection.</summary><returns><see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.ArrayEnumerator.Dispose">
             <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -921,7 +921,7 @@
             <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -962,10 +962,10 @@
             <summary>Sets the enumerator to its initial position, which is before the first element in the collection.</summary><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="P:Azure.Core.Serialization.DynamicData.ObjectEnumerator.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.ObjectEnumerator.MoveNext">
-            <summary>Advances the enumerator to the next element of the collection.</summary><returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
+            <summary>Advances the enumerator to the next element of the collection.</summary><returns><see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="M:Azure.Core.Serialization.DynamicData.ObjectEnumerator.Dispose">
             <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -1390,10 +1390,10 @@
             <summary>Sets the enumerator to its initial position, which is before the first element in the collection.</summary><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="P:Azure.Core.Json.MutableJsonElement.ArrayEnumerator.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="M:Azure.Core.Json.MutableJsonElement.ArrayEnumerator.MoveNext">
-            <summary>Advances the enumerator to the next element of the collection.</summary><returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
+            <summary>Advances the enumerator to the next element of the collection.</summary><returns><see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="M:Azure.Core.Json.MutableJsonElement.ArrayEnumerator.Dispose">
             <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -1697,10 +1697,10 @@
             <summary>Sets the enumerator to its initial position, which is before the first element in the collection.</summary><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="P:Azure.Core.Json.MutableJsonElement.ObjectEnumerator.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="M:Azure.Core.Json.MutableJsonElement.ObjectEnumerator.MoveNext">
-            <summary>Advances the enumerator to the next element of the collection.</summary><returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
+            <summary>Advances the enumerator to the next element of the collection.</summary><returns><see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="T:Azure.Core.Extensions.IAzureClientBuilder`2">
             <summary>
@@ -1781,7 +1781,7 @@
             </summary>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoArray`1.Enumerator.MoveNext">
-            <summary>Advances the enumerator to the next element of the collection.</summary><returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
+            <summary>Advances the enumerator to the next element of the collection.</summary><returns><see langword="true" /> if the enumerator was successfully advanced to the next element; <see langword="false" /> if the enumerator has passed the end of the collection.</returns><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoArray`1.Enumerator.Reset">
             <summary>Sets the enumerator to its initial position, which is before the first element in the collection.</summary><exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
@@ -1838,10 +1838,10 @@
             </summary>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoBoundingBox.Equals(Azure.Core.GeoJson.GeoBoundingBox)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoBoundingBox.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoBoundingBox.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -2348,10 +2348,10 @@
             <param name="altitude">The altitude of the position.</param>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoPosition.Equals(Azure.Core.GeoJson.GeoPosition)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoPosition.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.GeoJson.GeoPosition.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -2412,13 +2412,13 @@
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
         </member>
         <member name="M:Azure.Core.HttpHeader.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.HttpHeader.ToString">
             <summary>Returns the fully qualified type name of this instance.</summary><returns>The fully qualified type name.</returns>
         </member>
         <member name="M:Azure.Core.HttpHeader.Equals(Azure.Core.HttpHeader)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="T:Azure.Core.HttpHeader.Names">
             <summary>
@@ -3548,19 +3548,19 @@
             </summary>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.CanRead">
-            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports reading.</summary><returns>true if the stream supports reading; otherwise, false.</returns>
+            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports reading.</summary><returns><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.CanSeek">
-            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports seeking.</summary><returns>true if the stream supports seeking; otherwise, false.</returns>
+            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports seeking.</summary><returns><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.CanTimeout">
             <summary>Gets a value that determines whether the current stream can time out.</summary><returns>A value that determines whether the current stream can time out.</returns>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.CanWrite">
-            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports writing.</summary><returns>true if the stream supports writing; otherwise, false.</returns>
+            <summary>When overridden in a derived class, gets a value indicating whether the current stream supports writing.</summary><returns><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.Length">
-            <summary>When overridden in a derived class, gets the length in bytes of the stream.</summary><returns>A long value representing the length of the stream in bytes.</returns><exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+            <summary>When overridden in a derived class, gets the length in bytes of the stream.</summary><returns>A long value representing the length of the stream in bytes.</returns><exception cref="T:System.NotSupportedException">A class derived from <see langword="Stream" /> does not support seeking. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         </member>
         <member name="P:Azure.Core.BufferedReadStream.Position">
             <summary>When overridden in a derived class, gets or sets the position within the current stream.</summary><returns>The current position within the stream.</returns><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
@@ -3572,7 +3572,7 @@
             <summary>When overridden in a derived class, sets the length of the current stream.</summary><param name="value">The desired length of the current stream in bytes. </param><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.Dispose(System.Boolean)">
-            <summary>Releases the unmanaged resources used by the <see cref="T:System.IO.Stream" /> and optionally releases the managed resources.</summary><param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+            <summary>Releases the unmanaged resources used by the <see cref="T:System.IO.Stream" /> and optionally releases the managed resources.</summary><param name="disposing"><see langword="true" /> to release both managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.</param>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.Flush">
             <summary>When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.</summary><exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
@@ -3581,16 +3581,16 @@
             <summary>Asynchronously clears all buffers for this stream, causes any buffered data to be written to the underlying device, and monitors cancellation requests.</summary><param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="P:System.Threading.CancellationToken.None" />.</param><returns>A task that represents the asynchronous flush operation.</returns><exception cref="T:System.ObjectDisposedException">The stream has been disposed.</exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.Write(System.Byte[],System.Int32,System.Int32)">
-            <summary>When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.</summary><param name="buffer">An array of bytes. This method copies <paramref name="count" /> bytes from <paramref name="buffer" /> to the current stream. </param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin copying bytes to the current stream. </param><param name="count">The number of bytes to be written to the current stream. </param><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is greater than the buffer length.</exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer" />  is null.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.IO.IOException">An I/O error occured, such as the specified file cannot be found.</exception><exception cref="T:System.NotSupportedException">The stream does not support writing.</exception><exception cref="T:System.ObjectDisposedException"><see cref="M:System.IO.Stream.Write(System.Byte[],System.Int32,System.Int32)" /> was called after the stream was closed.</exception>
+            <summary>When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.</summary><param name="buffer">An array of bytes. This method copies <paramref name="count" /> bytes from <paramref name="buffer" /> to the current stream. </param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin copying bytes to the current stream. </param><param name="count">The number of bytes to be written to the current stream. </param><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is greater than the buffer length.</exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer" />  is <see langword="null" />.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.IO.IOException">An I/O error occured, such as the specified file cannot be found.</exception><exception cref="T:System.NotSupportedException">The stream does not support writing.</exception><exception cref="T:System.ObjectDisposedException"><see cref="M:System.IO.Stream.Write(System.Byte[],System.Int32,System.Int32)" /> was called after the stream was closed.</exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
-            <summary>Asynchronously writes a sequence of bytes to the current stream, advances the current position within this stream by the number of bytes written, and monitors cancellation requests.</summary><param name="buffer">The buffer to write data from.</param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> from which to begin copying bytes to the stream.</param><param name="count">The maximum number of bytes to write.</param><param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="P:System.Threading.CancellationToken.None" />.</param><returns>A task that represents the asynchronous write operation.</returns><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is null.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length.</exception><exception cref="T:System.NotSupportedException">The stream does not support writing.</exception><exception cref="T:System.ObjectDisposedException">The stream has been disposed.</exception><exception cref="T:System.InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
+            <summary>Asynchronously writes a sequence of bytes to the current stream, advances the current position within this stream by the number of bytes written, and monitors cancellation requests.</summary><param name="buffer">The buffer to write data from.</param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> from which to begin copying bytes to the stream.</param><param name="count">The maximum number of bytes to write.</param><param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="P:System.Threading.CancellationToken.None" />.</param><returns>A task that represents the asynchronous write operation.</returns><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is <see langword="null" />.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length.</exception><exception cref="T:System.NotSupportedException">The stream does not support writing.</exception><exception cref="T:System.ObjectDisposedException">The stream has been disposed.</exception><exception cref="T:System.InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.Read(System.Byte[],System.Int32,System.Int32)">
-            <summary>When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.</summary><param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset" /> and (<paramref name="offset" /> + <paramref name="count" /> - 1) replaced by the bytes read from the current source. </param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current stream. </param><param name="count">The maximum number of bytes to be read from the current stream. </param><returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length. </exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is null. </exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative. </exception><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support reading. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+            <summary>When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.</summary><param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset" /> and (<paramref name="offset" /> + <paramref name="count" /> - 1) replaced by the bytes read from the current source. </param><param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current stream. </param><param name="count">The maximum number of bytes to be read from the current stream. </param><returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length. </exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is <see langword="null" />. </exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative. </exception><exception cref="T:System.IO.IOException">An I/O error occurs. </exception><exception cref="T:System.NotSupportedException">The stream does not support reading. </exception><exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
-            <summary>Asynchronously reads a sequence of bytes from the current stream, advances the position within the stream by the number of bytes read, and monitors cancellation requests.</summary><param name="buffer">The buffer to write the data into.</param><param name="offset">The byte offset in <paramref name="buffer" /> at which to begin writing data from the stream.</param><param name="count">The maximum number of bytes to read.</param><param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="P:System.Threading.CancellationToken.None" />.</param><returns>A task that represents the asynchronous read operation. The value of the <paramref name="TResult" /> parameter contains the total number of bytes read into the buffer. The result value can be less than the number of bytes requested if the number of bytes currently available is less than the requested number, or it can be 0 (zero) if the end of the stream has been reached. </returns><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is null.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length.</exception><exception cref="T:System.NotSupportedException">The stream does not support reading.</exception><exception cref="T:System.ObjectDisposedException">The stream has been disposed.</exception><exception cref="T:System.InvalidOperationException">The stream is currently in use by a previous read operation. </exception>
+            <summary>Asynchronously reads a sequence of bytes from the current stream, advances the position within the stream by the number of bytes read, and monitors cancellation requests.</summary><param name="buffer">The buffer to write the data into.</param><param name="offset">The byte offset in <paramref name="buffer" /> at which to begin writing data from the stream.</param><param name="count">The maximum number of bytes to read.</param><param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="P:System.Threading.CancellationToken.None" />.</param><returns>A task that represents the asynchronous read operation. The value of the <paramref name="TResult" /> parameter contains the total number of bytes read into the buffer. The result value can be less than the number of bytes requested if the number of bytes currently available is less than the requested number, or it can be 0 (zero) if the end of the stream has been reached. </returns><exception cref="T:System.ArgumentNullException"><paramref name="buffer" /> is <see langword="null" />.</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset" /> or <paramref name="count" /> is negative.</exception><exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length.</exception><exception cref="T:System.NotSupportedException">The stream does not support reading.</exception><exception cref="T:System.ObjectDisposedException">The stream has been disposed.</exception><exception cref="T:System.InvalidOperationException">The stream is currently in use by a previous read operation. </exception>
         </member>
         <member name="M:Azure.Core.BufferedReadStream.EnsureBuffered">
             <summary>
@@ -4147,10 +4147,10 @@
             <param name="method">The method string to parse.</param>
         </member>
         <member name="M:Azure.Core.RequestMethod.Equals(Azure.Core.RequestMethod)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.RequestMethod.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.RequestMethod.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -4367,7 +4367,7 @@
             should be ordered after the given resource identifier. </returns>
         </member>
         <member name="M:Azure.Core.ResourceIdentifier.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Core.ResourceIdentifier.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -4536,7 +4536,7 @@
             <summary>Returns the fully qualified type name of this instance.</summary><returns>The fully qualified type name.</returns>
         </member>
         <member name="M:Azure.Core.ResourceType.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="other">The object to compare with the current instance. </param><returns>true if <paramref name="other" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="other">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="other" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.Core.ResourceType.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -6479,7 +6479,7 @@
             </summary>
         </member>
         <member name="M:Azure.ETag.Equals(Azure.ETag)">
-            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+            <summary>Indicates whether the current object is equal to another object of the same type.</summary><param name="other">An object to compare with this object.</param><returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.ETag.Equals(System.String)">
             <summary>
@@ -6488,7 +6488,7 @@
             <returns>true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.</returns>
         </member>
         <member name="M:Azure.ETag.Equals(System.Object)">
-            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false. </returns>
+            <summary>Indicates whether this instance and a specified object are equal.</summary><param name="obj">The object to compare with the current instance. </param><returns><see langword="true" /> if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, <see langword="false" />. </returns>
         </member>
         <member name="M:Azure.ETag.GetHashCode">
             <summary>Returns the hash code for this instance.</summary><returns>A 32-bit signed integer that is the hash code for this instance.</returns>
@@ -6923,7 +6923,7 @@
             <returns>The HTTP response returned by the service.</returns>
         </member>
         <member name="M:Azure.NullableResponse`1.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.NullableResponse`1.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -7098,7 +7098,7 @@
             </remarks>
         </member>
         <member name="M:Azure.Operation.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Operation.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -7547,10 +7547,10 @@
             <param name="detailsParser">The parser to use to parse the response content.</param>
         </member>
         <member name="M:Azure.RequestFailedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-            <summary>Initializes a new instance of the <see cref="T:System.Exception" /> class with serialized data.</summary><param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is null. </exception><exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult" /> is zero (0). </exception>
+            <summary>Initializes a new instance of the <see cref="T:System.Exception" /> class with serialized data.</summary><param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is <see langword="null" />. </exception><exception cref="T:System.Runtime.Serialization.SerializationException">The class name is <see langword="null" /> or <see cref="P:System.Exception.HResult" /> is zero (0). </exception>
         </member>
         <member name="M:Azure.RequestFailedException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-            <summary>When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with information about the exception.</summary><param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is a null reference (Nothing in Visual Basic). </exception>
+            <summary>When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with information about the exception.</summary><param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is a null reference (<see langword="Nothing" /> in Visual Basic). </exception>
         </member>
         <member name="M:Azure.RequestFailedException.GetRawResponse">
             <summary>
@@ -7750,7 +7750,7 @@
             <param name="response">The <see cref="T:Azure.Response`1" /> instance.</param>
         </member>
         <member name="M:Azure.Response`1.Equals(System.Object)">
-            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+            <summary>Determines whether the specified object is equal to the current object.</summary><param name="obj">The object to compare with the current object. </param><returns><see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.</returns>
         </member>
         <member name="M:Azure.Response`1.GetHashCode">
             <summary>Serves as the default hash function. </summary><returns>A hash code for the current object.</returns>
@@ -8502,10 +8502,10 @@
             <summary>Returns an enumerator that iterates through a collection.</summary><returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
         </member>
         <member name="P:Azure.Core.Pipeline.TaskExtensions.Enumerator`1.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="P:Azure.Core.GeoJson.GeoArray`1.Enumerator.System#Collections#IEnumerator#Current">
-            <summary>Gets the current element in the collection.</summary><returns>The current element in the collection.</returns>
+            <summary>Gets the element in the collection at the current position of the enumerator.</summary><returns>The element in the collection at the current position of the enumerator.</returns>
         </member>
         <member name="M:Azure.Core.Json.MutableJsonElement.ObjectEnumerator.System#Collections#Generic#IEnumerable{System#ValueTuple{System#String@Azure#Core#Json#MutableJsonElement}}#GetEnumerator">
             <summary>Returns an enumerator that iterates through the collection.</summary><returns>An enumerator that can be used to iterate through the collection.</returns>

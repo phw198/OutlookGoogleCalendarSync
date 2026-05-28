@@ -1604,13 +1604,6 @@
             Creates an ECDsa object using the <paramref name="jsonWebKey"/> and <paramref name="usePrivateKey"/>.
             </summary>
         </member>
-        <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.CreateECDsaUsingCNGKey(Microsoft.IdentityModel.Tokens.JsonWebKey,System.Boolean)">
-            <summary>
-            Creates an ECDsa object using the <paramref name="jsonWebKey"/> and <paramref name="usePrivateKey"/>.
-            'ECParameters' structure is available in .NET Framework 4.7+, .NET Standard 1.6+, and .NET Core 1.0+.
-            This method is supported only on Windows as other platforms don't support operations with <see cref="T:System.Security.Cryptography.CngKey"/>.
-            </summary>
-        </member>
         <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.GetKeyByteCount(System.String)">
             <summary>
             Determines the key size in bytes based on the specified ECDSA curve identifier.
@@ -1630,6 +1623,29 @@
             <param name="curveId">The identifier of the ECDSA curve (P256, P384, P521).</param>
             <param name="willCreateSignatures">If true, the provider will be used for creating signatures.</param>
             <returns>A <see langword="uint"/> representing the magic number.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.CreateECDsaUsingECParams(Microsoft.IdentityModel.Tokens.JsonWebKey,System.Boolean)">
+            <summary>
+            Creates an ECDsa object using the <paramref name="jsonWebKey"/> and <paramref name="usePrivateKey"/>.
+            'ECParameters' structure is available in .NET Framework 4.7+, .NET Standard 1.6+, and .NET Core 1.0+.
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.GetNamedECCurve(System.String)">
+            <summary>
+            Returns the elliptic curve corresponding to the curve identifier.
+            </summary>
+            <param name="curveId">The identifier of the ECDSA curve (P256, P384, P521).</param>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.SupportsECParameters">
+            <summary>
+            Determines whether user application's runtime supports <see cref="T:System.Security.Cryptography.ECParameters"/> structure.
+            </summary>
+            <returns><see langword="true"/> if <see cref="T:System.Security.Cryptography.ECParameters"/> structure is supported; Otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.ECDsaAdapter.LoadECParametersType">
+            <summary>
+            Throws <see cref="T:System.TypeLoadException"/> during runtime if user application's runtime doesn't support <see cref="T:System.Security.Cryptography.ECParameters"/> structure.
+            </summary>
         </member>
         <member name="T:Microsoft.IdentityModel.Tokens.ECDsaSecurityKey">
             <summary>
@@ -2010,6 +2026,35 @@
             <summary>
             Gets the authentication tag.
             </summary>
+        </member>
+        <member name="T:Microsoft.IdentityModel.Tokens.EcdhKeyExchangeProvider">
+            <summary>
+            Provides a Security Key that can be used as Content Encryption Key (CEK) for use with a JWE
+            </summary>
+        </member>
+        <member name="P:Microsoft.IdentityModel.Tokens.EcdhKeyExchangeProvider.KeyDataLen">
+            <summary>
+            Number of bits in the desired output key
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.EcdhKeyExchangeProvider.#ctor(Microsoft.IdentityModel.Tokens.SecurityKey,Microsoft.IdentityModel.Tokens.SecurityKey,System.String,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.IdentityModel.Tokens.EcdhKeyExchangeProvider"/> used for CEKs
+            <param name="privateKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that will be used for cryptographic operations and represents the private key.</param>
+            <param name="publicKey">The <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that will be used for cryptographic operations and represents the public key.</param>
+            <param name="alg">alg header parameter value.</param>
+            <param name="enc">enc header parameter value.</param>
+            </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.EcdhKeyExchangeProvider.GenerateKdf(System.String,System.String)">
+            <summary>
+            Generates the KDF
+            </summary>
+            <param name="apu">Agreement PartyUInfo (optional). When used, the PartyVInfo value contains information about the producer,
+            represented as a base64url-encoded string.</param>
+            <param name="apv">Agreement PartyVInfo (optional). When used, the PartyUInfo value contains information about the recipient,
+            represented as a base64url-encoded string.</param>
+            <returns>Returns <see cref="T:Microsoft.IdentityModel.Tokens.SecurityKey"/> that represents the key generated</returns>
         </member>
         <member name="T:Microsoft.IdentityModel.Tokens.KeyWrapProvider">
             <summary>
@@ -2628,6 +2673,15 @@
             <summary>
             Gets or sets the source of the exception.
             </summary>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.SecurityTokenException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            When overridden in a derived class, sets the System.Runtime.Serialization.SerializationInfo
+            with information about the exception.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
+            <exception cref="T:System.ArgumentNullException">thrown if <paramref name="info"/> is null.</exception>
         </member>
         <member name="M:Microsoft.IdentityModel.Tokens.SecurityTokenException.#ctor(System.String,Microsoft.IdentityModel.Tokens.Experimental.ValidationError)">
             <summary>
@@ -6166,6 +6220,14 @@
             Converts a <see cref="T:Microsoft.IdentityModel.Tokens.SymmetricSecurityKey"/> into a <see cref="T:Microsoft.IdentityModel.Tokens.JsonWebKey"/>
             </summary>
             <param name="key">a <see cref="T:Microsoft.IdentityModel.Tokens.SymmetricSecurityKey"/> to convert.</param>
+            <returns>a <see cref="T:Microsoft.IdentityModel.Tokens.JsonWebKey"/></returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="key"/>is null.</exception>
+        </member>
+        <member name="M:Microsoft.IdentityModel.Tokens.JsonWebKeyConverter.ConvertFromECDsaSecurityKey(Microsoft.IdentityModel.Tokens.ECDsaSecurityKey)">
+            <summary>
+            Converts a <see cref="T:Microsoft.IdentityModel.Tokens.ECDsaSecurityKey"/> into a <see cref="T:Microsoft.IdentityModel.Tokens.JsonWebKey"/>
+            </summary>
+            <param name="key">an <see cref="T:Microsoft.IdentityModel.Tokens.ECDsaSecurityKey"/> to convert.</param>
             <returns>a <see cref="T:Microsoft.IdentityModel.Tokens.JsonWebKey"/></returns>
             <exception cref="T:System.ArgumentNullException">if <paramref name="key"/>is null.</exception>
         </member>
