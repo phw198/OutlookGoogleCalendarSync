@@ -27,9 +27,9 @@ namespace OutlookGoogleCalendarSync {
                 logLevel = Program.MyFailLevel;
             }
 
-            if (ex is Microsoft.Graph.Models.ODataErrors.ODataError oDataErr) {
-                log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(oDataErr.Error));
-                log.ErrorOrFail($"StatusCode: {oDataErr.ResponseStatusCode}; Code: {oDataErr.Error?.Code}; Message: {oDataErr.Error?.Message}", logLevel);
+            if (ex is Microsoft.Kiota.Abstractions.ApiException kiotaEx) {
+                Outlook.Graph.CustomClient.Models.ODataErrors.ODataError oDataErr = Outlook.Graph.O365Errors.GetODataError(kiotaEx);
+                log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Code: {oDataErr?.Error?.Code}; Message: {oDataErr?.Message}", logLevel);
                 return;
             } else
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
@@ -133,11 +133,10 @@ namespace OutlookGoogleCalendarSync {
                 else
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
 
-            } else if (ex is Microsoft.Graph.Models.ODataErrors.ODataError gex) {
-                if (gex.Error != null)
-                    return gex.Error.Message.Replace("\n", "<br/>") + " [" + gex.Error.Code + "]";
+            } else if (ex is Microsoft.Kiota.Abstractions.ApiException gex) {
+                return gex.Message.Replace("\n", "<br/>") + " [" + gex.ResponseStatusCode + "]";
             }
-            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Graph.Models.ODataErrors.ODataError) ? "<br/>" + ex.InnerException.Message : "");
+            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Kiota.Abstractions.ApiException) ? "<br/>" + ex.InnerException.Message : "");
         }
 
         #region Logging level for exception

@@ -1,5 +1,4 @@
 ﻿using log4net;
-using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
@@ -7,13 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GcalData = Google.Apis.Calendar.v3.Data;
+using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Recurrence {
         private static readonly ILog log = LogManager.GetLogger(typeof(Recurrence));
 
-        public static PatternedRecurrence BuildOutlookPattern(GcalData.Event ev) {
+        public static MsGraph.Models.PatternedRecurrence BuildOutlookPattern(GcalData.Event ev) {
             if (ev.Recurrence == null) { return null; }
 
             Dictionary<String, String> ruleBook = Google.Recurrence.ExplodeRrule(ev.Recurrence);
@@ -21,9 +21,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 throw new ApplicationException("WARNING: The recurrence pattern is not compatible with Outlook. This event cannot be synced.");
             }
             log.Fine("Building Outlook recurrence pattern");
-            PatternedRecurrence oPattern = new() { 
+            MsGraph.Models.PatternedRecurrence oPattern = new() { 
                 Pattern = new() { Interval = 1 }, 
-                Range = new() { Type = RecurrenceRangeType.NoEnd } 
+                Range = new() { Type = MsGraph.Models.RecurrenceRangeType.NoEnd } 
             };
 
             #region RECURRENCE PATTERN
@@ -31,11 +31,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             switch (ruleBook["FREQ"]) {
                 case "DAILY": {
-                        oPattern.Pattern.Type = RecurrencePatternType.Daily;
+                        oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.Daily;
                         break;
                     }
                 case "WEEKLY": {
-                        oPattern.Pattern.Type = RecurrencePatternType.Weekly;
+                        oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.Weekly;
                         // Need to work out dayMask from "BY" pattern
                         // Eg "BYDAY=MO,TU,WE,TH,FR"
                         if (ruleBook.ContainsKey("BYDAY"))
@@ -46,11 +46,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     }
                 case "MONTHLY": {
                         if (ruleBook.ContainsKey("BYSETPOS")) {
-                            oPattern.Pattern.Type = RecurrencePatternType.RelativeMonthly;
+                            oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.RelativeMonthly;
                             oPattern.Pattern.Index = getByDayRelative(ruleBook["BYSETPOS"]);
                         }
                         if (ruleBook.ContainsKey("BYDAY")) {
-                            oPattern.Pattern.Type = RecurrencePatternType.RelativeMonthly;
+                            oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.RelativeMonthly;
                             oPattern.Pattern.DaysOfWeek = getDoW(ruleBook["BYDAY"].TrimStart("-1".ToCharArray()));
                             if (ruleBook["BYDAY"].StartsWith("-1"))
                                 oPattern.Pattern.Index = getByDayRelative("-1");
@@ -58,7 +58,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                                 oPattern.Pattern.Index ??= getByDayRelative(ruleBook["BYDAY"].Substring(0, 1));
 
                         } else {
-                            oPattern.Pattern.Type = RecurrencePatternType.AbsoluteMonthly;
+                            oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.AbsoluteMonthly;
                             if (ruleBook.ContainsKey("BYMONTHDAY"))
                                 oPattern.Pattern.DayOfMonth = Convert.ToInt16(ruleBook["BYMONTHDAY"]);
                             else
@@ -69,10 +69,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 case "YEARLY": {
                         if (ruleBook.ContainsKey("BYSETPOS")) {
-                            oPattern.Pattern.Type = RecurrencePatternType.RelativeYearly;
+                            oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.RelativeYearly;
                             oPattern.Pattern.Index = getByDayRelative(ruleBook["BYSETPOS"]);
                         } else {
-                            oPattern.Pattern.Type = RecurrencePatternType.AbsoluteYearly;
+                            oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.AbsoluteYearly;
                             if (ruleBook.ContainsKey("BYMONTHDAY"))
                                 oPattern.Pattern.DayOfMonth = Convert.ToInt16(ruleBook["BYMONTHDAY"]);
                             else
@@ -89,7 +89,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             else
                                 oPattern.Pattern.Index ??= getByDayRelative(ruleBook["BYDAY"].Substring(0, 1));
                             if (oPattern.Pattern.Index != null)
-                                oPattern.Pattern.Type = RecurrencePatternType.RelativeYearly;
+                                oPattern.Pattern.Type = MsGraph.Models.RecurrencePatternType.RelativeYearly;
                             oPattern.Pattern.DaysOfWeek = getDoW(ruleBook["BYDAY"]);
                         }                    
                         break;
@@ -103,14 +103,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 oPattern.Pattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
 
             if (ruleBook.ContainsKey("COUNT")) {
-                oPattern.Range.Type = RecurrenceRangeType.Numbered;
+                oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.Numbered;
                 oPattern.Range.NumberOfOccurrences = Convert.ToInt16(ruleBook["COUNT"]);
             }
 
             if (ruleBook.ContainsKey("UNTIL")) {
                 if (ruleBook["UNTIL"].StartsWith("4500")) {
                     log.Warn("Outlook can't handle end dates this far in the future. Converting to no end date.");
-                    oPattern.Range.Type = RecurrenceRangeType.NoEnd;
+                    oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.NoEnd;
                     oPattern.Range.EndDate = null;
                 } else {
                     System.DateTime endDate;
@@ -128,9 +128,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             "The synced Outlook recurrence has been changed to a single occurrence.", ev, out String anonSummary, onlyIfNotVerbose: true);
                         Forms.Main.Instance.Console.Update(summary, anonSummary, Console.Markup.warning);
                         oPattern.Range.NumberOfOccurrences = 1;
-                        oPattern.Range.Type = RecurrenceRangeType.Numbered;
+                        oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.Numbered;
                     } else {
-                        oPattern.Range.Type = RecurrenceRangeType.EndDate;
+                        oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.EndDate;
                         oPattern.Range.EndDate = endDate.ToGraphDate();
                     }
                 }
@@ -140,17 +140,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return oPattern;
         }
 
-        public static PatternedRecurrence CompareOutlookPattern(GcalData.Event ev, PatternedRecurrence aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
+        public static MsGraph.Models.PatternedRecurrence CompareOutlookPattern(GcalData.Event ev, MsGraph.Models.PatternedRecurrence aiOpattern, Sync.Direction syncDirection, System.Text.StringBuilder sb, ref int itemModified) {
             if (ev.Recurrence == null) return null;
             
             log.Fine("Building a temporary recurrent Appointment generated from Event");
-            PatternedRecurrence evOpattern = BuildOutlookPattern(ev);
+            MsGraph.Models.PatternedRecurrence evOpattern = BuildOutlookPattern(ev);
             
             log.Fine("Comparing Google recurrence to Outlook equivalent");
             #region Recurrence Pattern
             //Set defaults to avoid false changes
-            evOpattern.Pattern.FirstDayOfWeek ??= DayOfWeekObject.Sunday;
-            evOpattern.Pattern.Index ??= WeekIndex.First;
+            evOpattern.Pattern.FirstDayOfWeek ??= MsGraph.Models.DayOfWeekObject.Sunday;
+            evOpattern.Pattern.Index ??= MsGraph.Models.WeekIndex.First;
 
             if (Sync.Engine.CompareAttribute("Recurrence Type", syncDirection,
                 evOpattern.Pattern.Type.ToString(), aiOpattern.Pattern.Type.ToString(), sb, ref itemModified)) {
@@ -165,8 +165,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 aiOpattern.Pattern.Index = evOpattern.Pattern.Index;
             }
             if (Sync.Engine.CompareAttribute("Recurrence DoW", syncDirection,
-                string.Join(",", evOpattern.Pattern.DaysOfWeek ?? new List<DayOfWeekObject?>()),
-                string.Join(",", aiOpattern.Pattern.DaysOfWeek ?? new List<DayOfWeekObject?>()), sb, ref itemModified)) {
+                string.Join(",", evOpattern.Pattern.DaysOfWeek ?? new List<MsGraph.Models.DayOfWeekObject?>()),
+                string.Join(",", aiOpattern.Pattern.DaysOfWeek ?? new List<MsGraph.Models.DayOfWeekObject?>()), sb, ref itemModified)) {
                 aiOpattern.Pattern.DaysOfWeek = evOpattern.Pattern.DaysOfWeek;
 
             }
@@ -199,27 +199,27 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return aiOpattern;
         }
 
-        private static List<DayOfWeekObject?> getDoW(String byDay) {
-            List<DayOfWeekObject?> daysOfWeek = new();
+        private static List<MsGraph.Models.DayOfWeekObject?> getDoW(String byDay) {
+            List<MsGraph.Models.DayOfWeekObject?> daysOfWeek = new();
             if (!string.IsNullOrEmpty(byDay)) {
-                if (byDay.Contains("MO")) daysOfWeek.Add(DayOfWeekObject.Monday);
-                if (byDay.Contains("TU")) daysOfWeek.Add(DayOfWeekObject.Tuesday);
-                if (byDay.Contains("WE")) daysOfWeek.Add(DayOfWeekObject.Wednesday);
-                if (byDay.Contains("TH")) daysOfWeek.Add(DayOfWeekObject.Thursday);
-                if (byDay.Contains("FR")) daysOfWeek.Add(DayOfWeekObject.Friday);
-                if (byDay.Contains("SA")) daysOfWeek.Add(DayOfWeekObject.Saturday);
-                if (byDay.Contains("SU")) daysOfWeek.Add(DayOfWeekObject.Sunday);
+                if (byDay.Contains("MO")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Monday);
+                if (byDay.Contains("TU")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Tuesday);
+                if (byDay.Contains("WE")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Wednesday);
+                if (byDay.Contains("TH")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Thursday);
+                if (byDay.Contains("FR")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Friday);
+                if (byDay.Contains("SA")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Saturday);
+                if (byDay.Contains("SU")) daysOfWeek.Add(MsGraph.Models.DayOfWeekObject.Sunday);
             }
             return daysOfWeek;
         }
 
-        private static WeekIndex? getByDayRelative(String byDayRule) {
+        private static MsGraph.Models.WeekIndex? getByDayRelative(String byDayRule) {
             switch (byDayRule) {
-                case "1": return WeekIndex.First;
-                case "2": return WeekIndex.Second; 
-                case "3": return WeekIndex.Third; 
-                case "4": return WeekIndex.Fourth; 
-                case "-1": return WeekIndex.Last; 
+                case "1": return MsGraph.Models.WeekIndex.First;
+                case "2": return MsGraph.Models.WeekIndex.Second; 
+                case "3": return MsGraph.Models.WeekIndex.Third; 
+                case "4": return MsGraph.Models.WeekIndex.Fourth; 
+                case "-1": return MsGraph.Models.WeekIndex.Last; 
             }
             return null;
         }
@@ -236,21 +236,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         #endregion
 
         #region Exceptions
-        private static List<Event> outlookExceptions;
-        public static List<Event> OutlookExceptions {
+        private static List<MsGraph.Models.Event> outlookExceptions;
+        public static List<MsGraph.Models.Event> OutlookExceptions {
             get { return outlookExceptions; }
         }
-        public static List<Event> GetExceptions(Event ai) {
+        public static List<MsGraph.Models.Event> GetExceptions(MsGraph.Models.Event ai) {
             return outlookExceptions.Where(aiExcp => aiExcp.SeriesMasterId == ai.Id).ToList();
         }
-        public static void SeparateOutlookExceptions(List<Event> allAppointments) {
-            outlookExceptions = new List<Event>();
+        public static void SeparateOutlookExceptions(List<MsGraph.Models.Event> allAppointments) {
+            outlookExceptions = new List<MsGraph.Models.Event>();
             if (allAppointments.Count == 0) return;
             log.Debug("Identifying exceptions in recurring Outlook appointments.");
 
             for (int o = allAppointments.Count - 1; o >= 0; o--) {
-                Event ai = allAppointments[o];
-                if (!string.IsNullOrEmpty(ai.SeriesMasterId) && ai.Type == EventType.Exception) {
+                MsGraph.Models.Event ai = allAppointments[o];
+                if (!string.IsNullOrEmpty(ai.SeriesMasterId) && ai.Type == MsGraph.Models.EventType.Exception) {
                     outlookExceptions.Add(ai);
                     allAppointments.Remove(ai);
                 }
@@ -262,14 +262,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// Get missing series master Events for occurrences falling within the sync window.
         /// </summary>
         /// <param name="allAppointments">Single instance, occurences and exceptions.</param>
-        public static void GetOutlookMasterEvent(List<Event> allAppointments) {
-            List<String> seriesMasterIds = allAppointments.Where(ai => ai.Type == EventType.SeriesMaster).Select(ai => ai.Id).ToList();
+        public static void GetOutlookMasterEvent(List<MsGraph.Models.Event> allAppointments) {
+            List<String> seriesMasterIds = allAppointments.Where(ai => ai.Type == MsGraph.Models.EventType.SeriesMaster).Select(ai => ai.Id).ToList();
             List<String> seriesInstanceIds = allAppointments.Where(ai => ai.SeriesMasterId != null).Select(ai => ai.SeriesMasterId).Distinct().ToList();
             int newMasterEvents = 0;
             if (seriesInstanceIds.Count > 0) {
                 log.Info("Retrieving master series appointments for occurrences falling within the sync window.");
                 foreach (String masterId in seriesInstanceIds.Except(seriesMasterIds)) {
-                    Event ai = Calendar.Instance.GetCalendarEntry(masterId);
+                    MsGraph.Models.Event ai = Calendar.Instance.GetCalendarEntry(masterId);
                     if (ai != null) {
                         allAppointments.Add(ai);
                         newMasterEvents++;
@@ -279,7 +279,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
         }
 
-        public static int CreateOutlookExceptions(GcalData.Event ev, Event createdAi) {
+        public static int CreateOutlookExceptions(GcalData.Event ev, MsGraph.Models.Event createdAi) {
             int updatesMade = 0;
             if (ev.Recurrence == null || ev.RecurringEventId != null) return updatesMade;
 
@@ -290,7 +290,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
 
                 log.Debug("Creating Google recurrence exceptions.");
-                List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(createdAi.Id);
+                List<MsGraph.Models.Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(createdAi.Id);
                 if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 log.Debug($"Modifying {evExceptions.Count} occurrences.");
@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToString() : ""));
 
                     try {
-                        Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
+                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
                                 log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
@@ -322,13 +322,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         */
                         } else {
                             int itemModified = 0;
-                            Event aiPatch = new();
+                            MsGraph.Models.Event aiPatch = new();
                             if (Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch, true)) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     updatesMade++;
-                                } catch (Microsoft.Graph.Models.ODataErrors.ODataError ex) {
-                                    if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
+                                } catch (Microsoft.Kiota.Abstractions.ApiException ex) {
+                                    if (ex.ResponseStatusCode == 400 && O365Errors.GetODataError(ex)?.Error?.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
                                                 "You may have two occurences on the same day, which it doesn't allow even if the original occurrence has been deleted.",
@@ -351,7 +351,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             return updatesMade;
         }
 
-        public static int UpdateOutlookExceptions(GcalData.Event ev, Event ai, Boolean forceCompare) {
+        public static int UpdateOutlookExceptions(GcalData.Event ev, MsGraph.Models.Event ai, Boolean forceCompare) {
             int updatesMade = 0;
             if (ev.Recurrence == null || ev.RecurringEventId != null) return updatesMade;
 
@@ -365,7 +365,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 log.Fine($"{gCancelledExcps.Count} Google cancelled occurrences.");
                 log.Fine($"{evExceptions.Count - gCancelledExcps.Count} Google modified exceptions.");
 
-                List<Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id);
+                List<MsGraph.Models.Event> oRecurrences = Calendar.Instance.GetCalendarEntriesInRecurrence(ai.Id);
                 if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 foreach (GcalData.Event gExcp in evExceptions) {
@@ -374,7 +374,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : ""));
 
                     try {
-                        Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
+                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
                                 if (Calendar.Instance.CancelledOccurrences[ai.Id]?.Contains(gExcpOrigDate.Date) ?? false)
@@ -406,15 +406,15 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             */
                         } else {
                             int itemModified = 0;
-                            Event aiPatch = new();
+                            MsGraph.Models.Event aiPatch = new();
                             Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch,
                                 forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.SafeDateTime().Date);
                             if (itemModified > 0) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                     updatesMade++;
-                                } catch (Microsoft.Graph.Models.ODataErrors.ODataError ex) {
-                                    if (ex.Error.Code == "ErrorOccurrenceCrossingBoundary") {
+                                } catch (Microsoft.Kiota.Abstractions.ApiException ex) {
+                                    if (ex.ResponseStatusCode == 400 && O365Errors.GetODataError(ex)?.Error?.Code == "ErrorOccurrenceCrossingBoundary") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Graph.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
                                                 "You may have two occurences on the same day, which it doesn't allow even if the original occurrence has been deleted.",

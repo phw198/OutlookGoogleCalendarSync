@@ -1,7 +1,7 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Graph;
+using OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
@@ -173,7 +173,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             System.Net.Http.HttpClientHandler handler = new() { Proxy = new Extensions.OgcsWebClient().Proxy };
             System.Net.Http.HttpClient nativeClient = new(handler);
             Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider authProvider = new(new MsalTokenProvider(authResult.AccessToken));
-            Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(nativeClient, authProvider, graphBaseUrl);
+            Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter requestAdapter = new(authProvider, null, null, nativeClient) { BaseUrl = graphBaseUrl };
+            Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(requestAdapter);
 
             Authenticated = true;
             Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);

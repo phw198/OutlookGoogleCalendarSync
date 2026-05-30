@@ -128,7 +128,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>Local DateTime</returns>
         [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this Microsoft.Graph.Models.DateTimeTimeZone evDt) {
+        public static System.DateTime SafeDateTime(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt) {
             System.DateTime safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
@@ -140,7 +140,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
-        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Graph.Models.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
             System.DateTimeOffset safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
@@ -200,7 +200,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <param name="ai">The Graph Event to check</param>
         /// <param name="logicallyEquivalent">Midnight to midnight Events treated as all day</param>
         /// <returns></returns>
-        public static Boolean AllDayEvent(this Microsoft.Graph.Models.Event ai, Boolean logicallyEquivalent = false) {
+        public static Boolean AllDayEvent(this Outlook.Graph.CustomClient.Models.Event ai, Boolean logicallyEquivalent = false) {
             if ((bool)ai.IsAllDay)
                 return true;
             if (logicallyEquivalent)
