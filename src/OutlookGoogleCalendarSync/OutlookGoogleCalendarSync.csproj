@@ -1025,7 +1025,7 @@
     <Error Condition="!Exists('lib\Google.Api.CommonProtos.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Google.Api.CommonProtos.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
+    <PostBuildEvent>powershell $(ProjectDir)\scripts\zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
   </PropertyGroup>
   <Target Name="ShowTargetDir" AfterTargets="Build">
     <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
