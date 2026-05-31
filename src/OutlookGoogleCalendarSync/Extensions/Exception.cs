@@ -41,7 +41,7 @@ namespace OutlookGoogleCalendarSync {
             String locationDetails = "<Unknown File>";
             try {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
-                foreach (System.Diagnostics.StackFrame sf in st.GetFrames()) {
+                foreach (System.Diagnostics.StackFrame sf in st.GetFrames() ?? new System.Diagnostics.StackFrame[] { }) {
                     String filename = sf.GetFileName();
                     if (string.IsNullOrEmpty(filename)) continue;
                     locationDetails = $"{sf.GetMethod().Name}() at offset {sf.GetNativeOffset()} in {System.IO.Path.GetFileName(filename)}:{sf.GetFileLineNumber()}:{sf.GetFileColumnNumber()}";

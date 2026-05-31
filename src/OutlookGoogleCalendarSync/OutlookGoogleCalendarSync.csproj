@@ -382,7 +382,7 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.ValueTuple, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -1058,5 +1058,35 @@
       <FileContent>$(FileContent.Replace('public override string Message', 'public /*override */string Message'))</FileContent>
     </PropertyGroup>
     <WriteLinesToFile Condition="Exists('$(ErrorFilePath)')" File="$(ErrorFilePath)" Lines="$(FileContent)" Overwrite="true" />
+  </Target>
+  <Target Name="ForceCorrectValueTupleVersion" AfterTargets="AfterBuild">
+    <!--
+    !!! HACK: System.ValueTuple Duplicate / Broken Binding Redirects
+
+    WHY IT'S NEEDED:
+    We target .NET Framework 4.7.2+, which natively includes System.ValueTuple. 
+    However, modern dependencies (e.g., Google APIs, System.Text.Json) are compiled demanding version 4.6.2.0. 
+    The System.ValueTuple NuGet package targets attempt to force auto-unification to 4.0.5.0.
+
+    This conflict causes MSBuild's 'AutoGenerateBindingRedirects' engine to bug out during compilation. 
+    Instead of cleanly merging them, MSBuild actively rewrites or duplicates the 'newVersion' attribute to 4.6.2.0 inside the output bin folder's .config file. 
+    Because the physical file in the \lib folder internally identifies as 4.0.5.0, this mismatch throws a critical runtime FileLoadException.
+
+    WHAT THIS DOES:
+    This post-build target runs a PowerShell script immediately after the compilation pipeline finishes. 
+    It intercepts the final generated .config file in the output directory, parses the XML, 
+    and forcefully updates the System.ValueTuple newVersion binding redirect back to '4.0.5.0' to match the physical library binary.
+
+    WHEN TO REVIEW / REMOVE:
+    This target and its accompanying 'FixValueTuple.ps1' script can be safely deleted if:
+    1. The project is migrated from .NET Framework 4.7.2/4.8 to .NET Core / .NET 6/8+, where binding redirects are completely obsolete.
+    2. The heavy-hitter external dependencies (Google, Microsoft Graph, Json) are updated or downgraded to versions that no longer create this specific assembly version paradox.
+    -->
+    <PropertyGroup>
+      <FinalConfigOut>$(ProjectDir)$(OutDir)$(TargetFileName).config</FinalConfigOut>
+      <ScriptPath>$(ProjectDir)scripts\fixValueTuple.ps1</ScriptPath>
+    </PropertyGroup>
+    <Message Importance="high" Text="=== [ValueTuple Fix] Checking for config file at: $(FinalConfigOut) ===" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ScriptPath)&quot; -configPath &quot;$(FinalConfigOut)&quot;" />
   </Target>
 </Project>
