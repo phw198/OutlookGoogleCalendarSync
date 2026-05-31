@@ -1388,7 +1388,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
+        private async void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
                 Outlook.Graph.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
@@ -1398,7 +1398,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             log.Debug("Retrieving Outlook calendar list.");
             this.bGetOutlookCalendars.Text = "Cancel retrieval";
             try {
-                Ogcs.Outlook.Graph.Calendar.Instance.GetCalendars();
+                await Ogcs.Outlook.Graph.Calendar.Instance.GetCalendars();
             } catch (OperationCanceledException) {
             } catch (System.Exception ex) {
                 ex.Analyse();

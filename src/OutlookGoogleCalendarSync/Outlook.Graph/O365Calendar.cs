@@ -69,17 +69,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         /// <summary>Retrieve calendar list from the cloud.</summary>
-        public Dictionary<String, OutlookCalendarListEntry> GetCalendars() {
+        public async System.Threading.Tasks.Task GetCalendars() {
             calendarFolders = new();
             List<MsGraph.Models.Calendar > cals = new();
+            Calendar.Instance.Authenticator.CancelTokenSource = new System.Threading.CancellationTokenSource();
 
             try {
                 CustomClient.Me.Calendars.CalendarsRequestBuilder calendarsRequest = GraphClient.Me.Calendars;
-                MsGraph.Models.CalendarCollectionResponse calPage = calendarsRequest.GetAsync(config => {
+                MsGraph.Models.CalendarCollectionResponse calPage = await calendarsRequest.GetAsync(config => {
                     config.QueryParameters.Select = new[] {
-                        "id", "name", "color", "changeKey", "canShare", "canViewPrivateItems", "hexColor", "canEdit", "isTallyingResponses", "isRemovable", "owner"
+                        "id", "name", "color", "changeKey", "canShare", "canViewPrivateItems", "hexColor", "canEdit", "isDefaultCalendar", "isTallyingResponses", "isRemovable", "owner"
                     };
-                }).Result;
+                }, Calendar.Instance.Authenticator.CancelTokenSource.Token);
 
                 cals.AddRange(calPage.Value ?? new());
                 while (!String.IsNullOrEmpty(calPage.OdataNextLink)) {
@@ -94,13 +95,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
 
             foreach (MsGraph.Models.Calendar cal in cals) {
-                if (cal.AdditionalData.ContainsKey("isDefaultCalendar") && (Boolean)cal.AdditionalData["isDefaultCalendar"])
+                if ((bool)cal.IsDefaultCalendar)
                     cal.Name = "Default " + cal.Name;
                 log.Debug(cal.Name);
                 calendarFolders.Add(cal.Name, new OutlookCalendarListEntry(cal));
             }
-
-            return calendarFolders;
         }
 
         /// <summary>
