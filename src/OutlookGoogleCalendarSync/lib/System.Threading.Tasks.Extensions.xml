@@ -1,166 +1,545 @@
-﻿<?xml version="1.0" encoding="utf-8"?><doc>
-  <assembly>
-    <name>System.Threading.Tasks.Extensions</name>
-  </assembly>
-  <members>
-    <member name="T:System.Runtime.CompilerServices.ValueTaskAwaiter`1">
-      <typeparam name="TResult"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.GetResult">
-      <returns></returns>
-    </member>
-    <member name="P:System.Runtime.CompilerServices.ValueTaskAwaiter`1.IsCompleted">
-      <returns></returns>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.OnCompleted(System.Action)">
-      <param name="continuation"></param>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.UnsafeOnCompleted(System.Action)">
-      <param name="continuation"></param>
-    </member>
-    <member name="T:System.Threading.Tasks.ValueTask`1">
-      <summary>Provides a value type that wraps a <see cref="Task{TResult}"></see> and a <typeparamref name="TResult">TResult</typeparamref>, only one of which is used.</summary>
-      <typeparam name="TResult">The result.</typeparam>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(System.Threading.Tasks.Task{`0})">
-      <summary>Initializes a new instance of the <see cref="ValueTask{TResult}"></see> class using the supplied task that represents the operation.</summary>
-      <param name="task">The task.</param>
-      <exception cref="T:System.ArgumentNullException">The <paramref name="task">task</paramref> argument is null.</exception>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(`0)">
-      <summary>Initializes a new instance of the <see cref="ValueTask{TResult}"></see> class using the supplied result of a successful operation.</summary>
-      <param name="result">The result.</param>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.AsTask">
-      <summary>Retrieves a <see cref="Task{TResult}"></see> object that represents this <see cref="ValueTask{TResult}"></see>.</summary>
-      <returns>The <see cref="Task{TResult}"></see> object that is wrapped in this <see cref="ValueTask{TResult}"></see> if one exists, or a new <see cref="Task{TResult}"></see> object that represents the result.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.ConfigureAwait(System.Boolean)">
-      <summary>Configures an awaiter for this value.</summary>
-      <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the captured context; otherwise, false.</param>
-      <returns>The configured awaiter.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.CreateAsyncMethodBuilder">
-      <summary>Creates a method builder for use with an async method.</summary>
-      <returns>The created builder.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.Equals(System.Object)">
-      <summary>Determines whether the specified object is equal to the current object.</summary>
-      <param name="obj">The object to compare with the current object.</param>
-      <returns>true if the specified object is equal to the current object; otherwise, false.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.Equals(System.Threading.Tasks.ValueTask{`0})">
-      <summary>Determines whether the specified <see cref="ValueTask{TResult}"></see> object is equal to the current <see cref="ValueTask{TResult}"></see> object.</summary>
-      <param name="other">The object to compare with the current object.</param>
-      <returns>true if the specified object is equal to the current object; otherwise, false.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.GetAwaiter">
-      <summary>Creates an awaiter for this value.</summary>
-      <returns>The awaiter.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.GetHashCode">
-      <summary>Returns the hash code for this instance.</summary>
-      <returns>The hash code for the current object.</returns>
-    </member>
-    <member name="P:System.Threading.Tasks.ValueTask`1.IsCanceled">
-      <summary>Gets a value that indicates whether this object represents a canceled operation.</summary>
-      <returns>true if this object represents a canceled operation; otherwise, false.</returns>
-    </member>
-    <member name="P:System.Threading.Tasks.ValueTask`1.IsCompleted">
-      <summary>Gets a value that indicates whether this object represents a completed operation.</summary>
-      <returns>true if this object represents a completed operation; otherwise, false.</returns>
-    </member>
-    <member name="P:System.Threading.Tasks.ValueTask`1.IsCompletedSuccessfully">
-      <summary>Gets a value that indicates whether this object represents a successfully completed operation.</summary>
-      <returns>true if this object represents a successfully completed operation; otherwise, false.</returns>
-    </member>
-    <member name="P:System.Threading.Tasks.ValueTask`1.IsFaulted">
-      <summary>Gets a value that indicates whether this object represents a failed operation.</summary>
-      <returns>true if this object represents a failed operation; otherwise, false.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.op_Equality(System.Threading.Tasks.ValueTask{`0},System.Threading.Tasks.ValueTask{`0})">
-      <summary>Compares two values for equality.</summary>
-      <param name="left">The first value to compare.</param>
-      <param name="right">The second value to compare.</param>
-      <returns>true if the two <see cref="ValueTask{TResult}"></see> values are equal; otherwise, false.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.op_Inequality(System.Threading.Tasks.ValueTask{`0},System.Threading.Tasks.ValueTask{`0})">
-      <summary>Determines whether two <see cref="ValueTask{TResult}"></see> values are unequal.</summary>
-      <param name="left">The first value to compare.</param>
-      <param name="right">The seconed value to compare.</param>
-      <returns>true if the two <see cref="ValueTask{TResult}"></see> values are not equal; otherwise, false.</returns>
-    </member>
-    <member name="P:System.Threading.Tasks.ValueTask`1.Result">
-      <summary>Gets the result.</summary>
-      <returns>The result.</returns>
-    </member>
-    <member name="M:System.Threading.Tasks.ValueTask`1.ToString">
-      <summary>Returns a string that represents the current object.</summary>
-      <returns>A string that represents the current object.</returns>
-    </member>
-    <member name="T:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute">
-      
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.#ctor(System.Type)">
-      <param name="builderType"></param>
-    </member>
-    <member name="P:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.BuilderType">
-      <returns></returns>
-    </member>
-    <member name="T:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1">
-      <typeparam name="TResult"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.AwaitOnCompleted``2(``0@,``1@)">
-      <param name="awaiter"></param>
-      <param name="stateMachine"></param>
-      <typeparam name="TAwaiter"></typeparam>
-      <typeparam name="TStateMachine"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.AwaitUnsafeOnCompleted``2(``0@,``1@)">
-      <param name="awaiter"></param>
-      <param name="stateMachine"></param>
-      <typeparam name="TAwaiter"></typeparam>
-      <typeparam name="TStateMachine"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Create">
-      <returns></returns>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetException(System.Exception)">
-      <param name="exception"></param>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetResult(`0)">
-      <param name="result"></param>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetStateMachine(System.Runtime.CompilerServices.IAsyncStateMachine)">
-      <param name="stateMachine"></param>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start``1(``0@)">
-      <param name="stateMachine"></param>
-      <typeparam name="TStateMachine"></typeparam>
-    </member>
-    <member name="P:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Task">
-      <returns></returns>
-    </member>
-    <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter">
-      <typeparam name="TResult"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.GetResult">
-      <returns></returns>
-    </member>
-    <member name="P:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.IsCompleted">
-      <returns></returns>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.OnCompleted(System.Action)">
-      <param name="continuation"></param>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.UnsafeOnCompleted(System.Action)">
-      <param name="continuation"></param>
-    </member>
-    <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1">
-      <typeparam name="TResult"></typeparam>
-    </member>
-    <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.GetAwaiter">
-      <returns></returns>
-    </member>
-  </members>
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Threading.Tasks.Extensions</name>
+    </assembly>
+    <members>
+        <member name="T:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute">
+            <summary>
+            Indicates the type of the async method builder that should be used by a language compiler to
+            build the attributed type when used as the return type of an async method.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.#ctor(System.Type)">
+            <summary>Initializes the <see cref="T:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute"/>.</summary>
+            <param name="builderType">The <see cref="T:System.Type"/> of the associated builder.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.BuilderType">
+            <summary>Gets the <see cref="T:System.Type"/> of the associated builder.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder">
+            <summary>Represents a builder for asynchronous methods that return a <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder._methodBuilder">
+            <summary>The <see cref="T:System.Runtime.CompilerServices.AsyncTaskMethodBuilder"/> to which most operations are delegated.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder._haveResult">
+            <summary>true if completed synchronously and successfully; otherwise, false.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder._useBuilder">
+            <summary>true if the builder should be used for setting/getting the result; otherwise, false.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Create">
+            <summary>Creates an instance of the <see cref="T:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder"/> struct.</summary>
+            <returns>The initialized instance.</returns>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Start``1(``0@)">
+            <summary>Begins running the builder with the associated state machine.</summary>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="stateMachine">The state machine instance, passed by reference.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.SetStateMachine(System.Runtime.CompilerServices.IAsyncStateMachine)">
+            <summary>Associates the builder with the specified state machine.</summary>
+            <param name="stateMachine">The state machine instance to associate with the builder.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.SetResult">
+            <summary>Marks the task as successfully completed.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.SetException(System.Exception)">
+            <summary>Marks the task as failed and binds the specified exception to the task.</summary>
+            <param name="exception">The exception to bind to the task.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.Task">
+            <summary>Gets the task for this builder.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.AwaitOnCompleted``2(``0@,``1@)">
+            <summary>Schedules the state machine to proceed to the next action when the specified awaiter completes.</summary>
+            <typeparam name="TAwaiter">The type of the awaiter.</typeparam>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="awaiter">The awaiter.</param>
+            <param name="stateMachine">The state machine.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder.AwaitUnsafeOnCompleted``2(``0@,``1@)">
+            <summary>Schedules the state machine to proceed to the next action when the specified awaiter completes.</summary>
+            <typeparam name="TAwaiter">The type of the awaiter.</typeparam>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="awaiter">The awaiter.</param>
+            <param name="stateMachine">The state machine.</param>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1">
+            <summary>Represents a builder for asynchronous methods that returns a <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1._methodBuilder">
+            <summary>The <see cref="T:System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1"/> to which most operations are delegated.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1._result">
+            <summary>The result for this builder, if it's completed before any awaits occur.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1._haveResult">
+            <summary>true if <see cref="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1._result"/> contains the synchronous result for the async method; otherwise, false.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1._useBuilder">
+            <summary>true if the builder should be used for setting/getting the result; otherwise, false.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Create">
+            <summary>Creates an instance of the <see cref="T:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1"/> struct.</summary>
+            <returns>The initialized instance.</returns>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Start``1(``0@)">
+            <summary>Begins running the builder with the associated state machine.</summary>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="stateMachine">The state machine instance, passed by reference.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetStateMachine(System.Runtime.CompilerServices.IAsyncStateMachine)">
+            <summary>Associates the builder with the specified state machine.</summary>
+            <param name="stateMachine">The state machine instance to associate with the builder.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetResult(`0)">
+            <summary>Marks the task as successfully completed.</summary>
+            <param name="result">The result to use to complete the task.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.SetException(System.Exception)">
+            <summary>Marks the task as failed and binds the specified exception to the task.</summary>
+            <param name="exception">The exception to bind to the task.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.Task">
+            <summary>Gets the task for this builder.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.AwaitOnCompleted``2(``0@,``1@)">
+            <summary>Schedules the state machine to proceed to the next action when the specified awaiter completes.</summary>
+            <typeparam name="TAwaiter">The type of the awaiter.</typeparam>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="awaiter">the awaiter</param>
+            <param name="stateMachine">The state machine.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder`1.AwaitUnsafeOnCompleted``2(``0@,``1@)">
+            <summary>Schedules the state machine to proceed to the next action when the specified awaiter completes.</summary>
+            <typeparam name="TAwaiter">The type of the awaiter.</typeparam>
+            <typeparam name="TStateMachine">The type of the state machine.</typeparam>
+            <param name="awaiter">the awaiter</param>
+            <param name="stateMachine">The state machine.</param>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable">
+            <summary>Provides an awaitable type that enables configured awaits on a <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable._value">
+            <summary>The wrapped <see cref="T:System.Threading.Tasks.Task"/>.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.#ctor(System.Threading.Tasks.ValueTask)">
+            <summary>Initializes the awaitable.</summary>
+            <param name="value">The wrapped <see cref="T:System.Threading.Tasks.ValueTask"/>.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.GetAwaiter">
+            <summary>Returns an awaiter for this <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable"/> instance.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter">
+            <summary>Provides an awaiter for a <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter._value">
+            <summary>The value being awaited.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter.#ctor(System.Threading.Tasks.ValueTask)">
+            <summary>Initializes the awaiter.</summary>
+            <param name="value">The value to be awaited.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable"/> has completed.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter.GetResult">
+            <summary>Gets the result of the ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter.OnCompleted(System.Action)">
+            <summary>Schedules the continuation action for the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable"/>.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter.UnsafeOnCompleted(System.Action)">
+            <summary>Schedules the continuation action for the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable"/>.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1">
+            <summary>Provides an awaitable type that enables configured awaits on a <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+            <typeparam name="TResult">The type of the result produced.</typeparam>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1._value">
+            <summary>The wrapped <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.#ctor(System.Threading.Tasks.ValueTask{`0})">
+            <summary>Initializes the awaitable.</summary>
+            <param name="value">The wrapped <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.GetAwaiter">
+            <summary>Returns an awaiter for this <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1"/> instance.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter">
+            <summary>Provides an awaiter for a <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter._value">
+            <summary>The value being awaited.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.#ctor(System.Threading.Tasks.ValueTask{`0})">
+            <summary>Initializes the awaiter.</summary>
+            <param name="value">The value to be awaited.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1"/> has completed.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.GetResult">
+            <summary>Gets the result of the ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.OnCompleted(System.Action)">
+            <summary>Schedules the continuation action for the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1"/>.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1.ConfiguredValueTaskAwaiter.UnsafeOnCompleted(System.Action)">
+            <summary>Schedules the continuation action for the <see cref="T:System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable`1"/>.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ValueTaskAwaiter">
+            <summary>Provides an awaiter for a <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ValueTaskAwaiter.s_invokeActionDelegate">
+            <summary>Shim used to invoke an <see cref="T:System.Action"/> passed as the state argument to a <see cref="T:System.Action`1"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ValueTaskAwaiter._value">
+            <summary>The value being awaited.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter.#ctor(System.Threading.Tasks.ValueTask)">
+            <summary>Initializes the awaiter.</summary>
+            <param name="value">The value to be awaited.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.ValueTaskAwaiter.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask"/> has completed.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter.GetResult">
+            <summary>Gets the result of the ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter.OnCompleted(System.Action)">
+            <summary>Schedules the continuation action for this ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter.UnsafeOnCompleted(System.Action)">
+            <summary>Schedules the continuation action for this ValueTask.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ValueTaskAwaiter`1">
+            <summary>Provides an awaiter for a <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.ValueTaskAwaiter`1._value">
+            <summary>The value being awaited.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.#ctor(System.Threading.Tasks.ValueTask{`0})">
+            <summary>Initializes the awaiter.</summary>
+            <param name="value">The value to be awaited.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.ValueTaskAwaiter`1.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask`1"/> has completed.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.GetResult">
+            <summary>Gets the result of the ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.OnCompleted(System.Action)">
+            <summary>Schedules the continuation action for this ValueTask.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.UnsafeOnCompleted(System.Action)">
+            <summary>Schedules the continuation action for this ValueTask.</summary>
+        </member>
+        <member name="T:System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags">
+            <summary>
+            Flags passed from <see cref="T:System.Threading.Tasks.ValueTask"/> and <see cref="T:System.Threading.Tasks.ValueTask`1"/> to
+            <see cref="M:System.Threading.Tasks.Sources.IValueTaskSource.OnCompleted(System.Action{System.Object},System.Object,System.Int16,System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags)"/> and <see cref="M:System.Threading.Tasks.Sources.IValueTaskSource`1.OnCompleted(System.Action{System.Object},System.Object,System.Int16,System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags)"/>
+            to control behavior.
+            </summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags.None">
+            <summary>
+            No requirements are placed on how the continuation is invoked.
+            </summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags.UseSchedulingContext">
+            <summary>
+            Set if OnCompleted should capture the current scheduling context (e.g. SynchronizationContext)
+            and use it when queueing the continuation for execution.  If this is not set, the implementation
+            may choose to execute the continuation in an arbitrary location.
+            </summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags.FlowExecutionContext">
+            <summary>
+            Set if OnCompleted should capture the current ExecutionContext and use it to run the continuation.
+            </summary>
+        </member>
+        <member name="T:System.Threading.Tasks.Sources.ValueTaskSourceStatus">
+            <summary>Indicates the status of an <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/> or <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceStatus.Pending">
+            <summary>The operation has not yet completed.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceStatus.Succeeded">
+            <summary>The operation completed successfully.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceStatus.Faulted">
+            <summary>The operation completed with an error.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.Sources.ValueTaskSourceStatus.Canceled">
+            <summary>The operation completed due to cancellation.</summary>
+        </member>
+        <member name="T:System.Threading.Tasks.Sources.IValueTaskSource">
+            <summary>Represents an object that can be wrapped by a <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource.GetStatus(System.Int16)">
+            <summary>Gets the status of the current operation.</summary>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource.OnCompleted(System.Action{System.Object},System.Object,System.Int16,System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags)">
+            <summary>Schedules the continuation action for this <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+            <param name="continuation">The continuation to invoke when the operation has completed.</param>
+            <param name="state">The state object to pass to <paramref name="continuation"/> when it's invoked.</param>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+            <param name="flags">The flags describing the behavior of the continuation.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource.GetResult(System.Int16)">
+            <summary>Gets the result of the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+        </member>
+        <member name="T:System.Threading.Tasks.Sources.IValueTaskSource`1">
+            <summary>Represents an object that can be wrapped by a <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+            <typeparam name="TResult">Specifies the type of data returned from the object.</typeparam>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource`1.GetStatus(System.Int16)">
+            <summary>Gets the status of the current operation.</summary>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource`1.OnCompleted(System.Action{System.Object},System.Object,System.Int16,System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags)">
+            <summary>Schedules the continuation action for this <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+            <param name="continuation">The continuation to invoke when the operation has completed.</param>
+            <param name="state">The state object to pass to <paramref name="continuation"/> when it's invoked.</param>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+            <param name="flags">The flags describing the behavior of the continuation.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.Sources.IValueTaskSource`1.GetResult(System.Int16)">
+            <summary>Gets the result of the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+            <param name="token">Opaque value that was provided to the <see cref="T:System.Threading.Tasks.ValueTask"/>'s constructor.</param>
+        </member>
+        <member name="T:System.Threading.Tasks.ValueTask">
+            <summary>Provides an awaitable result of an asynchronous operation.</summary>
+            <remarks>
+            <see cref="T:System.Threading.Tasks.ValueTask"/>s are meant to be directly awaited.  To do more complicated operations with them, a <see cref="T:System.Threading.Tasks.Task"/>
+            should be extracted using <see cref="M:System.Threading.Tasks.ValueTask.AsTask"/>.  Such operations might include caching an instance to be awaited later,
+            registering multiple continuations with a single operation, awaiting the same task multiple times, and using combinators over
+            multiple operations.
+            </remarks>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask.s_canceledTask">
+            <summary>A task canceled using `new CancellationToken(true)`.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask.CompletedTask">
+            <summary>A successfully completed task.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask._obj">
+            <summary>null if representing a successful synchronous completion, otherwise a <see cref="T:System.Threading.Tasks.Task"/> or a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask._token">
+            <summary>Opaque value passed through to the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask._continueOnCapturedContext">
+            <summary>true to continue on the capture context; otherwise, true.</summary>
+            <remarks>Stored in the <see cref="T:System.Threading.Tasks.ValueTask"/> rather than in the configured awaiter to utilize otherwise padding space.</remarks>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.#ctor(System.Threading.Tasks.Task)">
+            <summary>Initialize the <see cref="T:System.Threading.Tasks.ValueTask"/> with a <see cref="T:System.Threading.Tasks.Task"/> that represents the operation.</summary>
+            <param name="task">The task.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.#ctor(System.Threading.Tasks.Sources.IValueTaskSource,System.Int16)">
+            <summary>Initialize the <see cref="T:System.Threading.Tasks.ValueTask"/> with a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/> object that represents the operation.</summary>
+            <param name="source">The source.</param>
+            <param name="token">Opaque value passed through to the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.Equals(System.Object)">
+            <summary>Returns a value indicating whether this value is equal to a specified <see cref="T:System.Object"/>.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.Equals(System.Threading.Tasks.ValueTask)">
+            <summary>Returns a value indicating whether this value is equal to a specified <see cref="T:System.Threading.Tasks.ValueTask"/> value.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.op_Equality(System.Threading.Tasks.ValueTask,System.Threading.Tasks.ValueTask)">
+            <summary>Returns a value indicating whether two <see cref="T:System.Threading.Tasks.ValueTask"/> values are equal.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.op_Inequality(System.Threading.Tasks.ValueTask,System.Threading.Tasks.ValueTask)">
+            <summary>Returns a value indicating whether two <see cref="T:System.Threading.Tasks.ValueTask"/> values are not equal.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.AsTask">
+            <summary>
+            Gets a <see cref="T:System.Threading.Tasks.Task"/> object to represent this ValueTask.
+            </summary>
+            <remarks>
+            It will either return the wrapped task object if one exists, or it'll
+            manufacture a new task object to represent the result.
+            </remarks>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.Preserve">
+            <summary>Gets a <see cref="T:System.Threading.Tasks.ValueTask"/> that may be used at any point in the future.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.GetTaskForValueTaskSource(System.Threading.Tasks.Sources.IValueTaskSource)">
+            <summary>Creates a <see cref="T:System.Threading.Tasks.Task"/> to represent the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+            <remarks>
+            The <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/> is passed in rather than reading and casting <see cref="F:System.Threading.Tasks.ValueTask._obj"/>
+            so that the caller can pass in an object it's already validated.
+            </remarks>
+        </member>
+        <member name="T:System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask">
+            <summary>Type used to create a <see cref="T:System.Threading.Tasks.Task"/> to represent a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask._source">
+            <summary>The associated <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask._token">
+            <summary>The token to pass through to operations on <see cref="F:System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask._source"/></summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask"/> represents a completed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask.IsCompletedSuccessfully">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask"/> represents a successfully completed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask.IsFaulted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask"/> represents a failed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask.IsCanceled">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask"/> represents a canceled operation.</summary>
+            <remarks>
+            If the <see cref="T:System.Threading.Tasks.ValueTask"/> is backed by a result or by a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>,
+            this will always return false.  If it's backed by a <see cref="T:System.Threading.Tasks.Task"/>, it'll return the
+            value of the task's <see cref="P:System.Threading.Tasks.Task.IsCanceled"/> property.
+            </remarks>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.ThrowIfCompletedUnsuccessfully">
+            <summary>Throws the exception that caused the <see cref="T:System.Threading.Tasks.ValueTask"/> to fail.  If it completed successfully, nothing is thrown.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.GetAwaiter">
+            <summary>Gets an awaiter for this <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask.ConfigureAwait(System.Boolean)">
+            <summary>Configures an awaiter for this <see cref="T:System.Threading.Tasks.ValueTask"/>.</summary>
+            <param name="continueOnCapturedContext">
+            true to attempt to marshal the continuation back to the captured context; otherwise, false.
+            </param>
+        </member>
+        <member name="T:System.Threading.Tasks.ValueTask`1">
+            <summary>Provides a value type that can represent a synchronously available value or a task object.</summary>
+            <typeparam name="TResult">Specifies the type of the result.</typeparam>
+            <remarks>
+            <see cref="T:System.Threading.Tasks.ValueTask`1"/>s are meant to be directly awaited.  To do more complicated operations with them, a <see cref="T:System.Threading.Tasks.Task"/>
+            should be extracted using <see cref="M:System.Threading.Tasks.ValueTask`1.AsTask"/> or <see cref="M:System.Threading.Tasks.ValueTask`1.Preserve"/>.  Such operations might include caching an instance to
+            be awaited later, registering multiple continuations with a single operation, awaiting the same task multiple times, and using
+            combinators over multiple operations.
+            </remarks>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1.s_canceledTask">
+            <summary>A task canceled using `new CancellationToken(true)`. Lazily created only when first needed.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1._obj">
+            <summary>null if <see cref="F:System.Threading.Tasks.ValueTask`1._result"/> has the result, otherwise a <see cref="T:System.Threading.Tasks.Task`1"/> or a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1._result">
+            <summary>The result to be used if the operation completed successfully synchronously.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1._token">
+            <summary>Opaque value passed through to the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1._continueOnCapturedContext">
+            <summary>true to continue on the captured context; otherwise, false.</summary>
+            <remarks>Stored in the <see cref="T:System.Threading.Tasks.ValueTask`1"/> rather than in the configured awaiter to utilize otherwise padding space.</remarks>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(`0)">
+            <summary>Initialize the <see cref="T:System.Threading.Tasks.ValueTask`1"/> with a <typeparamref name="TResult"/> result value.</summary>
+            <param name="result">The result.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(System.Threading.Tasks.Task{`0})">
+            <summary>Initialize the <see cref="T:System.Threading.Tasks.ValueTask`1"/> with a <see cref="T:System.Threading.Tasks.Task`1"/> that represents the operation.</summary>
+            <param name="task">The task.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(System.Threading.Tasks.Sources.IValueTaskSource{`0},System.Int16)">
+            <summary>Initialize the <see cref="T:System.Threading.Tasks.ValueTask`1"/> with a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/> object that represents the operation.</summary>
+            <param name="source">The source.</param>
+            <param name="token">Opaque value passed through to the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.#ctor(System.Object,`0,System.Int16,System.Boolean)">
+            <summary>Non-verified initialization of the struct to the specified values.</summary>
+            <param name="obj">The object.</param>
+            <param name="result">The result.</param>
+            <param name="token">The token.</param>
+            <param name="continueOnCapturedContext">true to continue on captured context; otherwise, false.</param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.Equals(System.Object)">
+            <summary>Returns a value indicating whether this value is equal to a specified <see cref="T:System.Object"/>.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.Equals(System.Threading.Tasks.ValueTask{`0})">
+            <summary>Returns a value indicating whether this value is equal to a specified <see cref="T:System.Threading.Tasks.ValueTask`1"/> value.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.op_Equality(System.Threading.Tasks.ValueTask{`0},System.Threading.Tasks.ValueTask{`0})">
+            <summary>Returns a value indicating whether two <see cref="T:System.Threading.Tasks.ValueTask`1"/> values are equal.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.op_Inequality(System.Threading.Tasks.ValueTask{`0},System.Threading.Tasks.ValueTask{`0})">
+            <summary>Returns a value indicating whether two <see cref="T:System.Threading.Tasks.ValueTask`1"/> values are not equal.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.AsTask">
+            <summary>
+            Gets a <see cref="T:System.Threading.Tasks.Task`1"/> object to represent this ValueTask.
+            </summary>
+            <remarks>
+            It will either return the wrapped task object if one exists, or it'll
+            manufacture a new task object to represent the result.
+            </remarks>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.Preserve">
+            <summary>Gets a <see cref="T:System.Threading.Tasks.ValueTask`1"/> that may be used at any point in the future.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.GetTaskForValueTaskSource(System.Threading.Tasks.Sources.IValueTaskSource{`0})">
+            <summary>Creates a <see cref="T:System.Threading.Tasks.Task`1"/> to represent the <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+            <remarks>
+            The <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/> is passed in rather than reading and casting <see cref="F:System.Threading.Tasks.ValueTask`1._obj"/>
+            so that the caller can pass in an object it's already validated.
+            </remarks>
+        </member>
+        <member name="T:System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask">
+            <summary>Type used to create a <see cref="T:System.Threading.Tasks.Task`1"/> to represent a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask._source">
+            <summary>The associated <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource"/>.</summary>
+        </member>
+        <member name="F:System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask._token">
+            <summary>The token to pass through to operations on <see cref="F:System.Threading.Tasks.ValueTask`1.ValueTaskSourceAsTask._source"/></summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask`1.IsCompleted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask`1"/> represents a completed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask`1.IsCompletedSuccessfully">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask`1"/> represents a successfully completed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask`1.IsFaulted">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask`1"/> represents a failed operation.</summary>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask`1.IsCanceled">
+            <summary>Gets whether the <see cref="T:System.Threading.Tasks.ValueTask`1"/> represents a canceled operation.</summary>
+            <remarks>
+            If the <see cref="T:System.Threading.Tasks.ValueTask`1"/> is backed by a result or by a <see cref="T:System.Threading.Tasks.Sources.IValueTaskSource`1"/>,
+            this will always return false.  If it's backed by a <see cref="T:System.Threading.Tasks.Task"/>, it'll return the
+            value of the task's <see cref="P:System.Threading.Tasks.Task.IsCanceled"/> property.
+            </remarks>
+        </member>
+        <member name="P:System.Threading.Tasks.ValueTask`1.Result">
+            <summary>Gets the result.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.GetAwaiter">
+            <summary>Gets an awaiter for this <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.ConfigureAwait(System.Boolean)">
+            <summary>Configures an awaiter for this <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+            <param name="continueOnCapturedContext">
+            true to attempt to marshal the continuation back to the captured context; otherwise, false.
+            </param>
+        </member>
+        <member name="M:System.Threading.Tasks.ValueTask`1.ToString">
+            <summary>Gets a string-representation of this <see cref="T:System.Threading.Tasks.ValueTask`1"/>.</summary>
+        </member>
+    </members>
 </doc>

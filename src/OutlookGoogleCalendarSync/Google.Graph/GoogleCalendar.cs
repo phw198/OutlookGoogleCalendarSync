@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using log4net;
-//using Microsoft.Office.Interop.Outlook;
 using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
@@ -12,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GcalData = Google.Apis.Calendar.v3.Data;
+using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Google.Graph {
@@ -500,11 +500,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return null;
         }*/
         #region Create
-        public static void CreateCalendarEntries(List<Microsoft.Graph.Event> appointments) {
+        public static void CreateCalendarEntries(List<MsGraph.Models.Event> appointments) {
             for (int o = appointments.Count - 1; o >= 0; o--) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                Microsoft.Graph.Event ai = appointments[o];
+                MsGraph.Models.Event ai = appointments[o];
                 GcalData.Event newEvent = new();
                 try {
                     newEvent = createCalendarEntry(ai);
@@ -547,7 +547,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
         }
 
-        private static GcalData.Event createCalendarEntry(Microsoft.Graph.Event ai) {
+        private static GcalData.Event createCalendarEntry(MsGraph.Models.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             string itemSummary = Outlook.Graph.Calendar.GetEventSummary(ai, out String anonSummary);
@@ -610,7 +610,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                             "more than 200, which Google does not allow.", Console.Markup.warning);
                     }
                 } else {
-                    foreach (Microsoft.Graph.Attendee recipient in ai.Attendees) {
+                    foreach (MsGraph.Models.Attendee recipient in ai.Attendees) {
                         if (Settings.Instance.GaccountEmail.ToLower() == recipient.EmailAddress.Address) continue;
 
                         GcalData.EventAttendee ea = CreateAttendee(recipient, ai.Organizer.EmailAddress == recipient.EmailAddress);
@@ -645,7 +645,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return ev;
         }
 
-        private static Event createCalendarEntry_save(Event ev, Microsoft.Graph.Event ai) {
+        private static Event createCalendarEntry_save(Event ev, MsGraph.Models.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
@@ -697,7 +697,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 Outlook.Graph.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 Outlook.Graph.CustomProperty.SetOGCSlastModified(ref ai);
-                Microsoft.Graph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                MsGraph.Models.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                 Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                 ai = aiPatch;
             }
@@ -725,11 +725,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         #endregion
 
         #region Update
-        public static void UpdateCalendarEntries(Dictionary<Microsoft.Graph.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
+        public static void UpdateCalendarEntries(Dictionary<MsGraph.Models.Event, GcalData.Event> entriesToBeCompared, ref int entriesUpdated) {
             for (int i = 0; i < entriesToBeCompared.Count; i++) {
                 if (Sync.Engine.Instance.CancellationPending) return;
 
-                KeyValuePair<Microsoft.Graph.Event, Event> compare = entriesToBeCompared.ElementAt(i);
+                KeyValuePair<MsGraph.Models.Event, Event> compare = entriesToBeCompared.ElementAt(i);
                 int itemModified = 0;
                 Boolean eventExceptionCacheDirty = false;
                 Event ev = new Event();
@@ -799,7 +799,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
         }
 
-        public static Event UpdateCalendarEntry(Microsoft.Graph.Event ai, GcalData.Event ev, ref int itemModified, Boolean forceCompare = false) {
+        public static Event UpdateCalendarEntry(MsGraph.Models.Event ai, GcalData.Event ev, ref int itemModified, Boolean forceCompare = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (!Settings.Instance.APIlimit_inEffect && Google.CustomProperty.Exists(ev, Google.CustomProperty.MetadataId.apiLimitHit)) {
@@ -1048,7 +1048,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
         #endregion
 
-        public static void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<Microsoft.Graph.Event> oAppointments, Boolean neverDelete = false) {
+        public static void ReclaimOrphanCalendarEntries(ref List<Event> gEvents, ref List<MsGraph.Models.Event> oAppointments, Boolean neverDelete = false) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id) return;
@@ -1078,7 +1078,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
                         unclaimedEvents.Add(ev);
                         for (int o = oAppointments.Count - 1; o >= 0; o--) {
-                            Microsoft.Graph.Event ai = oAppointments[o];
+                            MsGraph.Models.Event ai = oAppointments[o];
                             if (Google.Calendar.SignaturesMatch(sigEv, Outlook.Graph.Calendar.Signature(ai))) {
                                 try {
                                     Event originalEv = ev;
@@ -1092,7 +1092,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                                     if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.Graph.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
                                         Outlook.Graph.CustomProperty.AddGoogleIDs(ref ai, ev);
-                                        Microsoft.Graph.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
+                                        MsGraph.Models.Event aiPatch = new() { Id = ai.Id, Extensions = ai.Extensions };
                                         Outlook.Graph.Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);
                                         ai = aiPatch;
                                     }
@@ -1231,9 +1231,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         */
         public static void IdentifyEventDifferences_IDs(
             SettingsStore.Calendar profile,
-            ref List<Microsoft.Graph.Event> outlook,  //need creating
+            ref List<MsGraph.Models.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare)
+            ref Dictionary<MsGraph.Models.Event, GcalData.Event> compare)
         {
             Forms.Main.Instance.Console.Update("Matching calendar items...");
 
@@ -1310,9 +1310,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         //      4.  Items remaining in Google list need to be deleted
         //</summary>
         public static void IdentifyEventDifferences(
-            ref List<Microsoft.Graph.Event> outlook,  //need creating
+            ref List<MsGraph.Models.Event> outlook,  //need creating
             ref List<GcalData.Event> google,          //need deleting
-            ref Dictionary<Microsoft.Graph.Event, GcalData.Event> compare) //
+            ref Dictionary<MsGraph.Models.Event, GcalData.Event> compare) //
         {
             log.Debug("Comparing Outlook items to Google events...");
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
@@ -1328,7 +1328,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 //Check if Outlook items to be created in Google have invitations not yet responded to
                 int responseFiltered = 0;
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (outlook[o].ResponseStatus.Response == Microsoft.Graph.ResponseType.NotResponded) {
+                    if (outlook[o].ResponseStatus.Response == MsGraph.Models.ResponseType.NotResponded) {
                         outlook.Remove(outlook[o]);
                         responseFiltered++;
                     }
@@ -1382,7 +1382,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 Outlook.Graph.Calendar.ExportToCSV("Appointments for creation in Google", "google_create.csv", outlook);
             }
         }
-        public static Boolean ItemIDsMatch(ref GcalData.Event ev, Microsoft.Graph.Event ai) {
+        public static Boolean ItemIDsMatch(ref GcalData.Event ev, MsGraph.Models.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             //First match on the Global Appointment ID
@@ -1475,9 +1475,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             return false;
         }
 
-        public static Boolean CompareRecipientsToAttendees(Microsoft.Graph.Event ai, GcalData.Event ev, StringBuilder sb, ref int itemModified) {
+        public static Boolean CompareRecipientsToAttendees(MsGraph.Models.Event ai, GcalData.Event ev, StringBuilder sb, ref int itemModified) {
             log.Fine("Comparing Recipients");
-            List<Microsoft.Graph.Attendee> recipients = ai.Attendees.ToList();
+            List<MsGraph.Models.Attendee > recipients = ai.Attendees.ToList();
             //Build a list of Google attendees. Any remaining at the end of the diff must be deleted.
             List<GcalData.EventAttendee> removeAttendee = new();
             foreach (GcalData.EventAttendee ea in ev.Attendees ?? Enumerable.Empty<GcalData.EventAttendee>()) {
@@ -1485,7 +1485,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
             for (int o = recipients.Count() - 1; o >= 0; o--) {
                 bool foundAttendee = false;
-                Microsoft.Graph.Attendee recipient = recipients[o];
+                MsGraph.Models.Attendee recipient = recipients[o];
                 log.Fine("Comparing Outlook recipient: " + (recipient.EmailAddress.Name ?? recipient.EmailAddress.Address));
                 //String recipientSMTP = Outlook.Calendar.Instance.IOutlook.GetRecipientEmail(recipient);
                 foreach (GcalData.EventAttendee attendee in ev.Attendees ?? Enumerable.Empty<GcalData.EventAttendee>()) {
@@ -1500,7 +1500,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         }
 
                         //Optional attendee
-                        bool oOptional = (recipient.Type == Microsoft.Graph.AttendeeType.Optional);
+                        bool oOptional = (recipient.Type == MsGraph.Models.AttendeeType.Optional);
                         bool gOptional = (attendee.Optional == null) ? false : (bool)attendee.Optional;
                         String attendeeIdentifier = attendee.DisplayName ?? ogcsAttendee.Email;
                         if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Optional Check",
@@ -1524,11 +1524,11 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
                         String oResponse = null;
                         switch (recipient.Status.Response) {
-                            case Microsoft.Graph.ResponseType.None: oResponse = "needsAction"; break;
-                            case Microsoft.Graph.ResponseType.NotResponded: oResponse = "needsAction"; break;
-                            case Microsoft.Graph.ResponseType.Accepted: oResponse = "accepted"; break;
-                            case Microsoft.Graph.ResponseType.Declined: oResponse = "declined"; break;
-                            case Microsoft.Graph.ResponseType.TentativelyAccepted: oResponse = "tentative"; break;
+                            case MsGraph.Models.ResponseType.None: oResponse = "needsAction"; break;
+                            case MsGraph.Models.ResponseType.NotResponded: oResponse = "needsAction"; break;
+                            case MsGraph.Models.ResponseType.Accepted: oResponse = "accepted"; break;
+                            case MsGraph.Models.ResponseType.Declined: oResponse = "declined"; break;
+                            case MsGraph.Models.ResponseType.TentativelyAccepted: oResponse = "tentative"; break;
                         }
                         if (Sync.Engine.CompareAttribute("Attendee " + attendeeIdentifier + " - Response Status",
                             Sync.Direction.OutlookToGoogle, attendee.ResponseStatus, oResponse, sb, ref itemModified)) //
@@ -1562,25 +1562,25 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         /// </summary>
         /// <param name="oSensitivity">Outlook's current setting</param>
         /// <param name="gVisibility">Google's current setting</param>
-        private static String getPrivacy(Microsoft.Graph.Sensitivity? oSensitivity, String gVisibility) {
+        private static String getPrivacy(MsGraph.Models.Sensitivity? oSensitivity, String gVisibility) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            oSensitivity ??= Microsoft.Graph.Sensitivity.Normal;
+            oSensitivity ??= MsGraph.Models.Sensitivity.Normal;
 
             if (!profile.SetEntriesPrivate)
-                return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
+                return (oSensitivity == MsGraph.Models.Sensitivity.Normal) ? "default" : "private";
 
             String overridePrivacy = "public";
-            Microsoft.Graph.Sensitivity olOverridePrivacy = Microsoft.Graph.Sensitivity.Normal;
+            MsGraph.Models.Sensitivity olOverridePrivacy = MsGraph.Models.Sensitivity.Normal;
             if (!Enum.TryParse(Regex.Replace(profile.PrivacyLevel, "^ol", ""), out olOverridePrivacy))
                 log.Error("Could not convert string '" + profile.PrivacyLevel + "' to Graph.Sensitivity type. Defaulting override to normal.");
-            overridePrivacy = olOverridePrivacy == Microsoft.Graph.Sensitivity.Private ? "private" : "public";
+            overridePrivacy = olOverridePrivacy == MsGraph.Models.Sensitivity.Private ? "private" : "public";
 
             if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Privacy enforcement is in other direction
                 if (gVisibility == null)
-                    return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
+                    return (oSensitivity == MsGraph.Models.Sensitivity.Normal) ? "default" : "private";
                 else if (!profile.CreatedItemsOnly && (oSensitivity != olOverridePrivacy)) {
                     log.Warn("Outlook privacy override has been manually altered - so syncing this back.");
-                    return (oSensitivity == Microsoft.Graph.Sensitivity.Normal) ? "default" : "private";
+                    return (oSensitivity == MsGraph.Models.Sensitivity.Normal) ? "default" : "private";
                 } else
                     return gVisibility;
             } else {
@@ -1598,26 +1598,26 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         /// </summary>
         /// <param name="oBusyStatus">Outlook's current setting</param>
         /// <param name="gTransparency">Google's current setting</param>
-        private static String getAvailability(Microsoft.Graph.FreeBusyStatus? oBusyStatus, String gTransparency) {
+        private static String getAvailability(MsGraph.Models.FreeBusyStatus? oBusyStatus, String gTransparency) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            oBusyStatus ??= Microsoft.Graph.FreeBusyStatus.Busy;
+            oBusyStatus ??= MsGraph.Models.FreeBusyStatus.Busy;
 
             if (!profile.SetEntriesAvailable)
-                return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
+                return (oBusyStatus == MsGraph.Models.FreeBusyStatus.Free) ? "transparent" : "opaque";
 
             String overrideTransparency = "opaque";
-            Microsoft.Graph.FreeBusyStatus fbStatus = Microsoft.Graph.FreeBusyStatus.Busy;
+            MsGraph.Models.FreeBusyStatus fbStatus = MsGraph.Models.FreeBusyStatus.Busy;
             if (!Enum.TryParse(Regex.Replace(profile.AvailabilityStatus, "^ol", ""), out fbStatus))
                 log.Error("Could not convert string '" + profile.AvailabilityStatus + "' to Graph.FreeBusyStatus type. Defaulting override to busy.");
-            if (fbStatus == Microsoft.Graph.FreeBusyStatus.Free)
+            if (fbStatus == MsGraph.Models.FreeBusyStatus.Free)
                 overrideTransparency = "transparent";
 
             if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Availability enforcement is in other direction
                 if (gTransparency == null)
-                    return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
+                    return (oBusyStatus == MsGraph.Models.FreeBusyStatus.Free) ? "transparent" : "opaque";
                 else if (!profile.CreatedItemsOnly && (oBusyStatus != fbStatus)) {
                     log.Warn("Outlook privacy override has been manually altered - so syncing this back.");
-                    return (oBusyStatus == Microsoft.Graph.FreeBusyStatus.Free) ? "transparent" : "opaque";
+                    return (oBusyStatus == MsGraph.Models.FreeBusyStatus.Free) ? "transparent" : "opaque";
                 } else
                     return gTransparency;
             } else {
@@ -1706,23 +1706,23 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
         }
         */
 
-        public static GcalData.EventAttendee CreateAttendee(Microsoft.Graph.Attendee recipient, Boolean isOrganiser) {
+        public static GcalData.EventAttendee CreateAttendee(MsGraph.Models.Attendee recipient, Boolean isOrganiser) {
             Ogcs.Google.EventAttendee ea = new Ogcs.Google.EventAttendee();
             log.Fine("Creating attendee " + (string.IsNullOrEmpty(recipient.EmailAddress.Name) ? recipient.EmailAddress.Address : recipient.EmailAddress.Name));
             ea.DisplayName = (recipient.EmailAddress.Name != recipient.EmailAddress.Address ? recipient.EmailAddress.Name : null);
             ea.Email = recipient.EmailAddress.Address;
-            ea.Optional = recipient.Type == Microsoft.Graph.AttendeeType.Optional;
+            ea.Optional = recipient.Type == MsGraph.Models.AttendeeType.Optional;
             if (isOrganiser) {
                 //ea.Organizer = true; This is read-only. The best we can do is force them to have accepted the "invite"
                 ea.ResponseStatus = "accepted";
                 return ea;
             }
             switch (recipient.Status.Response) {
-                case Microsoft.Graph.ResponseType.NotResponded: ea.ResponseStatus = "needsAction"; break;
-                case Microsoft.Graph.ResponseType.None: ea.ResponseStatus = "needsAction"; break;
-                case Microsoft.Graph.ResponseType.Accepted: ea.ResponseStatus = "accepted"; break;
-                case Microsoft.Graph.ResponseType.Declined: ea.ResponseStatus = "declined"; break;
-                case Microsoft.Graph.ResponseType.TentativelyAccepted: ea.ResponseStatus = "tentative"; break;
+                case MsGraph.Models.ResponseType.NotResponded: ea.ResponseStatus = "needsAction"; break;
+                case MsGraph.Models.ResponseType.None: ea.ResponseStatus = "needsAction"; break;
+                case MsGraph.Models.ResponseType.Accepted: ea.ResponseStatus = "accepted"; break;
+                case MsGraph.Models.ResponseType.Declined: ea.ResponseStatus = "declined"; break;
+                case MsGraph.Models.ResponseType.TentativelyAccepted: ea.ResponseStatus = "tentative"; break;
             }
             return ea;
         }

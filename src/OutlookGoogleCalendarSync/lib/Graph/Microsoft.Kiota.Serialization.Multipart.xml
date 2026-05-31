@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Serialization.Multipart</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter">
+            <summary>
+            Serialization writer for multipart payloads.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.OnBeforeObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.OnAfterObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.OnStartObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.#ctor">
+            <summary>
+            Instantiates a new multipart serialization writer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.GetSerializedContent">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteAdditionalData(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteBoolValue(System.String,System.Nullable{System.Boolean})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteByteArrayValue(System.String,System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteByteValue(System.String,System.Nullable{System.Byte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteCollectionOfEnumValues``1(System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteCollectionOfObjectValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteCollectionOfPrimitiveValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteDateTimeOffsetValue(System.String,System.Nullable{System.DateTimeOffset})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteDateValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Date})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteDecimalValue(System.String,System.Nullable{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteDoubleValue(System.String,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteEnumValue``1(System.String,System.Nullable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteFloatValue(System.String,System.Nullable{System.Single})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteGuidValue(System.String,System.Nullable{System.Guid})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteIntValue(System.String,System.Nullable{System.Int32})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteLongValue(System.String,System.Nullable{System.Int64})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteNullValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteObjectValue``1(System.String,``0,Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteSbyteValue(System.String,System.Nullable{System.SByte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteStringValue(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteTimeSpanValue(System.String,System.Nullable{System.TimeSpan})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriter.WriteTimeValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Time})">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriterFactory">
+            <summary>
+            Factory to create multipart serialization writers.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriterFactory.ValidContentType">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Multipart.MultipartSerializationWriterFactory.GetSerializationWriter(System.String)">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>

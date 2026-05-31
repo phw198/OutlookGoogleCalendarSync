@@ -1,7 +1,7 @@
 ﻿using Ogcs = OutlookGoogleCalendarSync;
 using log4net;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Graph;
+using OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
@@ -33,8 +33,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             CancelTokenSource = new System.Threading.CancellationTokenSource();
         }
 
-        public Boolean AgedAccessToken { 
-            get { return authResult?.ExpiresOn.UtcDateTime < DateTime.UtcNow.AddMinutes(1); } 
+        public Boolean AgedAccessToken {
+            get { return authResult?.ExpiresOn.UtcDateTime < DateTime.UtcNow.AddMinutes(1); }
         }
         public String AccessToken {
             get { return authResult.AccessToken; }
@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         throw;
                     }
                 } catch (System.Exception ex) {
-                    log.Fail("Error during AcquireTokenInteractive(): "+ ex.Message);
+                    log.Fail("Error during AcquireTokenInteractive(): " + ex.Message);
                     throw;
                 }
             } catch (System.Exception ex) {
@@ -170,14 +170,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Settings.Instance.MSaccountEmail = authResult.Account.Username;
             getMSaccountEmail();
 
-#pragma warning disable 1998 //Lacks await
-            Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(graphBaseUrl,
-                new DelegateAuthenticationProvider(async (requestMessage) => {
-                    requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-                }),
-                new HttpProvider(new System.Net.Http.HttpClientHandler() { Proxy = new Extensions.OgcsWebClient().Proxy }, true)
-            );
-#pragma warning restore 1998
+            System.Net.Http.HttpClientHandler handler = new() { Proxy = new Extensions.OgcsWebClient().Proxy };
+            GraphErrorInterceptor interceptor = new() { InnerHandler = handler };
+            System.Net.Http.HttpClient nativeClient = new(interceptor);
+            Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider authProvider = new(new MsalTokenProvider(authResult.AccessToken));
+            Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter requestAdapter = new(authProvider, null, null, nativeClient) { BaseUrl = graphBaseUrl };
+            Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(requestAdapter);
 
             Authenticated = true;
             Forms.Main.Instance.Console.Update("Handshake successful.", verbose: true);
@@ -199,7 +197,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Settings.Instance.MSaccountEmail = "";
             Authenticated = false;
             try {
-                var accounts = oAuthApp?.GetAccountsAsync().Result ?? Enumerable.Empty<IAccount>();                
+                var accounts = oAuthApp?.GetAccountsAsync().Result ?? Enumerable.Empty<IAccount>();
                 log.Debug(accounts.Count() + " account(s) in the MSAL cache.");
                 foreach (IAccount account in accounts) {
                     try {
@@ -238,6 +236,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             } catch (System.Exception ex) {
                 return ex.ToString();
             }
+        }
+
+
+        private class MsalTokenProvider : Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider {
+            private readonly string _accessToken;
+
+            public MsalTokenProvider(string accessToken) {
+                _accessToken = accessToken;
+            }
+
+            public Task<string> GetAuthorizationTokenAsync(Uri uri, System.Collections.Generic.Dictionary<string, object> additionalAuthenticationContext = default, System.Threading.CancellationToken cancellationToken = default) {
+                return Task.FromResult(_accessToken);
+            }
+
+            public Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator AllowedHostsValidator { get; } = new();
         }
     }
 }

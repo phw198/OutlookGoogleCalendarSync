@@ -564,6 +564,19 @@
             </para>
             </summary>
         </member>
+        <member name="P:Grpc.Net.Client.GrpcChannelOptions.HttpVersion">
+            <summary>
+            Gets or sets the HTTP version to use when making gRPC calls.
+            <para>
+            When a <see cref="T:System.Version"/> is specified the value will be set on <see cref="P:System.Net.Http.HttpRequestMessage.Version"/>
+            as gRPC calls are made. Changing this property allows the HTTP version of gRPC calls to
+            be overridden.
+            </para>
+            <para>
+            A <c>null</c> value doesn't override the HTTP version of gRPC calls. Defaults to <c>2.0</c>.
+            </para>
+            </summary>
+        </member>
         <member name="M:Grpc.Net.Client.GrpcChannelOptions.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:Grpc.Net.Client.GrpcChannelOptions"/> class.
@@ -666,12 +679,12 @@
             Should only check this property when holding the move next lock.
             </summary>
         </member>
-        <member name="T:Grpc.Net.Client.Internal.NtDll">
+        <member name="T:Grpc.Net.Client.Internal.Native">
             <summary>
             Types for calling RtlGetVersion. See https://www.pinvoke.net/default.aspx/ntdll/RtlGetVersion.html
             </summary>
         </member>
-        <member name="F:Grpc.Net.Client.Internal.NtDll.NTSTATUS.STATUS_SUCCESS">
+        <member name="F:Grpc.Net.Client.Internal.Native.NTSTATUS.STATUS_SUCCESS">
             <summary>
             The operation completed successfully. 
             </summary>
@@ -928,6 +941,12 @@
         </member>
         <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
             <summary>Gets field or property member names.</summary>
+        </member>
+        <member name="M:ThreadSafeLookup`2.GetOrAdd(`0,System.Func{`0,`1})">
+            <summary>
+            Gets the value for the key if it exists. If the key does not exist then the value is created using the valueFactory.
+            The value is created outside of a lock and there is no guarentee which value will be stored or returned.
+            </summary>
         </member>
     </members>
 </doc>

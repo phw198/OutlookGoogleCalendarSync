@@ -7,7 +7,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>OutlookGoogleCalendarSync</RootNamespace>
     <AssemblyName>OutlookGoogleCalendarSync</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SourceAnalysisOverrideSettingsFile>C:\Users\ZSIANTI\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -23,6 +23,9 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <LangVersion>latest</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>false</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -138,59 +141,59 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Azure.Core, Version=1.50.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Azure.Core.dll</HintPath>
+    </Reference>
     <Reference Include="ClickOnceToSquirrelMigrator, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Squirrel\ClickOnceToSquirrelMigrator.dll</HintPath>
     </Reference>
     <Reference Include="DeltaCompressionDotNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=1d14d6e5194e7f4a, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="DeltaCompressionDotNet.MsDelta, Version=1.1.0.0, Culture=neutral, PublicKeyToken=46b2138a390abf55, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.MsDelta.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="DeltaCompressionDotNet.PatchApi, Version=1.1.0.0, Culture=neutral, PublicKeyToken=3e8888ee913ed789, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\DeltaCompressionDotNet.PatchApi.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Api.CommonProtos, Version=2.16.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.CommonProtos, Version=2.17.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.CommonProtos.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Api.Gax, Version=4.9.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.Gax, Version=4.14.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.Gax.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Api.Gax.Grpc, Version=4.9.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+    <Reference Include="Google.Api.Gax.Grpc, Version=4.14.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
       <HintPath>lib\Google.Api.Gax.Grpc.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis, Version=1.74.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Auth, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Auth, Version=1.74.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Auth.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.68.0.3536, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.74.0.4154, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Calendar.v3.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Core, Version=1.68.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+    <Reference Include="Google.Apis.Core, Version=1.74.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>lib\Google.Apis.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Cloud.DevTools.Common, Version=3.2.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.Cloud.DevTools.Common, Version=3.3.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.DevTools.Common.dll</HintPath>
     </Reference>
     <Reference Include="Google.Cloud.Logging.Log4Net, Version=4.4.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.Logging.Log4Net.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Cloud.Logging.Type, Version=4.2.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.Cloud.Logging.Type, Version=4.3.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.Logging.Type.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Cloud.Logging.V2, Version=4.4.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.Cloud.Logging.V2, Version=4.5.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.Cloud.Logging.V2.dll</HintPath>
     </Reference>
-    <Reference Include="Google.LongRunning, Version=3.2.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+    <Reference Include="Google.LongRunning, Version=3.5.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
       <HintPath>lib\Google.LongRunning.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.28.2.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+    <Reference Include="Google.Protobuf, Version=3.34.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>lib\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="Grpc.Auth, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
@@ -208,17 +211,20 @@
     <Reference Include="Grpc.Net.Common, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
       <HintPath>lib\Grpc.Net.Common.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=3.0.1.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+    <Reference Include="log4net, Version=3.3.1.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.TimeProvider, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Bcl.TimeProvider.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Http, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -227,111 +233,167 @@
     <Reference Include="Microsoft.Extensions.Logging, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Extensions.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=7.0.0.1, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Options, Version=7.0.0.1, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>lib\Microsoft.Extensions.Options.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Graph, Version=1.21.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>lib\Graph\Microsoft.Graph.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=9.0.0.7, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>lib\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Graph.Core, Version=1.25.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Graph.Core, Version=3.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.Graph.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Identity.Client, Version=4.57.0.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Identity.Client, Version=4.73.1.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.Identity.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Identity.Client.Extensions.Msal, Version=2.32.0.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.Identity.Client.Extensions.Msal.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.IdentityModel.Abstractions, Version=6.22.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.IdentityModel.Abstractions, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.IdentityModel.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.Protocols.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Validators, Version=8.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.IdentityModel.Validators.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Abstractions, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Authentication.Azure, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Authentication.Azure.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Http.HttpClientLibrary, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Http.HttpClientLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Serialization.Form, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Serialization.Form.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Serialization.Json, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Serialization.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Serialization.Multipart, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Serialization.Multipart.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kiota.Serialization.Text, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Microsoft.Kiota.Serialization.Text.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Mono.Cecil.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Mono.Cecil.Mdb.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Mono.Cecil.Pdb.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Mono.Cecil.Rocks.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NodaTime, Version=3.1.12.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+    <Reference Include="NodaTime, Version=3.3.2.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
       <HintPath>lib\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="NuGet.Squirrel, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\NuGet.Squirrel.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SharpCompress, Version=0.20.0.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\SharpCompress.dll</HintPath>
     </Reference>
     <Reference Include="Splat, Version=1.6.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\Squirrel\Splat.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Squirrel, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Squirrel\Squirrel.dll</HintPath>
     </Reference>
+    <Reference Include="Std.UriTemplate, Version=2.0.8.0, Culture=neutral, PublicKeyToken=c118b0afb4598f9a, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\Std.UriTemplate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ClientModel, Version=1.8.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>lib\Graph\System.ClientModel.dll</HintPath>
     </Reference>
     <Reference Include="System.CodeDom, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.CodeDom.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=8.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>lib\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
     <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>lib\System.Interactive.Async.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Management" />
-    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.Memory.dll</HintPath>
     </Reference>
+    <Reference Include="System.Memory.Data, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>lib\System.Memory.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WinHttpHandler, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="System.Net.Http.WinHttpHandler, Version=8.0.0.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\System.Net.Http.WinHttpHandler.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>lib\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.Security" />
+    <Reference Include="System.Text.Encodings.Web, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>lib\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=8.0.0.6, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>lib\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+    <Reference Include="System.ValueTuple, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>lib\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="Zlib.Portable, Version=1.11.0.0, Culture=neutral, PublicKeyToken=431cba815f6a8b5b, processorArchitecture=MSIL">
+      <HintPath>lib\Zlib.Portable.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
@@ -444,8 +506,177 @@
     <Compile Include="Outlook.Factory\OutlookInterface.cs" />
     <Compile Include="Outlook.Factory\OutlookNew.cs" />
     <Compile Include="Outlook.Factory\OutlookOld.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\GraphServiceClient.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\CalendarsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\AllowedCalendarSharingRolesWithUser\AllowedCalendarSharingRolesWithUserGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\AllowedCalendarSharingRolesWithUser\AllowedCalendarSharingRolesWithUserRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarPermissions\CalendarPermissionsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarPermissions\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarPermissions\Item\CalendarPermissionItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarView\CalendarViewRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarView\Delta\DeltaGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\CalendarView\Delta\DeltaRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Delta\DeltaGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Delta\DeltaRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\EventsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Accept\AcceptPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Accept\AcceptRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Attachments\AttachmentsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Attachments\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Attachments\CreateUploadSession\CreateUploadSessionPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Attachments\CreateUploadSession\CreateUploadSessionRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Attachments\Item\AttachmentItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Calendar\CalendarRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Cancel\CancelPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Cancel\CancelRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Decline\DeclinePostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Decline\DeclineRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\DismissReminder\DismissReminderRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\EventItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Extensions\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Extensions\ExtensionsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Extensions\Item\ExtensionItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Forward\ForwardPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Forward\ForwardRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Instances\Delta\DeltaGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Instances\Delta\DeltaRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\Instances\InstancesRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\PermanentDelete\PermanentDeleteRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\SnoozeReminder\SnoozeReminderPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\SnoozeReminder\SnoozeReminderRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\TentativelyAccept\TentativelyAcceptPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\Events\Item\TentativelyAccept\TentativelyAcceptRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\GetSchedule\GetSchedulePostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\GetSchedule\GetSchedulePostResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\GetSchedule\GetScheduleRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Calendars\Item\PermanentDelete\PermanentDeleteRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Delta\DeltaGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Delta\DeltaRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\EventsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Accept\AcceptPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Accept\AcceptRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Attachments\AttachmentsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Attachments\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Attachments\CreateUploadSession\CreateUploadSessionPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Attachments\CreateUploadSession\CreateUploadSessionRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Attachments\Item\AttachmentItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Calendar\CalendarRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Cancel\CancelPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Cancel\CancelRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Decline\DeclinePostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Decline\DeclineRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\DismissReminder\DismissReminderRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\EventItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Extensions\Count\CountRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Extensions\ExtensionsRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Extensions\Item\ExtensionItemRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Forward\ForwardPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Forward\ForwardRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Instances\Delta\DeltaGetResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Instances\Delta\DeltaRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\Instances\InstancesRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\PermanentDelete\PermanentDeleteRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\SnoozeReminder\SnoozeReminderPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\SnoozeReminder\SnoozeReminderRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\TentativelyAccept\TentativelyAcceptPostRequestBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\Events\Item\TentativelyAccept\TentativelyAcceptRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Me\MeRequestBuilder.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Attachment.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\AttachmentCollectionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\AttachmentItem.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\AttachmentType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Attendee.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\AttendeeBase.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\AttendeeType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\BaseCollectionPaginationCountResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\BaseDeltaFunctionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\BodyType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Calendar.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarCollectionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarColor.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarPermission.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarPermissionCollectionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarRoleType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarSharingAction.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarSharingActionImportance.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarSharingActionType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarSharingMessage.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CalendarSharingMessageAction.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Contact.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\CustomTimeZone.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\DateTimeTimeZone.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\DaylightTimeZoneOffset.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\DayOfWeekObject.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EmailAddress.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Entity.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Event.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EventCollectionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EventMessage.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EventMessageRequest.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EventMessageResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\EventType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Extension.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ExtensionCollectionResponse.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\FileAttachment.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\FollowupFlag.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\FollowupFlagStatus.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\FreeBusyError.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\FreeBusyStatus.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Importance.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\InferenceClassificationType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\InternetMessageHeader.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ItemAttachment.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ItemBody.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Location.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\LocationConstraintItem.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\LocationType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\LocationUniqueIdType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\MailboxItem.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\MeetingMessageType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\MeetingRequestType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Message.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\MultiValueLegacyExtendedProperty.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ODataErrors\ErrorDetails.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ODataErrors\InnerError.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ODataErrors\MainError.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ODataErrors\ODataError.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\OnlineMeetingInfo.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\OnlineMeetingProviderType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\OpenTypeExtension.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\OutlookGeoCoordinates.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\OutlookItem.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\PatternedRecurrence.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Phone.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\PhoneType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\PhysicalAddress.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Post.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ProfilePhoto.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Recipient.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\RecurrencePattern.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\RecurrencePatternType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\RecurrenceRange.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\RecurrenceRangeType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ReferenceAttachment.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ReferenceNumeric.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ResponseStatus.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ResponseType.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ScheduleInformation.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\ScheduleItem.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\Sensitivity.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\SingleValueLegacyExtendedProperty.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\StandardTimeZoneOffset.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\TimeSlot.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\TimeZoneBase.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\UploadSession.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\WeekIndex.cs" />
+    <Compile Include="Outlook.Graph\CustomClient\Models\WorkingHours.cs" />
     <Compile Include="Outlook.Graph\O365Authenticator.cs" />
     <Compile Include="Outlook.Graph\O365CustomProperty.cs" />
+    <Compile Include="Outlook.Graph\O365Errors.cs" />
     <Compile Include="Outlook.Graph\O365Recurrence.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\ExplorerWatcher.cs" />
@@ -575,6 +806,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="app.manifest" />
+    <None Include="Outlook.Graph\CustomClient\kiota-lock.json" />
+    <None Include="packages.config" />
     <None Include="protos\google\api\annotations.proto" />
     <None Include="protos\google\api\auth.proto" />
     <None Include="protos\google\api\backend.proto" />
@@ -646,7 +879,6 @@
     <None Include="tzdb.nzd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Include="Resources\delay.png" />
     <None Include="Resources\sync.gif" />
     <None Include="Resources\cog.png" />
@@ -785,20 +1017,76 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <Import Project="lib\Grpc.Core.targets" Condition="Exists('lib\Grpc.Core.targets')" />
   <Import Project="lib\Google.Api.CommonProtos.targets" Condition="Exists('lib\Google.Api.CommonProtos.targets')" />
-  <Import Project="lib\Microsoft.Extensions.Logging.Abstractions.targets" Condition="Exists('lib\Microsoft.Extensions.Logging.Abstractions.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('lib\Grpc.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Grpc.Core.targets'))" />
     <Error Condition="!Exists('lib\Google.Api.CommonProtos.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Google.Api.CommonProtos.targets'))" />
-    <Error Condition="!Exists('lib\Microsoft.Extensions.Logging.Abstractions.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Microsoft.Extensions.Logging.Abstractions.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
+    <PostBuildEvent>powershell $(ProjectDir)\scripts\zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
   </PropertyGroup>
   <Target Name="ShowTargetDir" AfterTargets="Build">
     <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
     <Message Text="TargetDir Value: $(TargetDir)" Importance="High" />
+  </Target>
+  <Target Name="FixKiotaSealedError" BeforeTargets="CoreCompile">
+    <!--
+    !!! HACK: KIOTA 1.17.0 COMPILATION FIX FOR .NET 5.0
+
+    WHY IT IS NEEDED:
+    Kiota v1.17.0 (the last version supporting .NET 5.0) generates an 'ODataError' model that attempts to inherit from 'ApiException'. 
+    However, in the matching version of Microsoft.Kiota.Abstractions, 'ApiException' is marked as 'sealed'. 
+    This causes compiler errors CS0509 (cannot inherit from sealed type) and CS0115 (no suitable method found to override for the 'Message' property). 
+    This target strips out the invalid inheritance and the 'override' keyword on every build.
+
+    DRAWBACKS:
+    1. 'ODataError' can no longer be used directly in C# pattern-matching 'catch' blocks. You must catch 'ApiException' and manually inspect its 'Data' dictionary to extract the underlying 'ODataError' instance.
+    2. 'ODataError' loses native exception metadata (e.g., StackTrace, InnerException). Always log the outer 'ApiException' for environmental debugging diagnostics.
+
+    WHEN TO REVIEW / REMOVE:
+    Review this workaround only when the 'OutlookGoogleCalendarSync' project is upgraded beyond .NET 5.0 (e.g., to modern .NET LTS releases). 
+    At that point, 'kiota.exe' and its associated NuGet packages can be updated to their latest matching versions, which resolves this generation mismatch natively.
+    -->
+    <PropertyGroup>
+      <ErrorFilePath>$(ProjectDir)Outlook.Graph\CustomClient\Models\ODataErrors\ODataError.cs</ErrorFilePath>
+    </PropertyGroup>
+    <PropertyGroup Condition="Exists('$(ErrorFilePath)')">
+      <FileContent>$([System.IO.File]::ReadAllText('$(ErrorFilePath)'))</FileContent>
+      <FileContent>$(FileContent.Replace('public partial class ODataError : ApiException, IAdditionalDataHolder, IBackedModel, IParsable', 'public partial class ODataError : /*ApiException, */IAdditionalDataHolder, IBackedModel, IParsable'))</FileContent>
+      <FileContent>$(FileContent.Replace('public override string Message', 'public /*override */string Message'))</FileContent>
+    </PropertyGroup>
+    <WriteLinesToFile Condition="Exists('$(ErrorFilePath)')" File="$(ErrorFilePath)" Lines="$(FileContent)" Overwrite="true" />
+  </Target>
+  <Target Name="ForceCorrectValueTupleVersion" AfterTargets="AfterBuild">
+    <!--
+    !!! HACK: System.ValueTuple Duplicate / Broken Binding Redirects
+
+    WHY IT'S NEEDED:
+    We target .NET Framework 4.7.2+, which natively includes System.ValueTuple. 
+    However, modern dependencies (e.g., Google APIs, System.Text.Json) are compiled demanding version 4.6.2.0. 
+    The System.ValueTuple NuGet package targets attempt to force auto-unification to 4.0.5.0.
+
+    This conflict causes MSBuild's 'AutoGenerateBindingRedirects' engine to bug out during compilation. 
+    Instead of cleanly merging them, MSBuild actively rewrites or duplicates the 'newVersion' attribute to 4.6.2.0 inside the output bin folder's .config file. 
+    Because the physical file in the \lib folder internally identifies as 4.0.5.0, this mismatch throws a critical runtime FileLoadException.
+
+    WHAT THIS DOES:
+    This post-build target runs a PowerShell script immediately after the compilation pipeline finishes. 
+    It intercepts the final generated .config file in the output directory, parses the XML, 
+    and forcefully updates the System.ValueTuple newVersion binding redirect back to '4.0.5.0' to match the physical library binary.
+
+    WHEN TO REVIEW / REMOVE:
+    This target and its accompanying 'FixValueTuple.ps1' script can be safely deleted if:
+    1. The project is migrated from .NET Framework 4.7.2/4.8 to .NET Core / .NET 6/8+, where binding redirects are completely obsolete.
+    2. The heavy-hitter external dependencies (Google, Microsoft Graph, Json) are updated or downgraded to versions that no longer create this specific assembly version paradox.
+    -->
+    <PropertyGroup>
+      <FinalConfigOut>$(ProjectDir)$(OutDir)$(TargetFileName).config</FinalConfigOut>
+      <ScriptPath>$(ProjectDir)scripts\fixValueTuple.ps1</ScriptPath>
+    </PropertyGroup>
+    <Message Importance="high" Text="=== [ValueTuple Fix] Checking for config file at: $(FinalConfigOut) ===" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ScriptPath)&quot; -configPath &quot;$(FinalConfigOut)&quot;" />
   </Target>
 </Project>

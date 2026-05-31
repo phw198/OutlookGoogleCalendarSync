@@ -1,16 +1,17 @@
 ﻿using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Text.RegularExpressions;
+using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.GraphExtension {
 
     public static class Extensions {
 
-        public static Microsoft.Graph.Extension OgcsExtension(this Microsoft.Graph.Event ai) {
+        public static MsGraph.Models.Extension OgcsExtension(this MsGraph.Models.Event ai) {
             if (ai.Extensions == null) return null;
 
-            foreach (Microsoft.Graph.Extension ext in ai.Extensions) {
+            foreach (MsGraph.Models.Extension ext in ai.Extensions) {
                 if (ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName()
                  || ext.Id == Ogcs.Outlook.Graph.CustomProperty.ExtensionName(prefixWithMsType: true)
                 )
@@ -19,23 +20,23 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
             return null;
         }
 
-        public static Microsoft.Graph.Event UpdateOgcsExtension(this Microsoft.Graph.Event ai, Microsoft.Graph.Extension updatedExt) {
+        public static MsGraph.Models.Event UpdateOgcsExtension(this MsGraph.Models.Event ai, MsGraph.Models.Extension updatedExt) {
             if (ai.Extensions == null) {
-                ai.Extensions = new Microsoft.Graph.EventExtensionsCollectionPage();
+                ai.Extensions = new();
             } else {
-                Microsoft.Graph.Extension staleExt = ai.OgcsExtension();
+                MsGraph.Models.Extension staleExt = ai.OgcsExtension();
                 ai.Extensions.Remove(staleExt);
             }
             ai.Extensions.Add(updatedExt);
             return ai;
         }
 
-        public static Boolean Compare(this Microsoft.Graph.Date date, Microsoft.Graph.Date otherDate) {
+        public static Boolean Compare(this Microsoft.Kiota.Abstractions.Date date, Microsoft.Kiota.Abstractions.Date otherDate) {
             return (date.Day == otherDate.Day && date.Month == otherDate.Month && date.Year == otherDate.Year);
         }
 
         /// <summary>Just the HTML within the <body> tags</summary>
-        public static String BodyInnerHtml(this Microsoft.Graph.ItemBody body) {
+        public static String BodyInnerHtml(this MsGraph.Models.ItemBody body) {
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
             String bodyInnerHtml = htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
             if (bodyInnerHtml == "<div></div>") return "";

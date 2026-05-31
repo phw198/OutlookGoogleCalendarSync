@@ -970,7 +970,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
         <see langword="true" /> if the TraceId of <paramref name="traceId1" /> is different from the TraceId of <paramref name="traceId2" />; otherwise, <see langword="false" />.</returns>
     </member>
     <member name="M:System.Diagnostics.ActivityTraceId.ToHexString">
-      <summary>Returns a 16-character hexadecimal string that represents this span ID.</summary>
+      <summary>Returns a 32-character hexadecimal string that represents this span ID.</summary>
       <returns>The 32-character hexadecimal string representation of this trace ID.</returns>
     </member>
     <member name="M:System.Diagnostics.ActivityTraceId.ToString">
@@ -1093,15 +1093,30 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="args">An object that represent the value being passed as a payload for the event.</param>
       <returns>The started activity for convenient chaining.</returns>
     </member>
+    <member name="M:System.Diagnostics.DiagnosticSource.StartActivity``1(System.Diagnostics.Activity,``0)">
+      <param name="activity" />
+      <param name="args" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.DiagnosticSource.StopActivity(System.Diagnostics.Activity,System.Object)">
       <summary>Stops the given <see cref="T:System.Diagnostics.Activity" />, maintains the global <see cref="P:System.Diagnostics.Activity.Current" /> activity, and notifies consumers that the <see cref="T:System.Diagnostics.Activity" /> was stopped.</summary>
       <param name="activity">The activity to be stopped.</param>
       <param name="args">An object that represents the value passed as a payload for the event.</param>
     </member>
+    <member name="M:System.Diagnostics.DiagnosticSource.StopActivity``1(System.Diagnostics.Activity,``0)">
+      <param name="activity" />
+      <param name="args" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.DiagnosticSource.Write(System.String,System.Object)">
       <summary>Provides a generic way of logging complex payloads.</summary>
       <param name="name">The name of the event being written.</param>
       <param name="value">An object that represents the value being passed as a payload for the event. This is often an anonymous type which contains several sub-values.</param>
+    </member>
+    <member name="M:System.Diagnostics.DiagnosticSource.Write``1(System.String,``0)">
+      <param name="name" />
+      <param name="value" />
+      <typeparam name="T" />
     </member>
     <member name="T:System.Diagnostics.DistributedContextPropagator">
       <summary>An implementation of <see cref="T:System.Diagnostics.DistributedContextPropagator" /> determines if and how distributed context information is encoded and decoded as it traverses the network.
@@ -1138,7 +1153,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="traceState">When this method returns, contains the trace state extracted from the carrier.</param>
     </member>
     <member name="M:System.Diagnostics.DistributedContextPropagator.Inject(System.Diagnostics.Activity,System.Object,System.Diagnostics.DistributedContextPropagator.PropagatorSetterCallback)">
-      <summary>Injects the trace values stroed in the <see cref="T:System.Diagnostics.Activity" /> object into a carrier. For example, into the headers of an HTTP request.</summary>
+      <summary>Injects the trace values stored in the <see cref="T:System.Diagnostics.Activity" /> object into a carrier. For example, into the headers of an HTTP request.</summary>
       <param name="activity">The Activity object has the distributed context to inject to the carrier.</param>
       <param name="carrier">The medium in which the distributed context will be stored.</param>
       <param name="setter">The callback method to invoke to set a named key-value pair on the carrier.</param>
@@ -1247,6 +1262,10 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="value">The measurement value.</param>
       <param name="tags">A span of key-value pair tags associated with the measurement.</param>
     </member>
+    <member name="T:System.Diagnostics.Metrics.IMeterFactory" />
+    <member name="M:System.Diagnostics.Metrics.IMeterFactory.Create(System.Diagnostics.Metrics.MeterOptions)">
+      <param name="options" />
+    </member>
     <member name="T:System.Diagnostics.Metrics.Instrument">
       <summary>Base class of all metrics instrument classes</summary>
     </member>
@@ -1256,6 +1275,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Instrument.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="meter" />
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument.Publish">
       <summary>Activates the instrument to start recording measurements and to allow listeners to start listening to such measurements.</summary>
@@ -1275,6 +1301,7 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     <member name="P:System.Diagnostics.Metrics.Instrument.Name">
       <summary>Gets the instrument name.</summary>
     </member>
+    <member name="P:System.Diagnostics.Metrics.Instrument.Tags" />
     <member name="P:System.Diagnostics.Metrics.Instrument.Unit">
       <summary>Gets the instrument unit of measurements.</summary>
     </member>
@@ -1288,6 +1315,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Instrument`1.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="meter" />
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Instrument`1.RecordMeasurement(`0)">
       <summary>Records a measurement by notifying all <see cref="T:System.Diagnostics.Metrics.MeterListener" /> objects that are listening to this instrument.</summary>
@@ -1361,6 +1395,9 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
     <member name="T:System.Diagnostics.Metrics.Meter">
       <summary>Meter is the class responsible for creating and tracking the Instruments.</summary>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.#ctor(System.Diagnostics.Metrics.MeterOptions)">
+      <param name="options" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.#ctor(System.String)">
       <summary>Initializes a new instance of <see cref="T:System.Diagnostics.Metrics.Meter" /> using the specified meter name.</summary>
       <param name="name">The Meter name.</param>
@@ -1370,6 +1407,12 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="name">The Meter name.</param>
       <param name="version">The optional Meter version.</param>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.Object)">
+      <param name="name" />
+      <param name="version" />
+      <param name="tags" />
+      <param name="scope" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateCounter``1(System.String,System.String,System.String)">
       <summary>Create a metrics Counter object.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1378,6 +1421,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateCounter``1(System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateHistogram``1(System.String,System.String,System.String)">
       <summary>Creates a Histogram, which is an instrument that can be used to report arbitrary values that are likely to be statistically meaningful. It is intended for statistics such as histograms, summaries, and percentiles.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1385,6 +1435,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new histogram.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateHistogram``1(System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{``0},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
@@ -1395,6 +1452,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement..</typeparam>
       <returns>A new observable counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{``0},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1403,6 +1468,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable counter.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValues" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
       <summary>Creates an ObservableCounter, which is an instrument that reports monotonically increasing values when the instrument is being observed.</summary>
@@ -1413,6 +1486,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{``0},System.String,System.String)">
       <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1421,6 +1502,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable gauge.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{``0},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
       <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
@@ -1431,6 +1520,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable gauge.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValues" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
       <summary>Creates an ObservableGauge, which is an asynchronous instrument that reports non-additive values when the instrument is being observed.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1439,6 +1536,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable gauge.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableGauge``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{``0},System.String,System.String)">
       <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
@@ -1449,6 +1554,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable up down counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{``0},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String)">
       <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1457,6 +1570,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="description">Optional instrument description.</param>
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable up down counter.</returns>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Collections.Generic.IEnumerable{System.Diagnostics.Metrics.Measurement{``0}}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValues" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
     </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String)">
       <summary>Creates an ObservableUpDownCounter object. ObservableUpDownCounter is an Instrument that reports increasing or decreasing values when the instrument is being observed.</summary>
@@ -1467,6 +1588,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new observable up down counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateObservableUpDownCounter``1(System.String,System.Func{System.Diagnostics.Metrics.Measurement{``0}},System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="observeValue" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.CreateUpDownCounter``1(System.String,System.String,System.String)">
       <summary>Create a metrics UpDownCounter object.</summary>
       <param name="name">The instrument name. Cannot be <see langword="null" />.</param>
@@ -1475,16 +1604,35 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <typeparam name="T">The numerical type of the measurement.</typeparam>
       <returns>A new up down counter.</returns>
     </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.CreateUpDownCounter``1(System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
+      <typeparam name="T" />
+    </member>
     <member name="M:System.Diagnostics.Metrics.Meter.Dispose">
       <summary>Dispose the Meter which will disable all instruments created by this meter.</summary>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.Meter.Dispose(System.Boolean)">
+      <param name="disposing" />
     </member>
     <member name="P:System.Diagnostics.Metrics.Meter.Name">
       <summary>Gets the Meter name.</summary>
       <returns>The Meter name</returns>
     </member>
+    <member name="P:System.Diagnostics.Metrics.Meter.Scope" />
+    <member name="P:System.Diagnostics.Metrics.Meter.Tags" />
     <member name="P:System.Diagnostics.Metrics.Meter.Version">
       <summary>Gets the Meter version.</summary>
       <returns>The Meter version.</returns>
+    </member>
+    <member name="T:System.Diagnostics.Metrics.MeterFactoryExtensions" />
+    <member name="M:System.Diagnostics.Metrics.MeterFactoryExtensions.Create(System.Diagnostics.Metrics.IMeterFactory,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="meterFactory" />
+      <param name="name" />
+      <param name="version" />
+      <param name="tags" />
     </member>
     <member name="T:System.Diagnostics.Metrics.MeterListener">
       <summary>The MeterListener is class used to listen to the metrics instrument measurements recording.</summary>
@@ -1526,6 +1674,14 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
             This can happen when the Meter or the Listener is disposed or calling <see cref="M:System.Diagnostics.Metrics.MeterListener.Dispose" /> on the listener.</summary>
       <returns>The callback to get notified when the measurement is stopped on some instrument.</returns>
     </member>
+    <member name="T:System.Diagnostics.Metrics.MeterOptions" />
+    <member name="M:System.Diagnostics.Metrics.MeterOptions.#ctor(System.String)">
+      <param name="name" />
+    </member>
+    <member name="P:System.Diagnostics.Metrics.MeterOptions.Name" />
+    <member name="P:System.Diagnostics.Metrics.MeterOptions.Scope" />
+    <member name="P:System.Diagnostics.Metrics.MeterOptions.Tags" />
+    <member name="P:System.Diagnostics.Metrics.MeterOptions.Version" />
     <member name="T:System.Diagnostics.Metrics.ObservableCounter`1">
       <summary>Represents a metrics-observable instrument that reports monotonically increasing values when the instrument is being observed, for example, CPU time (for different processes, threads, user mode, or kernel mode). Call <see cref="Overload:System.Diagnostics.Metrics.Meter.CreateObservableCounter" /> to create the observable counter object.</summary>
       <typeparam name="T">The type that the observable counter represents.</typeparam>
@@ -1545,6 +1701,13 @@ The characters in <paramref name="idData" /> are not all lower-case hexadecimal 
       <param name="name">The instrument name. cannot be <see langword="null" />.</param>
       <param name="unit">Optional instrument unit of measurements.</param>
       <param name="description">Optional instrument description.</param>
+    </member>
+    <member name="M:System.Diagnostics.Metrics.ObservableInstrument`1.#ctor(System.Diagnostics.Metrics.Meter,System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+      <param name="meter" />
+      <param name="name" />
+      <param name="unit" />
+      <param name="description" />
+      <param name="tags" />
     </member>
     <member name="M:System.Diagnostics.Metrics.ObservableInstrument`1.Observe">
       <summary>Fetches the current measurements being tracked by this instrument. All classes extending ObservableInstrument{T} need to implement this method.</summary>

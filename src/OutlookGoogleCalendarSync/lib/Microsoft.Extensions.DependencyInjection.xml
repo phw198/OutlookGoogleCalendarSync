@@ -85,10 +85,25 @@
             the annotations, the trimmer will see which members need to be preserved on the closed generic argument type.
             </remarks>
         </member>
-        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(System.Type,Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteChain,System.Reflection.ParameterInfo[],System.Boolean)">
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceIdentifier,System.Type,Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteChain,System.Reflection.ParameterInfo[],System.Boolean)">
             <returns>Not <b>null</b> if <b>throwIfCallSiteNotFound</b> is true</returns>
         </member>
-        <member name="P:Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceCacheKey.Type">
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.VerifyOpenGenericAotCompatibility(System.Type,System.Type[])">
+            <summary>
+            Verifies none of the generic type arguments are ValueTypes.
+            </summary>
+            <remarks>
+            NativeAOT apps are not guaranteed that the native code for the closed generic of ValueType
+            has been generated. To catch these problems early, this verification is enabled at development-time
+            to inform the developer early that this scenario will not work once AOT'd.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.KeysMatch(System.Object,System.Object)">
+            <summary>
+            Returns true if both keys are null or equals, or if key1 is KeyedService.AnyKey and key2 is not null
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceCacheKey.ServiceIdentifier">
             <summary>
             Type of service being cached
             </summary>
@@ -127,6 +142,23 @@
             </summary>
             <param name="serviceType">The type of the service to get.</param>
             <returns>The service that was produced.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceProvider.GetKeyedService(System.Type,System.Object)">
+            <summary>
+            Gets the service object of the specified type with the specified key.
+            </summary>
+            <param name="serviceType">The type of the service to get.</param>
+            <param name="serviceKey">The key of the service to get.</param>
+            <returns>The keyed service.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceProvider.GetRequiredKeyedService(System.Type,System.Object)">
+            <summary>
+            Gets the service object of the specified type. Will throw if the service not found.
+            </summary>
+            <param name="serviceType">The type of the service to get.</param>
+            <param name="serviceKey">The key of the service to get.</param>
+            <returns>The keyed service.</returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
         </member>
         <member name="M:Microsoft.Extensions.DependencyInjection.ServiceProvider.Dispose">
             <inheritdoc />
@@ -546,6 +578,18 @@
         </member>
         <member name="P:System.SR.TrimmingAnnotationsDoNotMatch_NewConstraint">
             <summary>Generic implementation type '{0}' has a DefaultConstructorConstraint ('new()' constraint), but the generic service type '{1}' doesn't.</summary>
+        </member>
+        <member name="P:System.SR.AotCannotCreateEnumerableValueType">
+            <summary>Unable to create an Enumerable service of type '{0}' because it is a ValueType. Native code to support creating Enumerable services might not be available with native AOT.</summary>
+        </member>
+        <member name="P:System.SR.AotCannotCreateGenericValueType">
+            <summary>Unable to create a generic service for type '{0}' because '{1}' is a ValueType. Native code to support creating generic services might not be available with native AOT.</summary>
+        </member>
+        <member name="P:System.SR.NoServiceRegistered">
+            <summary>No service for type '{0}' has been registered.</summary>
+        </member>
+        <member name="P:System.SR.InvalidServiceKeyType">
+            <summary>The type of the key used for lookup doesn't match the type in the constructor parameter with the ServiceKey attribute.</summary>
         </member>
         <member name="T:System.Runtime.InteropServices.LibraryImportAttribute">
             <summary>

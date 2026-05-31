@@ -7,6 +7,8 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     public partial class ErrorReporting : Form {
         private static readonly ILog log = LogManager.GetLogger(typeof(ErrorReporting));
 

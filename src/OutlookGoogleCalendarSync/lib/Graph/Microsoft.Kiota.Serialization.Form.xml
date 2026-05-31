@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Serialization.Form</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Serialization.Form.FormParseNode">
+            <summary>Represents a parse node that can be used to parse a form url encoded string.</summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Microsoft.Kiota.Serialization.Form.FormParseNode"/> class.</summary>
+            <param name="rawValue">The raw value to parse.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when the <paramref name="rawValue"/> is null.</exception>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormParseNode.OnBeforeAssignFieldValues">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormParseNode.OnAfterAssignFieldValues">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetBoolValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetByteArrayValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetByteValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetChildNode(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetCollectionOfObjectValues``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetCollectionOfPrimitiveValues``1">
+            <summary>
+            Get the collection of primitives of type <typeparam name="T"/>from the form node
+            </summary>
+            <returns>A collection of objects</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetDateTimeOffsetValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetDateValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetDecimalValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetDoubleValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetFloatValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetGuidValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetIntValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetLongValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetObjectValue``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetSbyteValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetStringValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetTimeSpanValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetTimeValue">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetCollectionOfEnumValues``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNode.GetEnumValue``1">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Form.FormParseNodeFactory">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IAsyncParseNodeFactory"/> implementation for form content types
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormParseNodeFactory.ValidContentType">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNodeFactory.GetRootParseNode(System.String,System.IO.Stream)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormParseNodeFactory.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Form.FormSerializationWriter">
+            <summary>Represents a serialization writer that can be used to write a form url encoded string.</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.OnBeforeObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.OnAfterObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.OnStartObjectSerialization">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.GetSerializedContent">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteAdditionalData(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteBoolValue(System.String,System.Nullable{System.Boolean})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteByteArrayValue(System.String,System.Byte[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteByteValue(System.String,System.Nullable{System.Byte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteCollectionOfObjectValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteCollectionOfPrimitiveValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteDateTimeOffsetValue(System.String,System.Nullable{System.DateTimeOffset})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteDateValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Date})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteDecimalValue(System.String,System.Nullable{System.Decimal})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteDoubleValue(System.String,System.Nullable{System.Double})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteFloatValue(System.String,System.Nullable{System.Single})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteGuidValue(System.String,System.Nullable{System.Guid})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteIntValue(System.String,System.Nullable{System.Int32})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteLongValue(System.String,System.Nullable{System.Int64})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteNullValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteObjectValue``1(System.String,``0,Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteSbyteValue(System.String,System.Nullable{System.SByte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteStringValue(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteTimeSpanValue(System.String,System.Nullable{System.TimeSpan})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteTimeValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Time})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteCollectionOfEnumValues``1(System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriter.WriteEnumValue``1(System.String,System.Nullable{``0})">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Form.FormSerializationWriterFactory">
+            <summary>Represents a serialization writer factory that can be used to create a form url encoded serialization writer.</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Form.FormSerializationWriterFactory.ValidContentType">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Form.FormSerializationWriterFactory.GetSerializationWriter(System.String)">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>

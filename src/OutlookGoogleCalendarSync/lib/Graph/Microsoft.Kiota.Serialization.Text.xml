@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Serialization.Text</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Serialization.Text.TextParseNode">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> implementation for the text/plain content type
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Serialization.Text.TextParseNode"/> class.
+            </summary>
+            <param name="text">The text value.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextParseNode.OnBeforeAssignFieldValues">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextParseNode.OnAfterAssignFieldValues">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetBoolValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetByteArrayValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetByteValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetChildNode(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetCollectionOfObjectValues``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetCollectionOfPrimitiveValues``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetDateTimeOffsetValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetDateValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetDecimalValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetDoubleValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetFloatValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetGuidValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetIntValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetLongValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetObjectValue``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetSbyteValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetStringValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetTimeSpanValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetTimeValue">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetCollectionOfEnumValues``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNode.GetEnumValue``1">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Text.TextParseNodeFactory">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IAsyncParseNodeFactory"/> implementation for text/plain content types
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextParseNodeFactory.ValidContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNodeFactory.GetRootParseNode(System.String,System.IO.Stream)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextParseNodeFactory.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Text.TextSerializationWriter">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> implementation for text content types.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Serialization.Text.TextSerializationWriter"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.OnBeforeObjectSerialization">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.OnAfterObjectSerialization">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.OnStartObjectSerialization">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.GetSerializedContent">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteAdditionalData(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteBoolValue(System.String,System.Nullable{System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteByteArrayValue(System.String,System.Byte[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteByteValue(System.String,System.Nullable{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteCollectionOfObjectValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteCollectionOfPrimitiveValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteDateTimeOffsetValue(System.String,System.Nullable{System.DateTimeOffset})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteDateValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Date})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteDecimalValue(System.String,System.Nullable{System.Decimal})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteDoubleValue(System.String,System.Nullable{System.Double})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteFloatValue(System.String,System.Nullable{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteGuidValue(System.String,System.Nullable{System.Guid})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteIntValue(System.String,System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteLongValue(System.String,System.Nullable{System.Int64})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteNullValue(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteObjectValue``1(System.String,``0,Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteSbyteValue(System.String,System.Nullable{System.SByte})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteStringValue(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteTimeSpanValue(System.String,System.Nullable{System.TimeSpan})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteTimeValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Time})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteCollectionOfEnumValues``1(System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriter.WriteEnumValue``1(System.String,System.Nullable{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.Text.TextSerializationWriterFactory">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory"/> implementation for the text content type
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Serialization.Text.TextSerializationWriterFactory.ValidContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.Text.TextSerializationWriterFactory.GetSerializationWriter(System.String)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

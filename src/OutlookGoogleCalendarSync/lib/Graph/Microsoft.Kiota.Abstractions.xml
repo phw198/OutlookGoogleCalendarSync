@@ -1,0 +1,2518 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Abstractions</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Abstractions.ApiClientBuilder">
+            <summary>
+                Provides a builder for creating an ApiClient and register the default serializers/deserializers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiClientBuilder.RegisterDefaultSerializer``1">
+            <summary>
+            Registers the default serializer to the registry.
+            </summary>
+            <typeparam name="T">The type of the serialization factory to register</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiClientBuilder.RegisterDefaultDeserializer``1">
+            <summary>
+            Registers the default deserializer to the registry.
+            </summary>
+            <typeparam name="T">The type of the parse node factory to register</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiClientBuilder.EnableBackingStoreForSerializationWriterFactory(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory)">
+            <summary>
+            Enables the backing store on default serialization writers and the given serialization writer.
+            </summary>
+            <param name="original">The serialization writer to enable the backing store on.</param>
+            <returns>A new serialization writer with the backing store enabled.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiClientBuilder.EnableBackingStoreForParseNodeFactory(Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory)">
+            <summary>
+            Enables the backing store on default parse nodes factories and the given parse node factory.
+            </summary>
+            <param name="original">The parse node factory to enable the backing store on.</param>
+            <returns>A new parse node factory with the backing store enabled.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.ApiException">
+            <summary>
+            Parent type for exceptions thrown by the client when receiving failed responses to its requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiException.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiException.#ctor(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.ApiException.#ctor(System.String,System.Exception)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.ApiException.ResponseStatusCode">
+            <summary>
+            The HTTP response status code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.ApiException.ResponseHeaders">
+            <summary>
+            The HTTP response headers.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator">
+            <summary>
+            Validator for handling allowed hosts for authentication
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.#ctor(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator"/> constructor
+            </summary>
+            <param name="validHosts"> Collection of valid Hosts</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.AllowedHosts">
+            <summary>
+            Gets/Sets the collection of allowed hosts for the configurator
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.IsUrlHostValid(System.Uri)">
+            <summary>
+            Validates that the given Uri is valid
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri"/> to validate</param>
+            <returns>
+            true - if the host is in the <see cref="P:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.AllowedHosts"/>. If <see cref="P:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.AllowedHosts"/> is empty, it will return true for all urls.
+            false - if the <see cref="P:Microsoft.Kiota.Abstractions.Authentication.AllowedHostsValidator.AllowedHosts"/> is not empty and the host is not in the list
+            </returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.AnonymousAuthenticationProvider">
+            <summary>
+            This authentication provider does not perform any authentication.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.AnonymousAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider">
+            <summary>
+            This authentication provider authenticates requests using an API key.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.#ctor(System.String,System.String,Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.KeyLocation,System.String[])">
+            <summary>
+            Instantiates a new <see cref="T:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider"/> using the provided parameters.
+            </summary>
+            <param name="apiKey">The API key to use for authentication.</param>
+            <param name="parameterName">The name of the query parameter or header to use for authentication.</param>
+            <param name="keyLocation">The location of the API key.</param>
+            <param name="allowedHosts">The hosts that are allowed to use the provided API key.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.KeyLocation">
+            <summary>
+            The location of the API key parameter.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.KeyLocation.QueryParameter">
+            <summary>
+            The API key is passed as a query parameter.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Authentication.ApiKeyAuthenticationProvider.KeyLocation.Header">
+            <summary>
+            The API key is passed as a header.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider">
+            <summary>
+                Provides a base class for implementing <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider" /> for Bearer token scheme.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider.#ctor(Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider)">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider"/>.
+            </summary>
+            <param name="accessTokenProvider">The <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider"/> to use for getting the access token.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider.AccessTokenProvider">
+            <summary>
+                Gets the <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider" /> to use for getting the access token.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.BasicAuthenticationProvider">
+            <summary>
+            This authentication provider authenticates requests using HTTP Basic authentication.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.BasicAuthenticationProvider.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates a new <see cref="T:Microsoft.Kiota.Abstractions.Authentication.BasicAuthenticationProvider"/> using the provided parameters.
+            </summary>
+            <param name="username">The username to use for authentication.</param>
+            <param name="password">The password to use for authentication.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.BasicAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider">
+            <summary>
+            Defines a contract for obtaining access tokens for a given url.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider.GetAuthorizationTokenAsync(System.Uri,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <summary>
+                This method is called by the <see cref="T:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider" /> class to get the access token.
+            </summary>
+            <param name="uri">The target URI to get an access token for.</param>
+            <param name="additionalAuthenticationContext">Additional authentication context to pass to the authentication library.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns>A Task that holds the access token to use for the request.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider.AllowedHostsValidator">
+            <summary>
+            Returns the <see cref="P:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider.AllowedHostsValidator"/> for the provider.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider">
+            <summary>
+            Authenticates the application request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <summary>
+            Authenticates the application request.
+            </summary>
+            <param name="request">The request to authenticate.</param>
+            <param name="additionalAuthenticationContext">Additional authentication context to pass to the authentication library.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns>A task to await for the authentication to be completed.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.BaseRequestBuilder">
+            <summary>
+            Base class for all request builders
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.BaseRequestBuilder.PathParameters">
+            <summary>Path parameters for the request</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.BaseRequestBuilder.RequestAdapter">
+            <summary>The request adapter to use to execute the requests.</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.BaseRequestBuilder.UrlTemplate">
+            <summary>Url template to use to build the URL for the current request builder</summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.BaseRequestBuilder.#ctor(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Instantiates a new <see cref="T:Microsoft.Kiota.Abstractions.BaseRequestBuilder"/> class
+            </summary>
+            <param name="pathParameters">Path parameters for the request</param>
+            <param name="requestAdapter">The request adapter to use to execute the requests.</param>
+            <param name="urlTemplate">Url template to use to build the URL for the current request builder</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.BaseRequestBuilder.#ctor(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.String)">
+            <summary>
+            Instantiates a new <see cref="T:Microsoft.Kiota.Abstractions.BaseRequestBuilder"/> class
+            </summary>
+            <param name="requestAdapter">The request adapter to use to execute the requests.</param>
+            <param name="urlTemplate">Url template to use to build the URL for the current request builder</param>
+            <param name="rawUrl">The raw URL to use for the current request builder</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Date">
+            <summary>
+            Model to represent only the date component of a DateTime
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Date.#ctor(System.DateTime)">
+            <summary>
+            Create a new Date object from a <see cref="P:Microsoft.Kiota.Abstractions.Date.DateTime"/> object
+            </summary>
+            <param name="dateTime">The <see cref="P:Microsoft.Kiota.Abstractions.Date.DateTime"/> object to use</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Date.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Create a new Date object from a year, month, and day.
+            </summary>
+            <param name="year">The year.</param>
+            <param name="month">The month.</param>
+            <param name="day">The day of the month.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Date.DateTime">
+            <summary>
+            The DateTime object.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Date.Year">
+            <summary>
+            The date's year.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Date.Month">
+            <summary>
+            The date's month.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Date.Day">
+            <summary>
+            The date's day.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Date.ToString">
+            <summary>
+            Convert the date to a string.
+            </summary>
+            <returns>The string value of the date in the format "yyyy-MM-dd".</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.DefaultQueryParameters">
+            <summary>
+            Default placeholder class for query parameters.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Extensions.IDictionaryExtensions">
+            <summary>
+            Extension methods for the <see cref="T:System.Collections.IDictionary"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Extensions.IDictionaryExtensions.TryAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Try to add the element to the <see cref="T:System.Collections.IDictionary"/> instance.
+            </summary>
+            <typeparam name="TKey"> The type of the key</typeparam>
+            <typeparam name="TValue">The type of the value</typeparam>
+            <param name="dictionary">The dictionary to add to.</param>
+            <param name="key">The key parameter.</param>
+            <param name="value">The value</param>
+            <returns>True or False based on whether the item is added successfully</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Extensions.IDictionaryExtensions.AddOrReplace``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Adds or replaces the element to the <see cref="T:System.Collections.IDictionary"/> instance.
+            </summary>
+            <typeparam name="TKey"> The type of the key</typeparam>
+            <typeparam name="TValue">The type of the value</typeparam>
+            <param name="dictionary">The dictionary to add to.</param>
+            <param name="key">The key parameter.</param>
+            <param name="value">The value</param>
+            <returns>The previous value if any</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Extensions.IEnumerableExtensions">
+            <summary>
+            Extension methods for <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Extensions.IEnumerableExtensions.AsList``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Converts an <see cref="T:System.Collections.Generic.IEnumerable`1"/> to a <see cref="T:System.Collections.Generic.List`1"/>.
+            </summary>
+            <typeparam name="T">The type of elements in the collection.</typeparam>
+            <param name="e">The enumerable to convert.</param>
+            <returns>A <see cref="T:System.Collections.Generic.List`1"/> containing the elements of the enumerable, or <c>null</c> if the input is <c>null</c>.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Extensions.IEnumerableExtensions.AsArray``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Converts an <see cref="T:System.Collections.Generic.IEnumerable`1"/> to an array.
+            </summary>
+            <typeparam name="T">The type of elements in the collection.</typeparam>
+            <param name="e">The enumerable to convert.</param>
+            <returns>An array containing the elements of the enumerable, or <c>null</c> if the input is <c>null</c>.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Extensions.StringExtensions">
+            <summary>
+            The class for extension methods for <see cref="T:System.String"/> type
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Extensions.StringExtensions.ToFirstCharacterLowerCase(System.String)">
+            <summary>
+                Returns a string with the first letter lowered.
+            </summary>
+            <param name="input">The string to lowercase.</param>
+            <returns>The input string with the first letter lowered.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Helpers.EnumHelpers">
+            <summary>
+            Helper methods for enums
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Helpers.EnumHelpers.GetEnumValue``1(System.String)">
+            <summary>
+            Gets the enum value from the raw value
+            </summary>
+            <typeparam name="T">Enum type</typeparam>
+            <param name="rawValue">Raw value</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Helpers.EnumHelpers.GetEnumValue(System.Type,System.String)">
+            <summary>
+            Gets the enum value from the raw value for the given type
+            </summary>
+            <param name="type">Enum type</param>
+            <param name="rawValue">Raw value</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Helpers.EnumHelpers.GetEnumStringValue``1(``0)">
+            <summary>
+            Gets the enum string representation of the given value. Looks up if there is an <see cref="T:System.Runtime.Serialization.EnumMemberAttribute"/> and returns the value if found, otherwise returns the enum name in camel case.
+            </summary>
+            <typeparam name="T">The Enum type</typeparam>
+            <param name="value">The enum value</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException">If value is null</exception>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.IRequestAdapter">
+            <summary>
+              Service responsible for translating abstract Request Info into concrete native HTTP requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.EnableBackingStore(Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory)">
+            <summary>
+             Enables the backing store proxies for the SerializationWriters and ParseNodes in use.
+            </summary>
+            <param name="backingStoreFactory">The backing store factory to use.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.IRequestAdapter.SerializationWriterFactory">
+            <summary>
+            Gets the serialization writer factory currently in use for the HTTP core service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.SendAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="factory">The factory of the response model to deserialize the response into.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>The deserialized response model.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.SendCollectionAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model collection.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="factory">The factory of the response model to deserialize the response into.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>The deserialized response model collection.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.SendPrimitiveAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation and returns the deserialized primitive response model.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>The deserialized primitive response model.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.SendPrimitiveCollectionAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation and returns the deserialized primitive response model collection.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>The deserialized primitive response model collection.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.SendNoContentAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation with no return content.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>A Task to await completion.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.IRequestAdapter.BaseUrl">
+            <summary>
+            The base url for every request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IRequestAdapter.ConvertToNativeRequestAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Threading.CancellationToken)">
+            <summary>
+            Converts the given RequestInformation into a native HTTP request used by the implementing adapter.
+            </summary>
+            <typeparam name="T">The type of the native request.</typeparam>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the requests.</param>
+            <returns>The native HTTP request.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.IRequestOption">
+            <summary>
+            Represents a request option.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.IResponseHandler">
+            <summary>
+                Defines the contract for a response handler.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.IResponseHandler.HandleResponseAsync``2(``0,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}})">
+            <summary>
+                Callback method that is invoked when a response is received.
+            </summary>
+            <param name="response">The native response object.</param>
+            <param name="errorMappings">The error mappings for the response to use when deserializing failed responses bodies. Where an error code like 401 applies specifically to that status code, a class code like 4XX applies to all status codes within the range if an the specific error code is not present.</param>
+            <typeparam name="NativeResponseType">The type of the native response object.</typeparam>
+            <typeparam name="ModelType">The type of the response model object.</typeparam>
+            <returns>A task that represents the asynchronous operation and contains the deserialized response.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Method">
+            <summary>
+                Represents the HTTP method used by a request.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.GET">
+            <summary>
+                The HTTP GET method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.POST">
+            <summary>
+                The HTTP POST method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.PATCH">
+            <summary>
+                The HTTP PATCH method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.DELETE">
+            <summary>
+                The HTTP DELETE method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.OPTIONS">
+            <summary>
+                The HTTP OPTIONS method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.PUT">
+            <summary>
+                The HTTP PUT method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.HEAD">
+            <summary>
+                The HTTP HEAD method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.CONNECT">
+            <summary>
+                The HTTP CONNECT method.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Method.TRACE">
+            <summary>
+                The HTTP TRACE method.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.MultipartBody">
+            <summary>
+            Represents a multipart body for a request or a response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.MultipartBody.Boundary">
+            <summary>
+            The boundary to use for the multipart body.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.MultipartBody.RequestAdapter">
+            <summary>
+            The request adapter to use for serialization.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.AddOrReplacePart``1(System.String,System.String,``0,System.String)">
+            <summary>
+            Adds or replaces a part to the multipart body.
+            </summary>
+            <typeparam name="T">The type of the part value.</typeparam>
+            <param name="partName">The name of the part.</param>
+            <param name="contentType">The content type of the part.</param>
+            <param name="partValue">The value of the part.</param>
+            <param name="fileName">An optional file name for the part.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.GetPartValue``1(System.String)">
+            <summary>
+            Gets the value of a part from the multipart body.
+            </summary>
+            <typeparam name="T">The type of the part value.</typeparam>
+            <param name="partName">The name of the part.</param>
+            <returns>The value of the part.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.GetPartValue``1(System.String,System.String)">
+            <summary>
+            Gets the value of a part from the multipart body.
+            </summary>
+            <typeparam name="T">The type of the part value.</typeparam>
+            <param name="partName">The name of the part.</param>
+            <param name="fileName">An optional file name for the part.</param>
+            <returns>The value of the part.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.RemovePart(System.String)">
+            <summary>
+            Removes a part from the multipart body.
+            </summary>
+            <param name="partName">The name of the part.</param>
+            <returns>True if the part was removed, false otherwise.</returns>   
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.RemovePart(System.String,System.String)">
+            <summary>
+            Removes a part from the multipart body.
+            </summary>
+            <param name="partName">The name of the part.</param>
+            <param name="fileName">An optional file name for the part.</param>
+            <returns>True if the part was removed, false otherwise.</returns>   
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.GetFieldDeserializers">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.MultipartBody.Serialize(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.NativeResponseHandler">
+            <summary>
+            Default response handler to access the native response object.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.NativeResponseHandler.Value">
+            <summary>
+            The value of the response
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.NativeResponseHandler.ErrorMappings">
+            <summary>
+            The error mappings for the response to use when deserializing failed responses bodies. Where an error code like 401 applies specifically to that status code, a class code like 4XX applies to all status codes within the range if an the specific error code is not present.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.NativeResponseHandler.HandleResponseAsync``2(``0,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}})">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.NativeResponseWrapper">
+            <summary>
+            This class can be used to wrap a request using the fluent API and get the native response object in return.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.NativeResponseWrapper.CallAndGetNativeType``3(System.Func{System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},Microsoft.Kiota.Abstractions.IResponseHandler,System.Threading.Tasks.Task{``0}},System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption})">
+            <summary>
+            Makes a request with the <typeparam name="QueryParametersType"/> instance to get a response with
+            a <typeparam name="NativeResponseType"/> instance and expect an instance of <typeparam name="ModelType"/>
+            </summary>
+            <param name="originalCall">The original request to make</param>
+            <param name="q">The query parameters of the request</param>
+            <param name="h">The request headers of the request</param>
+            <param name="o">Request options</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.NativeResponseWrapper.CallAndGetNativeType``4(System.Func{``3,System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},Microsoft.Kiota.Abstractions.IResponseHandler,System.Threading.Tasks.Task{``0}},``3,System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption})">
+            <summary>
+            Makes a request with the <typeparam name="RequestBodyType"/> and <typeparam name="QueryParametersType"/> instances to get a response with
+            a <typeparam name="NativeResponseType"/> instance and expect an instance of <typeparam name="ModelType"/>
+            </summary>
+            <param name="originalCall">The original request to make</param>
+            <param name="requestBody">The request body of the request</param>
+            <param name="q">The query parameters of the request</param>
+            <param name="h">The request headers of the request</param>
+            <param name="o">Request options</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.NativeResponseWrapper.CallAndGetNativeTypeAsync``3(System.Func{System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},Microsoft.Kiota.Abstractions.IResponseHandler,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},System.Threading.CancellationToken)">
+            <summary>
+            Makes a request with the <typeparam name="QueryParametersType"/> instance to get a response with
+            a <typeparam name="NativeResponseType"/> instance and expect an instance of <typeparam name="ModelType"/>
+            </summary>
+            <param name="originalCall">The original request to make</param>
+            <param name="q">The query parameters of the request</param>
+            <param name="h">The request headers of the request</param>
+            <param name="o">Request options</param>
+            <param name="cancellationToken">The cancellation token</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.NativeResponseWrapper.CallAndGetNativeTypeAsync``4(System.Func{``3,System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},Microsoft.Kiota.Abstractions.IResponseHandler,System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}},``3,System.Action{``2},System.Action{System.Collections.Generic.IDictionary{System.String,System.String}},System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption},System.Threading.CancellationToken)">
+            <summary>
+            Makes a request with the <typeparam name="RequestBodyType"/> and <typeparam name="QueryParametersType"/> instances to get a response with
+            a <typeparam name="NativeResponseType"/> instance and expect an instance of <typeparam name="ModelType"/>
+            </summary>
+            <param name="originalCall">The original request to make</param>
+            <param name="requestBody">The request body of the request</param>
+            <param name="q">The query parameters of the request</param>
+            <param name="h">The request headers of the request</param>
+            <param name="o">Request options</param>
+            <param name="cancellationToken">The cancellation token</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.QueryParameterAttribute">
+            <summary>
+            This attribute allows mapping between the query parameter name in the template and the property name in the class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.QueryParameterAttribute.#ctor(System.String)">
+            <summary>
+             Creates a new instance of the attribute
+            </summary>
+            <param name="templateName">The name of the parameter in the template.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.QueryParameterAttribute.TemplateName">
+            <summary>
+             The name of the parameter in the template.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.RequestConfiguration`1">
+            <summary>
+            Request configuration type for the request builders
+            </summary>
+            <typeparam name="T">The type of the query parameters class.</typeparam>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestConfiguration`1.Headers">
+            <summary>Request headers</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestConfiguration`1.Options">
+            <summary>Request options</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestConfiguration`1.QueryParameters">
+            <summary>Query parameters</summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.RequestHeaders">
+            <summary>Represents a collection of request headers.</summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Add(System.String,System.String[])">
+            <summary>
+            Adds values to the header with the specified name.
+            </summary>
+            <param name="headerName">The name of the header to add values to.</param>
+            <param name="headerValues">The values to add to the header.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.TryAdd(System.String,System.String)">
+            <summary>
+            Adds values to the header with the specified name if it's not already present
+            </summary>
+            <param name="headerName">The name of the header to add values to.</param>
+            <param name="headerValue">The values to add to the header.</param>
+            <returns>If the headerValue have been added to the Dictionary.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestHeaders.Keys">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestHeaders.Values">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestHeaders.Count">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestHeaders.IsReadOnly">
+            <inheritdoc/>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestHeaders.Item(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Remove(System.String,System.String)">
+            <summary>
+            Removes the specified value from the header with the specified name.
+            </summary>
+            <param name="headerName">The name of the header to remove the value from.</param>
+            <param name="headerValue">The value to remove from the header.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.AddAll(Microsoft.Kiota.Abstractions.RequestHeaders)">
+            <summary>
+            Adds all the headers values from the specified headers collection.
+            </summary>
+            <param name="headers">The headers to update the current headers with.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Clear">
+            <summary>
+            Removes all headers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.ContainsKey(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Add(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Remove(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.TryGetValue(System.String,System.Collections.Generic.IEnumerable{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Add(System.Collections.Generic.KeyValuePair{System.String,System.Collections.Generic.IEnumerable{System.String}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Contains(System.Collections.Generic.KeyValuePair{System.String,System.Collections.Generic.IEnumerable{System.String}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.CopyTo(System.Collections.Generic.KeyValuePair{System.String,System.Collections.Generic.IEnumerable{System.String}}[],System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.Remove(System.Collections.Generic.KeyValuePair{System.String,System.Collections.Generic.IEnumerable{System.String}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestHeaders.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.RequestInformation">
+            <summary>
+                This class represents an abstract HTTP request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.#ctor(Microsoft.Kiota.Abstractions.Method,System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> with the given method and url template.
+            </summary>
+            <param name="method"></param>
+            <param name="urlTemplate"></param>
+            <param name="pathParameters"></param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.Configure``1(System.Action{Microsoft.Kiota.Abstractions.RequestConfiguration{``0}})">
+            <summary>
+            Configures the current request configuration headers, query parameters, and options base on the callback provided.
+            </summary>
+            <typeparam name="T">Type for the query parameters</typeparam>
+            <param name="requestConfiguration">Callback to configure the request</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.URI">
+            <summary>
+             The URI of the request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.GetSanitizedValue(System.Object)">
+            <summary>
+            Sanitizes objects in order to appear appropriately in the URL
+            </summary>
+            <param name="value">Object to be sanitized</param>
+            <returns>Sanitized object</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.UrlTemplate">
+            <summary>
+            The Url template for the current request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.PathParameters">
+            <summary>
+            The path parameters to use for the URL template when generating the URI.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.HttpMethod">
+            <summary>
+             The <see cref="T:Microsoft.Kiota.Abstractions.Method">HTTP method</see> of the request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.QueryParameters">
+            <summary>
+            The Query Parameters of the request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.AddQueryParameters``1(``0)">
+            <summary>
+            Vanity method to add the query parameters to the request query parameters dictionary.
+            </summary>
+            <param name="source">The query parameters to add.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.Headers">
+            <summary>
+            The Request Headers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.AddHeaders(Microsoft.Kiota.Abstractions.RequestHeaders)">
+            <summary>
+            Vanity method to add the headers to the request headers dictionary.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.Content">
+            <summary>
+            The Request Body.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.RequestInformation.RequestOptions">
+            <summary>
+            Gets the options for this request. Options are unique by type. If an option of the same type is added twice, the last one wins.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.AddRequestOptions(System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.IRequestOption})">
+            <summary>
+            Adds an option to the request.
+            </summary>
+            <param name="options">The option to add.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.RemoveRequestOptions(Microsoft.Kiota.Abstractions.IRequestOption[])">
+            <summary>
+            Removes given options from the current request.
+            </summary>
+            <param name="options">Options to remove.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.GetRequestOption``1">
+            <summary>
+            Gets a <see cref="T:Microsoft.Kiota.Abstractions.IRequestOption"/> instance of the matching type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetResponseHandler(Microsoft.Kiota.Abstractions.IResponseHandler)">
+            <summary>
+            Adds a <see cref="T:Microsoft.Kiota.Abstractions.IResponseHandler"/> as a <see cref="T:Microsoft.Kiota.Abstractions.IRequestOption"/> for the request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetStreamContent(System.IO.Stream)">
+            <summary>
+            Sets the request body to a binary stream.
+            </summary>
+            <param name="content">The binary stream to set as a body.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetStreamContent(System.IO.Stream,System.String)">
+            <summary>
+            Sets the request body to a binary stream.
+            </summary>
+            <param name="content">The binary stream to set as a body.</param>
+            <param name="contentType">The content type to set.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromParsable``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Sets the request body from a model with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="items">The models to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The model type to serialize.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromParsable``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,``0)">
+            <summary>
+            Sets the request body from a model with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="item">The model to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The model type to serialize.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromScalarCollection``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Sets the request body from a scalar value with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="items">The scalar values to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The model type to serialize.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromScalar``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,``0)">
+            <summary>
+            Sets the request body from a scalar value with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="item">The scalar value to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The model type to serialize.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromEnum``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.Nullable{``0})">
+            <summary>
+            Sets the request body from an enum value with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="item">The enum value to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The enum type to serialize.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.RequestInformation.SetContentFromEnumCollection``1(Microsoft.Kiota.Abstractions.IRequestAdapter,System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <summary>
+            Sets the request body from a collection of enum values with the specified content type.
+            </summary>
+            <param name="requestAdapter">The core service to get the serialization writer from.</param>
+            <param name="items">The enum values to serialize.</param>
+            <param name="contentType">The content type to set.</param>
+            <typeparam name="T">The enum type to serialize.</typeparam>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.ResponseHandlerOption">
+            <summary>
+                Defines the <see cref="T:Microsoft.Kiota.Abstractions.IRequestOption"/> for holding a <see cref="T:Microsoft.Kiota.Abstractions.IResponseHandler"/>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.ResponseHandlerOption.ResponseHandler">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.IResponseHandler"/> to use for a request
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IAdditionalDataHolder">
+            <summary>
+            Defines a contract for models that can hold additional data besides the described properties.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.IAdditionalDataHolder.AdditionalData">
+            <summary>
+             Stores the additional data for this object that did not belong to the properties.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IAsyncParseNodeFactory">
+            <summary>
+            Defines the contract for a factory that creates parse nodes in an sync and async way.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IAsyncParseNodeFactory.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Create a parse node from the given stream and content type.
+            </summary>
+            <param name="content">The stream to read the parse node from.</param>
+            <param name="contentType">The content type of the parse node.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns>A parse node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IComposedTypeWrapper">
+            <summary>
+            Tags the current type as a composed type wrapper.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IParsable">
+            <summary>
+                Defines a serializable model object.
+            </summary>
+            <remarks>In the Microsoft.Kiota.Serialization namespace, you can find extension methods for serializing this object.</remarks>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParsable.GetFieldDeserializers">
+            <summary>
+              Gets the deserialization information for this object.
+            </summary>
+            <returns>The deserialization information for this object where each entry is a property key with its deserialization callback.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParsable.Serialize(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter)">
+            <summary>
+             Writes the objects properties to the current writer.
+            </summary>
+            <param name="writer">The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter">writer</see> to write to.</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode">
+            <summary>
+            Interface for a deserialization node in a parse tree. This interace provides an abstraction layer over serialiation formats, libararies and implementations.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetStringValue">
+            <summary>
+             Gets the string value of the node.
+            </summary>
+            <returns>The string value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetChildNode(System.String)">
+            <summary>
+             Gets a new parse node for the given identifier.
+            </summary>
+            <param name="identifier">The identifier.</param>
+            <returns>The new parse node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetBoolValue">
+            <summary>
+             Gets the boolean value of the node.
+            </summary>
+            <returns>The boolean value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetByteValue">
+            <summary>
+             Gets the byte value of the node.
+            </summary>
+            <returns>The byte value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetSbyteValue">
+            <summary>
+             Gets the sbyte value of the node.
+            </summary>
+            <returns>The sbyte value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetIntValue">
+            <summary>
+             Gets the integer value of the node.
+            </summary>
+            <returns>The integer value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetFloatValue">
+            <summary>
+             Gets the float value of the node.
+            </summary>
+            <returns>The float value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetLongValue">
+            <summary>
+             Gets the long value of the node.
+            </summary>
+            <returns>The long value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetDoubleValue">
+            <summary>
+            Gets the double value of the node.
+            </summary>
+            <returns>The double value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetDecimalValue">
+            <summary>
+            Gets the decimal value of the node.
+            </summary>
+            <returns>The decimal value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetGuidValue">
+            <summary>
+            Gets the GUID value of the node.
+            </summary>
+            <returns>The GUID value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetDateTimeOffsetValue">
+            <summary>
+            Gets the DateTimeOffset value of the node.
+            </summary>
+            <returns>The DateTimeOffset value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetTimeSpanValue">
+            <summary>
+            Gets the TimeSpan value of the node.
+            </summary>
+            <returns>The TimeSpan value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetDateValue">
+            <summary>
+            Gets the Date value of the node.
+            </summary>
+            <returns>The Date value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetTimeValue">
+            <summary>
+            Gets the Time value of the node.
+            </summary>
+            <returns>The Time value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetCollectionOfPrimitiveValues``1">
+            <summary>
+            Gets the collection of primitive values of the node.
+            </summary>
+            <returns>The collection of primitive values.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetCollectionOfEnumValues``1">
+            <summary>
+            Gets the collection of enum values of the node.
+            </summary>
+            <returns>The collection of enum values.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetCollectionOfObjectValues``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Gets the collection of model objects values of the node.
+            </summary>
+            <param name="factory">The factory to use to create the model object.</param>
+            <returns>The collection of model objects values.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetEnumValue``1">
+            <summary>
+            Gets the enum value of the node.
+            </summary>
+            <returns>The enum value of the node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetObjectValue``1(Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Gets the model object value of the node.
+            </summary>
+            <param name="factory">The factory to use to create the model object.</param>
+            <returns>The model object value of the node.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.IParseNode.OnBeforeAssignFieldValues">
+            <summary>
+            Callback called before the node is deserialized.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.IParseNode.OnAfterAssignFieldValues">
+            <summary>
+            Callback called after the node is deserialized.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNode.GetByteArrayValue">
+            <summary>
+            Gets the byte array value of the node.
+            </summary>
+            <returns>The byte array value of the node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory">
+            <summary>
+            Defines the contract for a factory that creates parse nodes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory.ValidContentType">
+            <summary>
+            Returns the content type this factory's parse nodes can deserialize.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory.GetRootParseNode(System.String,System.IO.Stream)">
+            <summary>
+            Create a parse node from the given stream and content type.
+            </summary>
+            <param name="content">The stream to read the parse node from.</param>
+            <param name="contentType">The content type of the parse node.</param>
+            <returns>A parse node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter">
+            <summary>
+            Defines an interface for serialization of objects to a stream.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteStringValue(System.String,System.String)">
+            <summary>
+            Writes the specified string value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The string value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteBoolValue(System.String,System.Nullable{System.Boolean})">
+            <summary>
+            Writes the specified boolean value to the stream with an optional given key. 
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The byte boolean value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteByteValue(System.String,System.Nullable{System.Byte})">
+            <summary>
+            Writes the specified byte value to the stream with an optional given key. 
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The byte value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteSbyteValue(System.String,System.Nullable{System.SByte})">
+            <summary>
+            Writes the specified sbyte value to the stream with an optional given key. 
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The sbyte value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteIntValue(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Writes the specified byte integer value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The byte integer value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteFloatValue(System.String,System.Nullable{System.Single})">
+            <summary>
+            Writes the specified float value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The float value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteLongValue(System.String,System.Nullable{System.Int64})">
+            <summary>
+            Writes the specified long value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The long value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteDoubleValue(System.String,System.Nullable{System.Double})">
+            <summary>
+            Writes the specified double value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The double value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteDecimalValue(System.String,System.Nullable{System.Decimal})">
+            <summary>
+            Writes the specified decimal value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The decimal value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteGuidValue(System.String,System.Nullable{System.Guid})">
+            <summary>
+            Writes the specified Guid value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The Guid value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteDateTimeOffsetValue(System.String,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Writes the specified DateTimeOffset value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The DateTimeOffset value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteTimeSpanValue(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Writes the specified TimeSpan value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The TimeSpan value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteDateValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Date})">
+            <summary>
+            Writes the specified Date value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The Date value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteTimeValue(System.String,System.Nullable{Microsoft.Kiota.Abstractions.Time})">
+            <summary>
+            Writes the specified Time value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The Time value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteCollectionOfPrimitiveValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Writes the specified collection of primitive values to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="values">The collection of primitive values to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteCollectionOfObjectValues``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Writes the specified collection of model objects to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="values">The collection of model objects to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteCollectionOfEnumValues``1(System.String,System.Collections.Generic.IEnumerable{System.Nullable{``0}})">
+            <summary>
+            Writes the specified collection of enum values to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="values">The enum values to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteByteArrayValue(System.String,System.Byte[])">
+            <summary>
+            Writes the specified byte array as a base64 string to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The byte array to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteObjectValue``1(System.String,``0,Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <summary>
+            Writes the specified model object to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The model object to be written.</param>
+            <param name="additionalValuesToMerge">The additional values to merge to the main value when serializing an intersection wrapper.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteEnumValue``1(System.String,System.Nullable{``0})">
+            <summary>
+            Writes the specified enum value to the stream with an optional given key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+            <param name="value">The enum value to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteNullValue(System.String)">
+            <summary>
+            Writes a null value for the specified key.
+            </summary>
+            <param name="key">The key to be used for the written value. May be null.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.WriteAdditionalData(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Writes the specified additional data to the stream.
+            </summary>
+            <param name="value">The additional data to be written.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.GetSerializedContent">
+            <summary>
+            Gets the value of the serialized content.
+            </summary>
+            <returns>The value of the serialized content.</returns>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.OnBeforeObjectSerialization">
+            <summary>
+            Callback called before the serialization process starts.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.OnAfterObjectSerialization">
+            <summary>
+            Callback called after the serialization process ends.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter.OnStartObjectSerialization">
+            <summary>
+            Callback called right after the serialization process starts.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory">
+            <summary>
+                Defines the contract for a factory that creates <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter" /> instances.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory.ValidContentType">
+            <summary>
+            Gets the content type this factory creates serialization writers for.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory.GetSerializationWriter(System.String)">
+            <summary>
+                Creates a new <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter" /> instance for the given content type.
+            </summary>
+            <param name="contentType">The content type for which a serialization writer should be created.</param>
+            <returns>A new <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter" /> instance for the given content type.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer">
+            <summary>
+            Set of helper methods for JSON serialization
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.Deserialize``1(System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.Deserialize``1(System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.Deserialize``1(System.IO.Stream)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.Deserialize``1(System.String)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollection``1(System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollection``1(System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the objects.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollection``1(System.IO.Stream)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollection``1(System.String)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync``1(System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync``1(System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync``1(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync``1(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync``1(System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync``1(System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the objects.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync``1(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync``1(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync(System.Type,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given string into an object.
+            </summary>
+            <param name="targetType">The target type to deserialize</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeAsync(System.Type,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object.
+            </summary>
+            <param name="targetType">The target type to deserialize</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync(System.Type,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="targetType">The target type to deserialize</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.DeserializeCollectionAsync(System.Type,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="targetType">The target type to deserialize</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStream``1(``0,System.Boolean)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsString``1(``0)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStringAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStringAsync``1(``0,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStream``1(System.Collections.Generic.IEnumerable{``0},System.Boolean)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsString``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStringAsync``1(System.Collections.Generic.IEnumerable{``0},System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaJsonSerializer.SerializeAsStringAsync``1(System.Collections.Generic.IEnumerable{``0},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer">
+            <summary>
+            Set of helper methods for serialization
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.Deserialize``1(System.String,System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.Deserialize``1(System.String,System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.Deserialize``1(System.String,System.IO.Stream)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.Deserialize``1(System.String,System.String)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollection``1(System.String,System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollection``1(System.String,System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0})">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the objects.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollection``1(System.String,System.IO.Stream)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollection``1(System.String,System.String)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync``1(System.String,System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync``1(System.String,System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync``1(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync``1(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into an object based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync``1(System.String,System.IO.Stream,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync``1(System.String,System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the objects.</param>
+            <param name="parsableFactory">The factory to create the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync``1(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync``1(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync(System.Type,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given string into a collection of objects based on the content type.
+            </summary>
+            <param name="type">The target type to deserialize</param>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeAsync(System.Type,System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="type">The target type to deserialize</param>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync(System.Type,System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="type">The target type to deserialize</param>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="stream">The stream to deserialize.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.DeserializeCollectionAsync(System.Type,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deserializes the given stream into a collection of objects based on the content type.
+            </summary>
+            <param name="type">The target type to deserialize</param>
+            <param name="contentType">The content type of the stream.</param>
+            <param name="serializedRepresentation">The serialized representation of the object.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStream``1(System.String,``0,System.Boolean)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsString``1(System.String,``0)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStringAsync``1(System.String,``0,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStringAsync``1(System.String,``0,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStream``1(System.String,System.Collections.Generic.IEnumerable{``0},System.Boolean)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">By default, you'll only get the changed properties.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsString``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStringAsync``1(System.String,System.Collections.Generic.IEnumerable{``0},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues"></param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.KiotaSerializer.SerializeAsStringAsync``1(System.String,System.Collections.Generic.IEnumerable{``0},System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <typeparam name="T">Type of the object to serialize</typeparam>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ParsableFactory`1">
+            <summary>
+            Defines the factory for creating parsable objects.
+            </summary>
+            <param name="node">The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode">node</see> to parse use to get the discriminator value from the payload.</param>
+            <returns>The <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParsable">parsable</see> object.</returns>
+            <typeparam name="T">The type of the parsable object.</typeparam>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry">
+            <summary>
+             This factory holds a list of all the registered factories for the various types of nodes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.ValidContentType">
+            <summary>
+            The valid content type for the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry"/>
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.DefaultInstance">
+            <summary>
+            Default singleton instance of the registry to be used when registering new factories that should be available by default.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.ContentTypeAssociatedFactories">
+            <summary>
+            List of factories that are registered by content type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.GetRootParseNode(System.String,System.IO.Stream)">
+            <summary>
+            Get the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> instance that is the root of the content
+            </summary>
+            <param name="contentType">The content type of the stream</param>
+            <param name="content">The <see cref="T:System.IO.Stream"/> to parse</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Get the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNode"/> instance that is the root of the content
+            </summary>
+            <param name="contentType">The content type of the stream</param>
+            <param name="content">The <see cref="T:System.IO.Stream"/> to parse</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeFactoryRegistry.GetFactory``1(System.String)">
+            <summary>
+            Get the <typeparamref name="T"/> instance for the given <paramref name="contentType"/>.
+            </summary>
+            <typeparam name="T">Type of the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory"/>.</typeparam>
+            <param name="contentType">The content type of the stream</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ParseNodeHelper">
+            <summary>
+            Helper methods for intersection wrappers
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeHelper.MergeDeserializersForIntersectionWrapper(Microsoft.Kiota.Abstractions.Serialization.IParsable[])">
+            <summary>
+            Merges the given fields deserializers for an intersection type into a single collection.
+            </summary>
+            <param name="targets">The collection of deserializers to merge.</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory">
+            <summary>
+            Proxy factory that allows the composition of before and after callbacks on existing factories.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory.ValidContentType">
+            <summary>
+            The valid content type for the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory"/> instance
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory.#ctor(Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory,System.Action{Microsoft.Kiota.Abstractions.Serialization.IParsable},System.Action{Microsoft.Kiota.Abstractions.Serialization.IParsable})">
+            <summary>
+            Creates a new proxy factory that wraps the specified concrete factory while composing the before and after callbacks.
+            </summary>
+            <param name="concrete">The concrete factory to wrap.</param>
+            <param name="onBefore">The callback to invoke before the deserialization of any model object.</param>
+            <param name="onAfter">The callback to invoke after the deserialization of any model object.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory.GetRootParseNode(System.String,System.IO.Stream)">
+            <summary>
+            Create a parse node from the given stream and content type.
+            </summary>
+            <param name="content">The stream to read the parse node from.</param>
+            <param name="contentType">The content type of the parse node.</param>
+            <returns>A parse node.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory.WireParseNode(Microsoft.Kiota.Abstractions.Serialization.IParseNode)">
+            <summary>
+            Wires node to before and after actions.
+            </summary>
+            <param name="node">A parse node to wire.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.ParseNodeProxyFactory.GetRootParseNodeAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Create a parse node from the given stream and content type.
+            </summary>
+            <param name="content">The stream to read the parse node from.</param>
+            <param name="contentType">The content type of the parse node.</param>
+            <param name="cancellationToken">The cancellation token for the task</param>
+            <returns>A parse node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry">
+            <summary>
+             This factory holds a list of all the registered factories for the various types of nodes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.ValidContentType">
+            <summary>
+            The valid content type for the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry"/>
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.DefaultInstance">
+            <summary>
+            Default singleton instance of the registry to be used when registering new factories that should be available by default.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.ContentTypeAssociatedFactories">
+            <summary>
+            List of factories that are registered by content type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.GetSerializationWriter(System.String)">
+            <summary>
+            Get the relevant <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> instance for the given content type
+            </summary>
+            <param name="contentType">The content type in use</param>
+            <returns>A <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> instance to parse the content</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.GetSerializationWriter(System.String,System.Boolean)">
+            <summary>
+            Get the relevant <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> instance for the given content type
+            </summary>
+            <param name="contentType">The content type in use</param>
+            <param name="serializeOnlyChangedValues">If <see langword="true"/> will only return changed values, otherwise will return the full object </param>
+            <returns>A <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter"/> instance to parse the content</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterFactoryRegistry.GetSerializationWriterFactory(System.String,System.String@)">
+            <summary>
+            Get the relevant <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory"/> instance for the given content type
+            </summary>
+            <param name="contentType">The content type in use</param>
+            <param name="actualContentType">The content type where a writer factory is found for</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory">
+            <summary>
+            Proxy factory that allows the composition of before and after callbacks on existing factories.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory.ValidContentType">
+            <summary>
+            The valid content type for the <see cref="T:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory"/>
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory.ProxiedSerializationWriterFactory">
+            <summary>
+            The factory that is being proxied.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory.#ctor(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory,System.Action{Microsoft.Kiota.Abstractions.Serialization.IParsable},System.Action{Microsoft.Kiota.Abstractions.Serialization.IParsable},System.Action{Microsoft.Kiota.Abstractions.Serialization.IParsable,Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter})">
+            <summary>
+            Creates a new proxy factory that wraps the specified concrete factory while composing the before and after callbacks.
+            </summary>
+            <param name="factoryToWrap">The concrete factory to wrap.</param>
+            <param name="onBeforeSerialization">The callback to invoke before the serialization of any model object.</param>
+            <param name="onAfterSerialization">The callback to invoke after the serialization of any model object.</param>
+            <param name="onStartSerialization">The callback to invoke when serialization of the entire model has started.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.SerializationWriterProxyFactory.GetSerializationWriter(System.String)">
+            <summary>
+            Creates a new <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter" /> instance for the given content type.
+            </summary>
+            <param name="contentType">The content type for which a serialization writer should be created.</param>
+            <returns>A new <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter" /> instance for the given content type.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedArray">
+            <summary>
+            Represents an untyped node with the collection of untyped values.
+            </summary>
+            <param name="value">The collection of child nodes.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedArray.#ctor(System.Collections.Generic.IEnumerable{Microsoft.Kiota.Abstractions.Serialization.UntypedNode})">
+            <summary>
+            Represents an untyped node with the collection of untyped values.
+            </summary>
+            <param name="value">The collection of child nodes.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedArray.GetValue">
+            <summary>
+            Gets the collection of untyped child nodes.
+            </summary>
+            <returns>The collection of untyped child nodes.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedBoolean">
+            <summary>
+            Represents an untyped node with boolean value.
+            </summary>
+            <param name="value">The boolean value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedBoolean.#ctor(System.Boolean)">
+            <summary>
+            Represents an untyped node with boolean value.
+            </summary>
+            <param name="value">The boolean value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedBoolean.GetValue">
+            <summary>
+            Gets the value associated with untyped boolean node.
+            </summary>
+            <returns>The value associated with untyped boolean node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedDecimal">
+            <summary>
+            Represents an untyped node with decimal value.
+            </summary>
+            <param name="value">The decimal value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedDecimal.#ctor(System.Decimal)">
+            <summary>
+            Represents an untyped node with decimal value.
+            </summary>
+            <param name="value">The decimal value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedDecimal.GetValue">
+            <summary>
+            Gets the value associated with untyped decimal node.
+            </summary>
+            <returns>The value associated with untyped decimal node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedDouble">
+            <summary>
+            Represents an untyped node with double value.
+            </summary>
+            <param name="value">The double value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedDouble.#ctor(System.Double)">
+            <summary>
+            Represents an untyped node with double value.
+            </summary>
+            <param name="value">The double value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedDouble.GetValue">
+            <summary>
+            Gets the value associated with untyped double node.
+            </summary>
+            <returns>The value associated with untyped double node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedFloat">
+            <summary>
+            Represents an untyped node with float value.
+            </summary>
+            <param name="value">The float value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedFloat.#ctor(System.Single)">
+            <summary>
+            Represents an untyped node with float value.
+            </summary>
+            <param name="value">The float value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedFloat.GetValue">
+            <summary>
+            Gets the value associated with untyped float node.
+            </summary>
+            <returns>The value associated with untyped float node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedInteger">
+            <summary>
+            Represents an untyped node with integer value.
+            </summary>
+            <param name="value">The integer value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedInteger.#ctor(System.Int32)">
+            <summary>
+            Represents an untyped node with integer value.
+            </summary>
+            <param name="value">The integer value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedInteger.GetValue">
+            <summary>
+            Gets the value associated with untyped integer node.
+            </summary>
+            <returns>The value associated with untyped integer node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedLong">
+            <summary>
+            Represents an untyped node with long value.
+            </summary>
+            <param name="value">The long value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedLong.#ctor(System.Int64)">
+            <summary>
+            Represents an untyped node with long value.
+            </summary>
+            <param name="value">The long value associated with the node.</param>
+        </member>
+        <member name="F:Microsoft.Kiota.Abstractions.Serialization.UntypedLong._value">
+            <summary>
+            The value associated with untyped long node.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedLong.GetValue">
+            <summary>
+            Gets the value associated with untyped long node.
+            </summary>
+            <returns>The value associated with untyped long node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedNode">
+            <summary>
+            Base class for untyped node.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedNode.GetFieldDeserializers">
+            <summary>
+            The deserialization information for the current model
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedNode.Serialize(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriter)">
+            <summary>
+            Serializes information the current object
+            <param name="writer">Serialization writer to use to serialize this model</param>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedNode.CreateFromDiscriminatorValue(Microsoft.Kiota.Abstractions.Serialization.IParseNode)">
+            <summary>
+            Creates a new instance of the appropriate class based on discriminator value
+            </summary>
+            <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedNode.GetValue">
+            <summary>
+            Gets the value assigned to untyped node.
+            </summary>
+            <returns>The value assigned to untyped node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedNull">
+            <summary>
+            Represents an untyped node without the value.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedNull.GetValue">
+            <summary>
+            Gets the value associated with untyped null node.
+            </summary>
+            <returns>The value associated with untyped null node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedObject">
+            <summary>
+            Represents an untyped node with object value.
+            </summary>
+            <param name="properties">Properties associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedObject.#ctor(System.Collections.Generic.IDictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.UntypedNode})">
+            <summary>
+            Represents an untyped node with object value.
+            </summary>
+            <param name="properties">Properties associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedObject.GetValue">
+            <summary>
+            Gets properties associated with untyped object node.
+            </summary>
+            <returns>Properties associated with untyped object node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Serialization.UntypedString">
+            <summary>
+            Represents an untyped node with string value.
+            </summary>
+            <param name="value">The string value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedString.#ctor(System.String)">
+            <summary>
+            Represents an untyped node with string value.
+            </summary>
+            <param name="value">The string value associated with the node.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Serialization.UntypedString.GetValue">
+            <summary>
+            Gets the string associated with untyped string node.
+            </summary>
+            <returns>The string associated with untyped string node.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.BackingStoreFactorySingleton">
+            <summary>
+                This class is used to register the backing store factory.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.BackingStoreFactorySingleton.Instance">
+            <summary>
+                The backing store factory singleton instance.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.BackingStoreParseNodeFactory">
+            <summary>
+            Proxy implementation of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IAsyncParseNodeFactory"/> for the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore">backing store</see> that automatically sets the state of the backing store when deserializing.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.BackingStoreParseNodeFactory.#ctor(Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Abstractions.Store.BackingStoreParseNodeFactory"/> class given a concrete implementation of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.BackingStoreSerializationWriterProxyFactory">
+            <summary>
+            Proxy implementation of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory"/> for the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore">backing store</see> that automatically sets the state of the backing store when serializing.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.BackingStoreSerializationWriterProxyFactory.#ctor(Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Abstractions.Store.BackingStoreSerializationWriterProxyFactory"/> class given a concrete implementation of <see cref="T:Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.BackingStoreSerializationWriterProxyFactory.GetSerializationWriter(System.String,System.Boolean)">
+            <summary>
+            Get the serialization writer for the given content type.
+            </summary>
+            <param name="contentType">The content type for which a serialization writer should be created.</param>
+            <param name="serializeOnlyChangedValues">By default, a backing store is used, and you'll only get changed properties</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.IBackedModel">
+            <summary>
+                Defines the contracts for a model that is backed by a store.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.IBackedModel.BackingStore">
+            <summary>
+                Gets the store that is backing the model.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.IBackingStore">
+            <summary>
+            Stores model information in a different location than the object properties. Implementations can provide dirty tracking capabilities, caching capabilities or integration with 3rd party stores.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Get``1(System.String)">
+            <summary>Gets a value from the backing store based on its key. Returns null if the value hasn't changed and "ReturnOnlyChangedValues" is true.</summary>
+            <returns>The value from the backing store.</returns>
+            <param name="key">The key to lookup the backing store with.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Set``1(System.String,``0)">
+            <summary>
+            Sets or updates the stored value for the given key.
+            Will trigger subscriptions callbacks.
+            </summary>
+            <param name="key">The key to store and retrieve the information.</param>
+            <param name="value">The value to be stored.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Enumerate">
+            <summary>Enumerates all the values stored in the backing store. Values will be filtered if "ReturnOnlyChangedValues" is true.</summary>
+            <returns>The values available in the backing store.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.EnumerateKeysForValuesChangedToNull">
+            <summary>
+            Enumerates the keys for all values that changed to null.
+            </summary>
+            <returns>The keys for all values that changed to null.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Subscribe(System.Action{System.String,System.Object,System.Object})">
+            <summary>
+            Creates a subscription to any data change happening.
+            </summary>
+            <param name="callback">Callback to be invoked on data changes where the first parameter is the data key, the second the previous value and the third the new value.</param>
+            <returns>The subscription Id to use when removing the subscription</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Subscribe(System.Action{System.String,System.Object,System.Object},System.String)">
+            <summary>
+            Creates a subscription to any data change happening, allowing to specify the subscription Id.
+            </summary>
+            <param name="callback">Callback to be invoked on data changes where the first parameter is the data key, the second the previous value and the third the new value.</param>
+            <param name="subscriptionId">The subscription Id to use.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Unsubscribe(System.String)">
+            <summary>
+            Removes a subscription from the store based on its subscription id.
+            </summary>
+            <param name="subscriptionId">The Id of the subscription to remove.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStore.Clear">
+            <summary>
+            Clears the data stored in the backing store. Doesn't trigger any subscription.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.IBackingStore.InitializationCompleted">
+            <value>Whether the initialization of the object and/or the initial deserialization has been completed to track whether objects have changed.</value>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.IBackingStore.ReturnOnlyChangedValues">
+            <value>Whether to return only values that have changed since the initialization of the object when calling the Get and Enumerate methods.</value>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory">
+            <summary>
+                Defines the contract for a factory that creates backing stores.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory.CreateBackingStore">
+            <summary>
+                Creates a new instance of the backing store.
+            </summary>
+            <returns>A new instance of the backing store.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore">
+            <summary>
+                In-memory implementation of the backing store. Allows for dirty tracking of changes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.ReturnOnlyChangedValues">
+            <summary>
+            Determines whether the backing store should only return changed values when queried.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Get``1(System.String)">
+            <summary>
+            Gets the specified object with the given key from the store.
+            </summary>
+            <param name="key">The key to search with</param>
+            <returns>An instance of <typeparam name="T"/></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Set``1(System.String,``0)">
+            <summary>
+            Sets the specified object with the given key in the store.
+            </summary>
+            <param name="key">The key to use</param>
+            <param name="value">The object value to store</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Enumerate">
+            <summary>
+            Enumerate the values in the store based on the <see cref="P:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.ReturnOnlyChangedValues"/> configuration value.
+            </summary>
+            <returns>A collection of changed values or the whole store based on the <see cref="P:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.ReturnOnlyChangedValues"/> configuration value.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.EnumerateKeysForValuesChangedToNull">
+            <summary>
+            Enumerate the values in the store that have changed to null
+            </summary>
+            <returns>A collection of strings containing keys changed to null </returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Subscribe(System.Action{System.String,System.Object,System.Object})">
+            <summary>
+            Adds a callback to subscribe to events in the store
+            </summary>
+            <param name="callback">The callback to add</param>
+            <returns>The id of the subscription</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Subscribe(System.Action{System.String,System.Object,System.Object},System.String)">
+            <summary>
+            Adds a callback to subscribe to events in the store with the given subscription id. 
+            If a subscription exists with the same subscriptionId, the callback is updated/replaced
+            </summary>
+            <param name="callback">The callback to add</param>
+            <param name="subscriptionId">The subscription id to use for subscription</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Unsubscribe(System.String)">
+            <summary>
+            De-register the callback with the given subscriptionId
+            </summary>
+            <param name="subscriptionId">The id of the subscription to de-register </param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.Clear">
+            <summary>
+            Clears the store
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore.InitializationCompleted">
+            <summary>
+            Flag to show the initialization status of the store.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStoreFactory">
+            <summary>
+                This class is used to create instances of <see cref="T:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStore" />.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Store.InMemoryBackingStoreFactory.CreateBackingStore">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Abstractions.Time">
+            <summary>
+            Model to represent only the date component of a DateTime
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.Equals(Microsoft.Kiota.Abstractions.Time)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>true if the current object is equal to the other parameter; otherwise, false.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Create a new Time from hours, minutes, and seconds.
+            </summary>
+            <param name="hour">The hour.</param>
+            <param name="minute">The minute.</param>
+            <param name="second">The second.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.#ctor(System.DateTime)">
+            <summary>
+            Create a new Time from a <see cref="P:Microsoft.Kiota.Abstractions.Time.DateTime"/> object
+            </summary>
+            <param name="dateTime">The <see cref="P:Microsoft.Kiota.Abstractions.Time.DateTime"/> object to create the object from.</param>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Time.DateTime">
+            <summary>
+            The <see cref="P:Microsoft.Kiota.Abstractions.Time.DateTime"/> representation of the class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Time.Hour">
+            <summary>
+            The hour.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Time.Minute">
+            <summary>
+            The minute.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Abstractions.Time.Second">
+            <summary>
+            The second.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Abstractions.Time.ToString">
+            <summary>
+            The time of day, formatted as "HH:mm:ss".
+            </summary>
+            <returns>The string time of day.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Serialization.ParsableExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.Kiota.Abstractions.Serialization.IParsable"/> instances.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStream``1(``0,System.String,System.Boolean)">
+            <summary>
+            Serializes the given object into a stream based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object t </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStringAsync``1(``0,System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given object into a string based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object to </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStream``1(System.Collections.Generic.IEnumerable{``0},System.String,System.Boolean)">
+            <summary>
+            Serializes the given collection into a stream based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object t </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStringAsync``1(System.Collections.Generic.IEnumerable{``0},System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given collection into a string based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object to.</param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStream``1(``0[],System.String,System.Boolean)">
+            <summary>
+            Serializes the given collection into a stream based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object t </param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <returns>The serialized representation as a stream.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Serialization.ParsableExtensions.SerializeAsStringAsync``1(``0[],System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Serializes the given collection into a string based on the content type.
+            </summary>
+            <param name="contentType">Content type to serialize the object to.</param>
+            <param name="value">The object to serialize.</param>
+            <param name="serializeOnlyChangedValues">If this object uses the <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStore"/>, use this to control if you want all properties or just the changed once.</param>
+            <param name="cancellationToken">Cancel the request during execution.</param>
+            <returns>The serialized representation as a string.</returns>
+        </member>
+    </members>
+</doc>

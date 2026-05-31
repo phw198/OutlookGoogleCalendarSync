@@ -1042,22 +1042,28 @@
             <summary>
             Effective, and known, universe domain to connect to.
             Will be null if <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.UniverseDomain"/> is not set and there's nothing to gain
-            from defaulting to <see cref="F:Google.Api.Gax.Grpc.ServiceMetadata.DefaultUniverseDomain"/>. For instance,
-            if <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CallInvoker"/> has been set, which is self contained, we really don't know
-            the universe we are in, and we really don't care.
+            from using the default universe domain. For instance,
+            if <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CallInvoker"/> has been set, which is self contained, including the credential,
+            we really don't know the universe we are in, and we really don't care.
             </summary>
             <remarks>
             This will be:
             <list type="bullet">
             <item>The value of <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.UniverseDomain"/> if set.</item>
             <item>null if <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.CallInvoker"/> is set.</item>
-            <item>null if both <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.Endpoint"/> and one of the non <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.GoogleCredential"/> options is used.</item>
+            <item>null if both <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.Endpoint"/> and a credential is set through one of the non <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.GoogleCredential"/> options.</item>
+            <item>The value of the environment variable <see cref="F:Google.Api.Gax.Grpc.ClientBuilderBase`1.UniverseDomainEnvironmentVariable"/> if set and not empty.</item>
             <item><see cref="F:Google.Api.Gax.Grpc.ServiceMetadata.DefaultUniverseDomain"/> otherwise.</item>
             </list>
             Note that we don't validate here that the builder properties are set in a valid combination. <see cref="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.EffectiveUniverseDomain"/>
             is to be called from <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.CreateCallInvoker"/> and <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.CreateCallInvokerAsync(System.Threading.CancellationToken)"/> after <see cref="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.Validate"/>
             has been called.
             </remarks>
+        </member>
+        <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.EffectiveDefaultUniverseDomain">
+            <summary>
+            The default universe domain, which is specified on <see cref="F:Google.Api.Gax.Grpc.ClientBuilderBase`1.UniverseDomainEnvironmentVariable"/> if set, otherwise, <see cref="F:Google.Api.Gax.Grpc.ServiceMetadata.DefaultUniverseDomain"/>.
+            </summary>
         </member>
         <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.Endpoint">
             <summary>
@@ -1086,11 +1092,25 @@
             <summary>
             The path to the credentials file to use, or null if credentials are being provided in a different way.
             </summary>
+            <remarks>
+            Important: If you accept a credential configuration (credential JSON/File/Stream) from an external source
+            for authentication to Google Cloud, you must validate it before providing it to any Google API or library.
+            Providing an unvalidated credential configuration to Google APIs can compromise the security of your
+            systems and data. For more information, refer to
+            <see href="https://cloud.google.com/docs/authentication/external/externally-sourced-credentials">Validate credential configurations from external sources</see>.
+            </remarks>
         </member>
         <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.JsonCredentials">
             <summary>
             The credentials to use as a JSON string, or null if credentials are being provided in a different way.
             </summary>
+            <remarks>
+            Important: If you accept a credential configuration (credential JSON/File/Stream) from an external source
+            for authentication to Google Cloud, you must validate it before providing it to any Google API or library.
+            Providing an unvalidated credential configuration to Google APIs can compromise the security of your
+            systems and data. For more information, refer to
+            <see href="https://cloud.google.com/docs/authentication/external/externally-sourced-credentials">Validate credential configurations from external sources</see>.
+            </remarks>
         </member>
         <member name="P:Google.Api.Gax.Grpc.ClientBuilderBase`1.GoogleCredential">
             <summary>
@@ -1398,6 +1418,18 @@
             <param name="endpoint">The endpoint of the channel.</param>
             <param name="credentials">The channel credentials.</param>
             <returns>The channel created by the gRPC adapter.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetNonWhiteSpaceOrNullEnvironmentVariable(System.String)">
+            <summary>
+            Retrieves the value of the environment variable with <paramref name="name"/>,
+            mapping empty or whitespace-only strings to null.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.ClientBuilderBase`1.GetNonWhiteSpaceOrNullValue(System.String,System.Func{System.String,System.String})">
+            <summary>
+            Retrieves a value with <paramref name="valueName"/> from <paramref name="valueProvider"/>,
+            mapping empty or whitespace-only strings to null.
+            </summary>
         </member>
         <member name="T:Google.Api.Gax.Grpc.ClientHelper">
             <summary>
@@ -1759,18 +1791,6 @@
             <summary>
             Shuts down the all channels in the underlying channel pool cleanly. It is strongly
             recommended to shutdown all previously created channels before exiting from the process.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.Grpc.Gcp.GcpCallInvoker.GetChannelRefsForTest">
-            <summary>
-            Returns a deep clone of the internal list of channel references.
-            This method should only be used in tests.
-            </summary>
-        </member>
-        <member name="M:Google.Api.Gax.Grpc.Gcp.GcpCallInvoker.GetChannelRefsByAffinityKeyForTest">
-            <summary>
-            Returns a deep clone of the internal dictionary of channel references by affinity key.
-            This method should only be used in tests.
             </summary>
         </member>
         <member name="T:Google.Api.Gax.Grpc.Gcp.GcpCallInvokerPool">
@@ -2445,6 +2465,9 @@
             is effectively formatted the same way it is in the JSON representation. The return value of this
             method is only guaranteed for single primitive values - not repeated fields, maps, or messages.
             </summary>
+            <remarks>
+            <see cref="T:Google.Protobuf.ByteString"/> values are always formatted as web-safe base64 (no trailing '='; '-' instead of '+'; '_' instead of '/').
+            </remarks>
             <returns>A string representation of the given value, or null if the value is null</returns>
         </member>
         <member name="M:Google.Api.Gax.Grpc.ProtobufUtilities.RemoveWellKnownTypeQuotes(System.Object)">
@@ -3468,7 +3491,19 @@
             </summary>
             <typeparam name="T">The message type to decode from within the error details.</typeparam>
             <param name="ex">The RPC exception to retrieve details from. Must not be null.</param>
-            <returns></returns>
+            <returns>The requested status detail, or null if the exception does not contain one.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.Grpc.RpcExceptionExtensions.GetAllStatusDetails(Grpc.Core.RpcException)">
+            <summary>
+            Returns all standard status details associated with an RPC exception.
+            </summary>
+            <remarks>
+            Status details are assumed to be in the <see cref="T:Google.Rpc.StandardErrorTypeRegistry">standard error type registry</see>.
+            If any detail messages are invalid (known, but containing invalid data) then iterating over the returned collection
+            will throw <see cref="T:Google.Protobuf.InvalidProtocolBufferException"/> when the iterator reaches the invalid message.
+            </remarks>
+            <param name="ex">The RPC exception to retrieve details from. Must not be null.</param>
+            <returns>All standard status details within the exception.</returns>
         </member>
         <member name="T:Google.Api.Gax.Grpc.ServerStreamingBase`1">
             <summary>
