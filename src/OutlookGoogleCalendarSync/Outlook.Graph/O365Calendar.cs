@@ -419,26 +419,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         continue;
                     else
                         throw new UserCancelledSyncException("User chose not to continue sync.");
-                }
+                }                
 
-                try {
-                    //Add the Google event IDs into Outlook appointment.
-                    //This needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
-                    MsGraph.Models.Event aiPatch = new MsGraph.Models.Event() { 
-                        Id = createdAi.Id,
-                        Start = createdAi.Start,
-                        Subject = createdAi.Subject,
-                        SeriesMasterId = createdAi.SeriesMasterId,
-                        Recurrence = createdAi.Recurrence
-                    };
-                    CustomProperty.AddGoogleIDs(ref aiPatch, ev);
-                    UpdateCalendarEntry_save(ref aiPatch);
-                } catch (System.Exception ex) {
-                    ex.Analyse("Unable to save Extension data to newly created appointment.");
-                    log.Warn("This should result in a 'reclaim' during the next sync.");
-                }
-
-                Recurrence.CreateOutlookExceptions(ev, createdAi);
+                if (createdAi != null)
+                    Recurrence.CreateOutlookExceptions(ev, createdAi);
             }
         }
 
@@ -449,34 +433,30 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            Int16 offset = 0;
             ai.Start = new MsGraph.Models.DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.Start.TimeZone)) {
                 log.Fine("Has no starting timezone.");
                 ai.Start.TimeZone = "UTC";
             } else {
-                offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
                 log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                 ai.Start.TimeZone = ev.Start.TimeZone;
             }
 
-            offset = 0;
             ai.End = new MsGraph.Models.DateTimeTimeZone();
             if (String.IsNullOrEmpty(ev.End.TimeZone)) {
                 log.Fine("Has no ending timezone.");
                 ai.End.TimeZone = "UTC";
             } else {
-                offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
                 log.Fine("Has ending timezone: " + ev.End.TimeZone);
                 ai.End.TimeZone = ev.End.TimeZone;
             }
 
             if ((bool)(ai.IsAllDay = ev.AllDayEvent())) {
-                ai.Start.DateTime = ev.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                ai.End.DateTime = ev.End.SafeDateTime().ToString("yyyy-MM-dd");
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
             } else {
-                ai.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
-                ai.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
             }
 
             ai.Recurrence = Recurrence.BuildOutlookPattern(ev);
@@ -547,11 +527,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         private MsGraph.Models.Event createCalendarEntry_save(MsGraph.Models.Event ai, ref GcalData.Event ev) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                log.Debug("Saving timestamp when OGCS updated appointment.");
-                CustomProperty.SetOGCSlastModified(ref ai);
-            }
-
             MsGraph.Models.Event createdAi = null;
             try {
                 createdAi = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events.PostAsync(ai).Result;
@@ -562,12 +537,31 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 }
             }
 
-            if (createdAi != null && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev))) {
-                log.Debug("Storing the Outlook appointment IDs in Google event.");
-                Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, createdAi);
-                Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
-            }
+            //Storing Extension data needs to be done after the creation, else sporadic IrresolvableConflict HTTP 409 errors can occur
+            if (createdAi != null) {
+                try {
+                    //Add the Google event IDs into Outlook appointment.
+                    Event aiPatch = new Event() {
+                        Id = createdAi.Id,
+                        Start = createdAi.Start,
+                        Subject = createdAi.Subject,
+                        SeriesMasterId = createdAi.SeriesMasterId,
+                        Recurrence = createdAi.Recurrence
+                    };
+                    CustomProperty.AddGoogleIDs(ref aiPatch, ev);
+                    UpdateCalendarEntry_save(ref aiPatch);
 
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to save Extension data to newly created appointment.");
+                    log.Warn("This should result in a 'reclaim' during the next sync.");
+                }
+
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
+                    log.Debug("Storing the Outlook appointment IDs in Google event.");
+                    Ogcs.Google.Graph.CustomProperty.AddOutlookIDs(ref ev, createdAi);
+                    Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref ev);
+                }
+            }
             return createdAi;
         }
         #endregion
@@ -693,18 +687,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             if (startChange || startTzChange || endChange || endTzChange) {
                 aiPatch.IsAllDay = ev.AllDayEvent();
-                Int16 offset = 0;
-
                 aiPatch.Start = ai.Start;
                 aiPatch.End = ai.End;
                 if ((bool)aiPatch.IsAllDay) {
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTime().ToString("yyyy-MM-dd");
-                    aiPatch.End.DateTime = ev.End.SafeDateTime().ToString("yyyy-MM-dd");
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 } else {
-                    offset = TimezoneDB.GetUtcOffset(ev.Start.TimeZone);
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
-                    offset = TimezoneDB.GetUtcOffset(ev.End.TimeZone);
-                    aiPatch.End.DateTime = ev.End.SafeDateTime().AddMinutes(offset).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
                 }
                 aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? aiPatch.Start.TimeZone : ev.Start.TimeZone;
                 aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? aiPatch.End.TimeZone : ev.End.TimeZone;
@@ -720,7 +710,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
                     if (startChange) {
-                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTime().ToGraphDate();
+                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset().ToGraphDate();
                     }
                 }
             }
@@ -1400,10 +1390,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     if (ai.IsAllDay ?? false) {
                         log.Fine("GetSummary - all day event");
-                        eventSummary += ai.Start.SafeDateTime().Date.ToShortDateString();
+                        eventSummary += ai.Start.SafeDateTimeOffset(true).Date.ToShortDateString();
                     } else {
                         log.Fine("GetSummary - not all day event");
-                        eventSummary += ai.Start.SafeDateTime().ToShortDateString() + " " + ai.Start.SafeDateTime().ToShortTimeString();
+                        eventSummary += ai.Start.SafeDateTimeOffset().DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset().DateTime.ToShortTimeString();
                     }
                     eventSummary += " " + (ai.Recurrence != null ? "(R) " : (!string.IsNullOrEmpty(ai.SeriesMasterId) ? "(R1) " : "")) + "=> ";
 

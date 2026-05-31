@@ -41,7 +41,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         if (ruleBook.ContainsKey("BYDAY"))
                             oPattern.Pattern.DaysOfWeek = getDoW(ruleBook["BYDAY"]);
                         else
-                            oPattern.Pattern.DaysOfWeek = getDoW(ev.Start.SafeDateTime().DayOfWeek.ToString().ToUpper().Substring(0, 2));
+                            oPattern.Pattern.DaysOfWeek = getDoW(ev.Start.SafeDateTimeOffset().DayOfWeek.ToString().ToUpper().Substring(0, 2));
                         break;
                     }
                 case "MONTHLY": {
@@ -62,7 +62,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             if (ruleBook.ContainsKey("BYMONTHDAY"))
                                 oPattern.Pattern.DayOfMonth = Convert.ToInt16(ruleBook["BYMONTHDAY"]);
                             else
-                                oPattern.Pattern.DayOfMonth = ev.Start.SafeDateTime().Day;
+                                oPattern.Pattern.DayOfMonth = ev.Start.SafeDateTimeOffset().Day;
                         }
                         break;
                     }
@@ -76,12 +76,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             if (ruleBook.ContainsKey("BYMONTHDAY"))
                                 oPattern.Pattern.DayOfMonth = Convert.ToInt16(ruleBook["BYMONTHDAY"]);
                             else
-                                oPattern.Pattern.DayOfMonth = ev.Start.SafeDateTime().Day;
+                                oPattern.Pattern.DayOfMonth = ev.Start.SafeDateTimeOffset().Day;
                         }
                         if (ruleBook.ContainsKey("BYMONTH"))
                             oPattern.Pattern.Month = Convert.ToInt16(ruleBook["BYMONTH"]);
                         else
-                            oPattern.Pattern.Month ??= ev.Start.SafeDateTime().Month;
+                            oPattern.Pattern.Month ??= ev.Start.SafeDateTimeOffset().Month;
 
                         if (ruleBook.ContainsKey("BYDAY")) {
                             if (ruleBook["BYDAY"].StartsWith("-1"))
@@ -98,7 +98,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             #endregion
 
             #region RANGE
-            oPattern.Range.StartDate = ev.Start.SafeDateTime().ToGraphDate();
+            oPattern.Range.StartDate = ev.Start.SafeDateTimeOffset().ToGraphDate();
             if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1)
                 oPattern.Pattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
 
@@ -118,9 +118,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
                     else {
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                        endDate = endDate.AddHours(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
+                        endDate = endDate.AddMinutes(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
                     }
-                    System.DateTime patternStart = oPattern.Range.StartDate?.SafeDateTime() ?? ev.Start.SafeDateTime();
+                    System.DateTime patternStart = oPattern.Range.StartDate.SafeDateTimeOffset().DateTime;
                     if (endDate < patternStart) {
                         log.Debug("PatternStartDate: " + patternStart.ToString("yyyyMMddHHmmss"));
                         log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
@@ -131,7 +131,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.Numbered;
                     } else {
                         oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.EndDate;
-                        oPattern.Range.EndDate = endDate.ToGraphDate();
+                        oPattern.Range.EndDate = ((DateTimeOffset)endDate).ToGraphDate();
                     }
                 }
             }
@@ -295,9 +295,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 log.Debug($"Modifying {evExceptions.Count} occurrences.");
                 foreach (GcalData.Event gExcp in evExceptions) {
-                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
-                    log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToString() : ""));
+                    System.DateTimeOffset gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTimeOffset();
+                    System.DateTimeOffset? gExcpCurrDate = gExcp.Start?.SafeDateTimeOffset();
+                    log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.DateTime.ToShortDateString() : ""));
 
                     try {
                         MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
@@ -369,9 +369,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 if ((oRecurrences?.Count ?? 0) == 0) return updatesMade;
 
                 foreach (GcalData.Event gExcp in evExceptions) {
-                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
-                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
-                    log.Fine($"Found Google exception with {gExcp.Status} original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : ""));
+                    System.DateTimeOffset gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTimeOffset();
+                    System.DateTimeOffset gExcpCurrDate = gExcp.Start.SafeDateTimeOffset();
+                    log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.DateTime.ToShortDateString() : ""));
 
                     try {
                         MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
@@ -408,7 +408,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             int itemModified = 0;
                             MsGraph.Models.Event aiPatch = new();
                             Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch,
-                                forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.SafeDateTime().Date);
+                                forceCompare || gExcp.Start.SafeDateTimeOffset().Date != newAiExcp.Start.SafeDateTimeOffset().Date);
                             if (itemModified > 0) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);

@@ -412,6 +412,13 @@ namespace OutlookGoogleCalendarSync.Google {
                         ev, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning
                     );
                 } else if (rules.ContainsKey("UNTIL")) {
+                    if (string.IsNullOrEmpty(ev.End.TimeZone)) {
+                        log.Warn("Issue #2298 | No end time zone found for recurring series: " + GetEventSummary(ev));
+                        ev.Recurrence.ToList().ForEach(r => log.Debug(r));
+                        log.Debug($"ev.End.TimeZone: {ev.End.TimeZone}");
+                        log.Debug($"ev.Start.TimeZone: {ev.Start.TimeZone}");
+                        log.Debug($"ev.AllDayEvent: {ev.AllDayEvent()}; Logically equivalent: {ev.AllDayEvent(true)}");
+                    }
                     System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
                     if (endDate < from)
                         historicRecurring.Add(ev);
@@ -2034,10 +2041,15 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!profile.AddColours && !profile.SetEntriesColour) return EventColour.Palette.NullPalette;
 
             OlCategoryColor? categoryColour = null;
-            EventColour.Palette overrideColour = this.ColourPalette.ActivePalette[Convert.ToInt16(profile.SetEntriesColourGoogleId)];
-
+            EventColour.Palette overrideColour = gColour ?? EventColour.Palette.NullPalette;
+                
             Boolean checkOverrideManuallyAltered = false;
             if (profile.SetEntriesColour) {
+                if (profile.TargetCalendar.Id == Sync.Direction.Bidirectional.Id)
+                    overrideColour = this.GetColour(profile.SetEntriesColourName);
+                else
+                    overrideColour = this.ColourPalette.ActivePalette[Convert.ToInt16(profile.SetEntriesColourGoogleId)];
+
                 if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) { //Colour forced to sync in other direction
                     if (gColour == null) //Creating item
                         return EventColour.Palette.NullPalette;

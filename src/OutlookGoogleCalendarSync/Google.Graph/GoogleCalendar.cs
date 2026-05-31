@@ -843,8 +843,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Start.DateTimeDateTimeOffset = null;
                 ev.End.DateTimeDateTimeOffset = null;
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(true).LocalDateTime, true), sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(true).LocalDateTime, true), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(true), true), sb, ref itemModified);
+                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(true), true), sb, ref itemModified);
             } else {
                 ev.Start.Date = null;
                 ev.End.Date = null;

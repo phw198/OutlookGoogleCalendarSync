@@ -274,6 +274,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             }
             return false;
         }
+
         #endregion
     }
 }

@@ -386,21 +386,22 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 if (sharedCalendar == null) getDefaultCalendar(oNS, ref defaultCalendar);
                                 else {
                                     profile.SharedCalendar = sharedURI;
-                                    defaultCalendar = sharedCalendar;
+                                    return new OutlookCalendarListEntry(sharedCalendar);
                                 }
                             }
                         } finally {
                             snd = null;
                         }
                     } else {
-                        defaultCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        MAPIFolder sharedCalendar = getSharedCalendar(oNS, profile.SharedCalendar, false);
+                        return new OutlookCalendarListEntry(sharedCalendar);
                     }
 
                 } else {
                     getDefaultCalendar(oNS, ref defaultCalendar);
                 }
                 log.Debug("Default Calendar folder: " + defaultCalendar.Name);
-                log.Debug("Folder type: " + defaultCalendar.Store.ExchangeStoreType.ToString());
+                log.Debug("Folder type: " + defaultCalendar.Store?.ExchangeStoreType.ToString() ?? "Store not initialised for this shared calendar.");
                 return new OutlookCalendarListEntry(defaultCalendar);
             } finally {
                 defaultCalendar = (MAPIFolder)Ogcs.Outlook.Calendar.ReleaseObject(defaultCalendar);
@@ -745,11 +746,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Extensions.OutlookColourPicker outlookColours = new Extensions.OutlookColourPicker();
             outlookColours.AddColourItems();
 
-            if (Settings.Profile.InPlay().Equals(Forms.Main.Instance.ActiveCalendarProfile)) {
-                Forms.Main.Instance.ddOutlookColour = outlookColours;
-                foreach (Outlook.Categories.ColourInfo cInfo in Forms.Main.Instance.ddOutlookColour.Items) {
-                    if (cInfo.OutlookCategory.ToString() == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourValue &&
-                        cInfo.Text == Forms.Main.Instance.ActiveCalendarProfile.SetEntriesColourName) {
+            if (profile.Equals(Forms.Main.Instance.ActiveCalendarProfile) && outlookColours.Items.Count > 0) {                
+                Forms.Main.Instance.ddOutlookColour.Items.Clear();
+                foreach (Outlook.Categories.ColourInfo cInfo in outlookColours.Items) {
+                    Forms.Main.Instance.ddOutlookColour.Items.Add(cInfo);
+                    if (cInfo.OutlookCategory.ToString() == profile.SetEntriesColourValue && cInfo.Text == profile.SetEntriesColourName) {
                         Forms.Main.Instance.ddOutlookColour.SelectedItem = cInfo;
                     }
                 }

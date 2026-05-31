@@ -119,7 +119,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Returns the DateTime for a Graph Date
         /// </summary>
         /// <returns>DateTime</returns>
-        public static System.DateTime SafeDateTime(this Microsoft.Kiota.Abstractions.Date graphDate) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Kiota.Abstractions.Date graphDate) {
             return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day);
         }
 
@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
                 if (isAllDay ?? false) {
-                    safeDate = System.DateTime.SpecifyKind(safeDate.ToUniversalTime().Date, DateTimeKind.Unspecified);
+                    safeDate = System.DateTime.SpecifyKind(safeDate.ToUniversalTime().Date, DateTimeKind.Utc);
                 }
             } else {
                 Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
@@ -159,7 +159,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// Converts a System.DateTime to a Graph.Date
         /// </summary>
         /// <returns>Graph.Date</returns>
-        public static Microsoft.Kiota.Abstractions.Date ToGraphDate(this System.DateTime dt) {
+        public static Microsoft.Kiota.Abstractions.Date ToGraphDate(this System.DateTimeOffset dt) {
             return new Microsoft.Kiota.Abstractions.Date(dt.Year, dt.Month, dt.Day);
         }
 
