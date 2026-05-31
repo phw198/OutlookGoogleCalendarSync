@@ -745,7 +745,7 @@
     <Error Condition="!Exists('lib\Microsoft.Extensions.Logging.Abstractions.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Microsoft.Extensions.Logging.Abstractions.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>powershell $(ProjectDir)zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
+    <PostBuildEvent>powershell $(ProjectDir)\scripts\zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
   </PropertyGroup>
   <Target Name="ShowTargetDir" AfterTargets="Build">
     <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
