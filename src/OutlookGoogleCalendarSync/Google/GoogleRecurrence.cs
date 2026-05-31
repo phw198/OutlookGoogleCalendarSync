@@ -456,14 +456,14 @@ namespace OutlookGoogleCalendarSync.Google {
                     Microsoft.Office.Interop.Outlook.Exception oExcp = null;
                     try {
                         oExcp = excps[e];
+                        Outlook.Recurrence.DeletionState isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
+                        if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
+                            log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
+                            continue;
+                        }
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
                             System.DateTime gDate = ev.OriginalStartTime.SafeDateTime();
-                            Outlook.Recurrence.DeletionState isDeleted = Outlook.Recurrence.ExceptionIsDeleted(oExcp);
-                            if (isDeleted == Outlook.Recurrence.DeletionState.Inaccessible) {
-                                log.Warn("Abandoning creation of Google recurrence exception as Outlook exception is inaccessible.");
-                                return;
-                            }
                             if (isDeleted == Outlook.Recurrence.DeletionState.Deleted && !ai.AllDayEvent) { //Deleted items get truncated?!
                                 gDate = gDate.Date;
                             }
