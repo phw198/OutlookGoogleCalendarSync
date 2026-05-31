@@ -171,7 +171,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             getMSaccountEmail();
 
             System.Net.Http.HttpClientHandler handler = new() { Proxy = new Extensions.OgcsWebClient().Proxy };
-            System.Net.Http.HttpClient nativeClient = new(handler);
+            GraphErrorInterceptor interceptor = new() { InnerHandler = handler };
+            System.Net.Http.HttpClient nativeClient = new(interceptor);
             Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider authProvider = new(new MsalTokenProvider(authResult.AccessToken));
             Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter requestAdapter = new(authProvider, null, null, nativeClient) { BaseUrl = graphBaseUrl };
             Ogcs.Outlook.Graph.Calendar.Instance.GraphClient = new GraphServiceClient(requestAdapter);

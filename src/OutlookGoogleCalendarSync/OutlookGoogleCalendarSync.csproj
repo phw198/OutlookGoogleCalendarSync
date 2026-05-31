@@ -1032,5 +1032,32 @@
     <Message Text="MSBuildBinPath Value: $(MSBuildBinPath)" Importance="High" />
     <Message Text="TargetDir Value: $(TargetDir)" Importance="High" />
   </Target>
-  <Import Project="..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
+  <Target Name="FixKiotaSealedError" BeforeTargets="CoreCompile">
+    <!--
+    !!! HACK: KIOTA 1.17.0 COMPILATION FIX FOR .NET 5.0
+
+    WHY IT IS NEEDED:
+    Kiota v1.17.0 (the last version supporting .NET 5.0) generates an 'ODataError' model that attempts to inherit from 'ApiException'. 
+    However, in the matching version of Microsoft.Kiota.Abstractions, 'ApiException' is marked as 'sealed'. 
+    This causes compiler errors CS0509 (cannot inherit from sealed type) and CS0115 (no suitable method found to override for the 'Message' property). 
+    This target strips out the invalid inheritance and the 'override' keyword on every build.
+
+    DRAWBACKS:
+    1. 'ODataError' can no longer be used directly in C# pattern-matching 'catch' blocks. You must catch 'ApiException' and manually inspect its 'Data' dictionary to extract the underlying 'ODataError' instance.
+    2. 'ODataError' loses native exception metadata (e.g., StackTrace, InnerException). Always log the outer 'ApiException' for environmental debugging diagnostics.
+
+    WHEN TO REVIEW / REMOVE:
+    Review this workaround only when the 'OutlookGoogleCalendarSync' project is upgraded beyond .NET 5.0 (e.g., to modern .NET LTS releases). 
+    At that point, 'kiota.exe' and its associated NuGet packages can be updated to their latest matching versions, which resolves this generation mismatch natively.
+    -->
+    <PropertyGroup>
+      <ErrorFilePath>$(ProjectDir)Outlook.Graph\CustomClient\Models\ODataErrors\ODataError.cs</ErrorFilePath>
+    </PropertyGroup>
+    <PropertyGroup Condition="Exists('$(ErrorFilePath)')">
+      <FileContent>$([System.IO.File]::ReadAllText('$(ErrorFilePath)'))</FileContent>
+      <FileContent>$(FileContent.Replace('public partial class ODataError : ApiException, IAdditionalDataHolder, IBackedModel, IParsable', 'public partial class ODataError : /*ApiException, */IAdditionalDataHolder, IBackedModel, IParsable'))</FileContent>
+      <FileContent>$(FileContent.Replace('public override string Message', 'public /*override */string Message'))</FileContent>
+    </PropertyGroup>
+    <WriteLinesToFile Condition="Exists('$(ErrorFilePath)')" File="$(ErrorFilePath)" Lines="$(FileContent)" Overwrite="true" />
+  </Target>
 </Project>

@@ -28,8 +28,12 @@ namespace OutlookGoogleCalendarSync {
             }
 
             if (ex is Microsoft.Kiota.Abstractions.ApiException kiotaEx) {
-                Outlook.Graph.CustomClient.Models.ODataErrors.ODataError oDataErr = Outlook.Graph.O365Errors.GetODataError(kiotaEx);
-                log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Code: {oDataErr?.Error?.Code}; Message: {oDataErr?.Message}", logLevel);
+                if (!(new System.Diagnostics.StackTrace().GetFrames()?.Any(frame => frame.GetMethod()?.Name == "GetODataError") ?? false)) { 
+                    Outlook.Graph.CustomClient.Models.ODataErrors.ODataError oDataErr = Outlook.Graph.O365Errors.GetODataError(kiotaEx);
+                    log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Code: {oDataErr?.Error?.Code}; Message: {oDataErr?.Message}", logLevel);
+                } else {
+                    log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Message: {kiotaEx.Message}", logLevel);
+                }
                 return;
             } else
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);

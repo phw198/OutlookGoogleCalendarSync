@@ -1088,7 +1088,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public void DeleteCalendarEntry_save(MsGraph.Models.Event ai) {
             try {
                 GraphClient.Me.Events[ai.Id].DeleteAsync().Wait();
-                GraphClient.Me.Events[ai.Id].DeleteAsync().Wait();
             } catch (System.Exception ex) {
                 if (O365Errors.GetODataError(ex)?.Error?.Code == "ErrorItemNotFound") { //Resource has been deleted
                     log.Fail("This event is already deleted! Ignoring failed request to delete.");
