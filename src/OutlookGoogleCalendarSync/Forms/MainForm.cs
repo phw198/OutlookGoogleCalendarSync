@@ -303,6 +303,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                             }
                             rbOutlookSharedCal.Checked = true;
                         } else {
+                            if (rbOutlookDefaultMB.Checked) {
+                                rbOutlookDefaultMB.CheckedChanged -= new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
+                                rbOutlookDefaultMB.Checked = false;
+                                rbOutlookDefaultMB.CheckedChanged += new System.EventHandler(this.rbOutlookDefaultMB_CheckedChanged);
+                            }
                             rbOutlookDefaultMB.Checked = true;
                         }
                     }
@@ -490,10 +495,12 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbOfuscate.Checked = profile.Obfuscation.Enabled;
                     howObfuscatePanel.Visible = false;
 
+                    tbTargetCalendar.SelectedItemChanged -= new System.EventHandler(this.tbTargetCalendar_SelectedItemChanged);
                     tbCreatedItemsOnly.SelectedIndex = profile.CreatedItemsOnly ? 1 : 0;
                     if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) tbTargetCalendar.SelectedIndex = 0;
                     if (profile.TargetCalendar.Id == Sync.Direction.GoogleToOutlook.Id) tbTargetCalendar.SelectedIndex = 1;
                     tbCreatedItemsOnly_SelectedItemChanged(null, null);
+                    tbTargetCalendar.SelectedItemChanged += new System.EventHandler(this.tbTargetCalendar_SelectedItemChanged);
                     tbTargetCalendar_SelectedItemChanged(null, null);
 
                     cbPrivate.Checked = profile.SetEntriesPrivate;
@@ -526,13 +533,11 @@ namespace OutlookGoogleCalendarSync.Forms {
                         ddOutlookColour.SelectedIndex = 0;
 
                     ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
-                    ddOutlookColour.Enabled = cbColour.Checked;
-
+                    
                     ddGoogleColour.SelectedIndexChanged -= ddGoogleColour_SelectedIndexChanged;
                     offlineAddGoogleColour();
                     ddGoogleColour.SelectedIndexChanged += ddGoogleColour_SelectedIndexChanged;
-                    ddGoogleColour.Enabled = cbColour.Checked;
-
+                    
                     //Obfuscate Direction dropdown
                     for (int i = 0; i < cbObfuscateDirection.Items.Count; i++) {
                         Sync.Direction sd = (cbObfuscateDirection.Items[i] as Sync.Direction);
@@ -1816,6 +1821,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDNDand.Visible = false;
                 ddGoogleColour.Visible = false;
                 ddOutlookColour.Visible = true;
+                ddOutlookColour.Enabled = cbColour.Checked;
                 cbSingleCategoryOnly.Visible = true;
                 cbExcludeTentative.Visible = false;
             }
@@ -1827,6 +1833,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 dtDNDend.Visible = true;
                 lDNDand.Visible = true;
                 ddGoogleColour.Visible = true;
+                ddGoogleColour.Enabled = cbColour.Checked;
                 ddOutlookColour.Visible = false;
                 cbSingleCategoryOnly.Visible = false;
                 cbExcludeTentative.Visible = true;
@@ -1908,19 +1915,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void tbTargetCalendar_SelectedItemChanged(object sender, EventArgs e) {
-            if (this.LoadingProfileConfig) return;
-
             switch (tbTargetCalendar.Text) {
                 case "Google calendar": {
                         ActiveCalendarProfile.TargetCalendar = Sync.Direction.OutlookToGoogle;
-                        this.ddGoogleColour.Visible = true;
                         this.ddOutlookColour.Visible = false;
+                        this.ddGoogleColour.Visible = true;
+                        this.ddGoogleColour.Enabled = cbColour.Checked;
                         break;
                     }
                 case "Outlook calendar": {
                         ActiveCalendarProfile.TargetCalendar = Sync.Direction.GoogleToOutlook;
                         this.ddGoogleColour.Visible = false;
                         this.ddOutlookColour.Visible = true;
+                        this.ddOutlookColour.Enabled = cbColour.Checked;
                         if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                             this.cbColour.Checked = false;
                         break;
@@ -1929,6 +1936,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         ActiveCalendarProfile.TargetCalendar = Sync.Direction.Bidirectional;
                         this.ddGoogleColour.Visible = false;
                         this.ddOutlookColour.Visible = true;
+                        this.ddOutlookColour.Enabled = cbColour.Checked;
                         if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                             this.cbColour.Checked = false;
                         break;

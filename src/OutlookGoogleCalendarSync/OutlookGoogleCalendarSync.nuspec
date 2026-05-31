@@ -29,10 +29,12 @@
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Placeholder [[#1234](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
+    - Unable to add shared Outlook calendars [[#2286](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2286)]
+    - Invisible colour/category dropdown for override config [[#2303](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2303)]
 - Sync Engine
     - Logging Google exception without start date prevents sync [[#2321](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
     - Fixed memory leak on Push Sync for remote shared calendars [[#2310](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2310)]
+    - Two-way colour override for target calendar did not work [[2316]((https://github.com/phw198/OutlookGoogleCalendarSync/issues/2316)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
