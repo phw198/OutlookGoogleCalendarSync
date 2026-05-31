@@ -6,6 +6,8 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     public partial class ColourMap : Form {
         private static readonly ILog log = LogManager.GetLogger(typeof(ColourMap));
         public static Extensions.OutlookColourPicker OutlookComboBox = new Extensions.OutlookColourPicker();

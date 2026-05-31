@@ -9,6 +9,8 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     /// <summary>
     /// Description of MainForm.
     /// </summary>
