@@ -4,6 +4,8 @@ using System;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     public partial class ProfileManage : Form {
         private static readonly ILog log = LogManager.GetLogger(typeof(ProfileManage));
 

@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     public partial class Social : Form {
         private ToolTip toolTips;
         public Social() {

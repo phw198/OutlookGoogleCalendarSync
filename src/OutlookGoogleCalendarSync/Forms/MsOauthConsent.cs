@@ -3,6 +3,8 @@ using System;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     public partial class MsOauthConsent : Form {
         private static readonly ILog log = LogManager.GetLogger(typeof(MsOauthConsent));
         public MsOauthConsent() {
