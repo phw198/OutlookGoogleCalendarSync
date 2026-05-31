@@ -255,10 +255,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Recurrence.GetOutlookMasterEvent(result);
             List<MsGraph.Models.Event> seriesOccurrences = result.Where(ai => ai.Type == MsGraph.Models.EventType.Occurrence).ToList();
             result = result.Except(seriesOccurrences).ToList();
-            result.Sort((x, y) => x.Start.SafeDateTime().CompareTo(y.Start.SafeDateTime()));
+            result.Sort((x, y) => x.Start.SafeDateTimeOffset().CompareTo(y.Start.SafeDateTimeOffset()));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTime() == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
+            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset() == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -541,7 +541,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (createdAi != null) {
                 try {
                     //Add the Google event IDs into Outlook appointment.
-                    Event aiPatch = new Event() {
+                    MsGraph.Models.Event aiPatch = new MsGraph.Models.Event() {
                         Id = createdAi.Id,
                         Start = createdAi.Start,
                         Subject = createdAi.Subject,

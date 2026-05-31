@@ -113,14 +113,14 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.NoEnd;
                     oPattern.Range.EndDate = null;
                 } else {
-                    System.DateTime endDate;
+                    System.DateTimeOffset endDate;
                     if (ruleBook["UNTIL"].Length == 8 && !ruleBook["UNTIL"].EndsWith("Z"))
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
                     else {
                         endDate = System.DateTime.ParseExact(ruleBook["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
                         endDate = endDate.AddMinutes(TimezoneDB.GetUtcOffset(ev.End.TimeZone)).Date;
                     }
-                    System.DateTime patternStart = oPattern.Range.StartDate.SafeDateTimeOffset().DateTime;
+                    System.DateTimeOffset patternStart = oPattern.Range.StartDate != null ? ((Date)oPattern.Range.StartDate).SafeDateTimeOffset() : ev.Start.SafeDateTimeOffset();
                     if (endDate < patternStart) {
                         log.Debug("PatternStartDate: " + patternStart.ToString("yyyyMMddHHmmss"));
                         log.Debug("PatternEndDate:   " + ruleBook["UNTIL"].ToString());
@@ -131,7 +131,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.Numbered;
                     } else {
                         oPattern.Range.Type = MsGraph.Models.RecurrenceRangeType.EndDate;
-                        oPattern.Range.EndDate = ((DateTimeOffset)endDate).ToGraphDate();
+                        oPattern.Range.EndDate = endDate.ToGraphDate();
                     }
                 }
             }
@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.DateTime.ToShortDateString() : ""));
 
                     try {
-                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTime() == gExcpOrigDate).FirstOrDefault();
+                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTimeOffset() == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
                                 log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
