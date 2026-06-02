@@ -60,10 +60,15 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         public override bool Equals(Object obj) {
-            if (obj is OgcsDateTimeOffset)
-                return this.baseDateTime == (obj as OgcsDateTimeOffset).baseDateTime;
-            else
-                return false;
+            if (obj is OgcsDateTimeOffset objDTO) {
+                if (this.dateOnly == objDTO.dateOnly) {
+                    if (this.dateOnly)
+                        return this.baseDateTime.Date == objDTO.baseDateTime.Date;
+                    else
+                        return this.baseDateTime == (obj as OgcsDateTimeOffset).baseDateTime;
+                }
+            }
+            return false;
         }
 
         public override int GetHashCode() {
