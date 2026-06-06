@@ -3,6 +3,11 @@
 
 # v3.0.1.0 - Alpha
 
+:loudspeaker: Major new release: supports Outlook Online!
+* v3 no longer requires an Outlook client (either _Classic_ or _New_ editions)
+* New features will only appear in v3, though you may choose to remain on v2.
+* v2 of OGCS has entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
+
 **Enhancements**
 - Application
     - No Outlook client required!
@@ -50,6 +55,8 @@
     - Fix faux HTML description "changes" [[#2269](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2269)]
 
 # v2.12.0.0 - Beta
+
+:loudspeaker: v2 of OGCS is now entering [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
 
 **Enhancements** rolled in from Alpha releases
 - Application

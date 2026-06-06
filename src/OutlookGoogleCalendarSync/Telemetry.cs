@@ -354,7 +354,7 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex) {
                     if (ex is WebException) {
                         WebException webex = ex as WebException;
-                        if (new HttpStatusCode[] { HttpStatusCode.Forbidden, HttpStatusCode.InternalServerError }.Contains(((HttpWebResponse)webex.Response).StatusCode)) {
+                        if (new HttpStatusCode?[] { HttpStatusCode.Forbidden, HttpStatusCode.InternalServerError, null }.Contains(((HttpWebResponse)webex.Response)?.StatusCode)) {
                             ex.LogAsFail();
                         } else {
                             if (!string.IsNullOrEmpty(payload)) log.Debug("payload: " + payload);
