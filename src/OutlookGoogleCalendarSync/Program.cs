@@ -41,6 +41,10 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean IsInstalled {
             get {
                 isInstalled = isInstalled ?? Updater.IsSquirrelInstall();
+                if ((bool)isInstalled && !Application.StartupPath.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData))) {
+                    log.Info("An installation of OGCS exists, but this running instance is portable.");
+                    return false;
+                }
                 return (Boolean)isInstalled;
             }
         }
