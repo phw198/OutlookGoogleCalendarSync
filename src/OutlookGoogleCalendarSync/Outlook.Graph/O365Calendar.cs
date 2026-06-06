@@ -255,10 +255,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Recurrence.GetOutlookMasterEvent(result);
             List<MsGraph.Models.Event> seriesOccurrences = result.Where(ai => ai.Type == MsGraph.Models.EventType.Occurrence).ToList();
             result = result.Except(seriesOccurrences).ToList();
-            result.Sort((x, y) => x.Start.SafeDateTimeOffset().CompareTo(y.Start.SafeDateTimeOffset()));
+            result.Sort((x, y) => x.Start.SafeDateTimeOffset(x.AllDayEvent()).CompareTo(y.Start.SafeDateTimeOffset(y.AllDayEvent())));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset() == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
+            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent()) == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -669,8 +669,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean startChange = false;
             Boolean endChange = false;
             Boolean aiAllDay = ai.AllDayEvent();
-            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(), aiAllDay);
-            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(), aiAllDay);
+            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(aiAllDay), aiAllDay);
+            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(aiAllDay), aiAllDay);
             if (ev.AllDayEvent()) {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true, aiAllDay, sb, ref itemModified);
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), true), aiStart, sb, ref itemModified);
@@ -710,7 +710,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
                     if (startChange) {
-                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset().ToGraphDate();
+                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset(aiAllDay).ToGraphDate();
                     }
                 }
             }
@@ -1255,7 +1255,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         #region STATIC functions
         public static string Signature(MsGraph.Models.Event ai) {
-            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset().ToPreciseString() + ";" + ai.End.SafeDateTimeOffset().ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ";" + ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<MsGraph.Models.Event> ais) {
@@ -1313,8 +1313,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static string exportToCSV(MsGraph.Models.Event ai) {
             StringBuilder csv = new StringBuilder();
             
-            csv.Append(ai.Start.SafeDateTimeOffset().ToPreciseString() + ",");
-            csv.Append(ai.End.SafeDateTimeOffset().ToPreciseString() + ",");
+            csv.Append(ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
+            csv.Append(ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");
@@ -1393,7 +1393,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         eventSummary += ai.Start.SafeDateTimeOffset(true).Date.ToShortDateString();
                     } else {
                         log.Fine("GetSummary - not all day event");
-                        eventSummary += ai.Start.SafeDateTimeOffset().DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset().DateTime.ToShortTimeString();
+                        eventSummary += ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).DateTime.ToShortTimeString();
                     }
                     eventSummary += " " + (ai.Recurrence != null ? "(R) " : (!string.IsNullOrEmpty(ai.SeriesMasterId) ? "(R1) " : "")) + "=> ";
 

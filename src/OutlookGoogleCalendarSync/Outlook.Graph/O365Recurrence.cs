@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.DateTime.ToShortDateString() : ""));
 
                     try {
-                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTimeOffset() == gExcpOrigDate).FirstOrDefault();
+                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.Start.SafeDateTimeOffset(ai.AllDayEvent()) == gExcpOrigDate).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
                                 log.Warn($"Could not find Outlook occurrence for Google's cancellation on {gExcpOrigDate.ToString("dd-MM-yyyy")}");
@@ -370,11 +370,13 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 foreach (GcalData.Event gExcp in evExceptions) {
                     System.DateTimeOffset gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTimeOffset();
-                    System.DateTimeOffset gExcpCurrDate = gExcp.Start.SafeDateTimeOffset();
-                    log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.DateTime.ToShortDateString() : ""));
+                    System.DateTimeOffset? gExcpCurrDate = gExcp.Start?.SafeDateTimeOffset();
+                    log.Fine($"Found Google exception with {gExcp.Status} original date {gExcpOrigDate.DateTime.ToShortDateString()}" + (gExcpCurrDate != null ? " now on " + ((DateTimeOffset)gExcpCurrDate).DateTime.ToShortDateString() : ""));
 
                     try {
-                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => ai.OriginalStart == gExcpOrigDate).FirstOrDefault();
+                        MsGraph.Models.Event newAiExcp = oRecurrences.Where(ai => 
+                            new OgcsDateTimeOffset(ai.OriginalStart ?? new(), ai.AllDayEvent()).Equals(new OgcsDateTimeOffset(gExcpOrigDate, gExcp.AllDayEvent()))
+                        ).FirstOrDefault();
                         if (newAiExcp == null) {
                             if (gExcp.Status == "cancelled") {
                                 if (Calendar.Instance.CancelledOccurrences[ai.Id]?.Contains(gExcpOrigDate.Date) ?? false)
@@ -408,7 +410,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                             int itemModified = 0;
                             MsGraph.Models.Event aiPatch = new();
                             Outlook.Graph.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified, out aiPatch,
-                                forceCompare || gExcp.Start.SafeDateTimeOffset().Date != newAiExcp.Start.SafeDateTimeOffset().Date);
+                                forceCompare || gExcp.Start.SafeDateTimeOffset().Date != newAiExcp.Start.SafeDateTimeOffset(ai.AllDayEvent()).Date);
                             if (itemModified > 0) {
                                 try {
                                     Calendar.Instance.UpdateCalendarEntry_save(ref aiPatch);

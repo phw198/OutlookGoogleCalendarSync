@@ -145,7 +145,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
-        public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay = false) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay) {
             System.DateTimeOffset safeDate;
             if (evDt.TimeZone == "UTC") {
                 safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
