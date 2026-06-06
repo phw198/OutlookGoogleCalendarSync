@@ -527,7 +527,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Ogcs.Google.Recurrence.GoogleExceptionsReset();
                     googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
                 } catch (AggregateException agex) {
-                    agex.AnalyseAggregate();
+                    agex.Analyse();
                 } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                     ex.AnalyseTokenResponse(false);
                     return SyncResult.Fail;

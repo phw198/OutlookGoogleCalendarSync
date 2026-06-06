@@ -719,6 +719,12 @@
             </summary>
             <returns>A clone of this builder.</returns>
         </member>
+        <member name="T:Google.Apis.Responses.HttpResponseMessageExtensions">
+            <summary>
+            Extensions for <see cref="T:System.Net.Http.HttpResponseMessage"/> to help with parasing errors as returned
+            by some Google services.
+            </summary>
+        </member>
         <member name="M:Google.Apis.Responses.HttpResponseMessageExtensions.DeserializeErrorAsync(System.Net.Http.HttpResponseMessage,System.String,Google.Apis.ISerializer)">
             <summary>
             Attempts to deserialize a <see cref="T:Google.Apis.Requests.RequestError"/> from the <paramref name="response"/>.
@@ -732,7 +738,7 @@
             </list>
             Any exception thrown while reading the <paramref name="response"/> <see cref="P:System.Net.Http.HttpResponseMessage.Content"/>
             will be bubbled up.
-            Otherwie this method will returned the deserialized <see cref="T:Google.Apis.Requests.RequestError"/>.
+            Otherwise this method will return the deserialized <see cref="T:Google.Apis.Requests.RequestError"/>.
             </remarks>
         </member>
         <member name="T:Google.Apis.Services.BaseClientService">
@@ -773,13 +779,11 @@
         </member>
         <member name="P:Google.Apis.Services.BaseClientService.Initializer.DefaultExponentialBackOffPolicy">
             <summary>
-            Get or sets the exponential back-off policy used by the service. Default value is 
-            <c>UnsuccessfulResponse503</c>, which means that exponential back-off is used on 503 abnormal HTTP
-            response.
-            If the value is set to <c>None</c>, no exponential back-off policy is used, and it's up to the user to
-            configure the <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
-            <see cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
-            implementation (using <see cref="T:Google.Apis.Http.BackOffHandler"/>).
+            Indicates which of exceptions and / or HTTP status codes are automatically retried using exponential backoff.
+            The default value is <see cref="F:Google.Apis.Http.ExponentialBackOffPolicy.UnsuccessfulResponse503"/> which means HTTP Status code 503
+            will be retried with exponential backoff.
+            If set to <see cref="F:Google.Apis.Http.ExponentialBackOffPolicy.None" /> no automatic retries will happen.
+            Calling code may still specify custom retries by configuring <see cref="P:Google.Apis.Services.BaseClientService.HttpClient"/>.
             </summary>
         </member>
         <member name="P:Google.Apis.Services.BaseClientService.Initializer.GZipEnabled">
@@ -823,6 +827,13 @@
             </para>
             </remarks>
         </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.HttpClientTimeout">
+            <summary>
+            The timeout to set on <see cref="P:Google.Apis.Services.BaseClientService.HttpClient"/> instances used by the service.
+            May be null, in which case the default timeout values on <see cref="P:Google.Apis.Services.BaseClientService.HttpClient"/> instances
+            used by this service will be left unchanged.
+            </summary>
+        </member>
         <member name="P:Google.Apis.Services.BaseClientService.Initializer.VersionHeaderBuilder">
             <summary>
             Builder for the x-goog-api-client header, collecting version information.
@@ -856,7 +867,8 @@
         </member>
         <member name="P:Google.Apis.Services.BaseClientService.UniverseDomain">
             <summary>
-            The universe domain to connect to, or null to use the default universe domain <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/>.
+            The universe domain to connect to, or null to use the default universe domain,
+            which may be configured via the <see cref="F:Google.Apis.Services.BaseClientService.UniverseDomainEnvironmentVariable"/> .
             </summary>
             <remarks>
             <para>
@@ -864,6 +876,30 @@
             is set, in which case <see cref="P:Google.Apis.Services.BaseClientService.BaseUriOverride"/> will be used without further modification.
             </para>
             </remarks>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.EffectiveConfiguredUniverseDomain">
+            <summary>
+            The configured universe domain, which is:
+            <list type="bullet">
+            <item>
+            <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/> if not null.
+            </item>
+            <item>
+            Otherwise, the value of the environment variable with name <see cref="F:Google.Apis.Services.BaseClientService.UniverseDomainEnvironmentVariable"/>
+            if set to a non empty or blank-only value.
+            </item>
+            <item>
+            Otherwise, null.
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.HttpClientTimeout">
+            <summary>
+            The timeout to set on <see cref="P:Google.Apis.Services.BaseClientService.HttpClient"/> instances used by the service.
+            May be null, in which case the default timeout values on <see cref="P:Google.Apis.Services.BaseClientService.HttpClient"/> instances
+            used by this service will be left unchanged.
+            </summary>
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.HasFeature(Google.Apis.Discovery.Features)">
             <summary>Returns <c>true</c> if this service contains the specified feature.</summary>
@@ -878,7 +914,8 @@
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.GetEffectiveUri(System.String,System.String)">
             <summary>
-            Gets the effective URI taking into account the <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/>.
+            Gets the effective URI taking into account the <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/> and the value of
+            the <see cref="F:Google.Apis.Services.BaseClientService.UniverseDomainEnvironmentVariable"/>.
             </summary>
             <param name="explicitUri">An explicit URI. May be null.</param>
             <param name="defaultUri">A default URI. May be null.</param>
@@ -886,8 +923,8 @@
             <list type="bullet">
             <item><paramref name="explicitUri"/> if not null.</item>
             <item>
-            Otherwise, if <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/> is not null, the result of replacing
-            <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/> with <see cref="P:Google.Apis.Services.BaseClientService.UniverseDomain"/>
+            Otherwise, if <see cref="P:Google.Apis.Services.BaseClientService.EffectiveConfiguredUniverseDomain"/> is not null, the result of replacing
+            <see cref="F:Google.Apis.Services.BaseClientService.DefaultUniverseDomain"/> with <see cref="P:Google.Apis.Services.BaseClientService.EffectiveConfiguredUniverseDomain"/>
             in <paramref name="defaultUri"/>.
             </item>
             Otherwise <paramref name="defaultUri"/>.
@@ -944,6 +981,12 @@
         </member>
         <member name="M:Google.Apis.Services.BaseClientService.Dispose">
             <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.GetNonWhiteSpaceOrNullEnvironmentVariable(System.String)">
+            <summary>
+            Retrieves the value of the environment variable with <paramref name="name"/>,
+            mapping empty or whitespace-only strings to null.
+            </summary>
         </member>
         <member name="T:Google.Apis.Services.IClientService">
             <summary>

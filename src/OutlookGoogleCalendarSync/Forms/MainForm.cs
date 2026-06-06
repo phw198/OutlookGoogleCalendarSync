@@ -9,6 +9,8 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync.Forms {
+
+    [System.ComponentModel.DesignerCategory("Form")]
     /// <summary>
     /// Description of MainForm.
     /// </summary>
@@ -743,7 +745,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 Sync.Engine.Instance.Sync_Requested(sender, e);
             } catch (System.AggregateException ex) {
-                ex.AnalyseAggregate(false);
+                ex.Analyse(false);
             } catch (System.ApplicationException ex) {
                 if (ex.Message.ToLower().Contains("try again") && sender != null) {
                     Sync_Click(null, null);
@@ -1391,7 +1393,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
 
-        private void bGetOutlookCalendars_Click(object sender, EventArgs e) {
+        private async void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
                 Outlook.Graph.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
@@ -1401,7 +1403,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             log.Debug("Retrieving Outlook calendar list.");
             this.bGetOutlookCalendars.Text = "Cancel retrieval";
             try {
-                Ogcs.Outlook.Graph.Calendar.Instance.GetCalendars();
+                await Ogcs.Outlook.Graph.Calendar.Instance.GetCalendars();
             } catch (OperationCanceledException) {
             } catch (System.Exception ex) {
                 ex.Analyse();
@@ -1409,20 +1411,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                     "Please check the output on the Sync tab for more details.", "Outlook calendar retrieval failed",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 StringBuilder sb = new StringBuilder();
-                console.BuildOutput("Unable to get the list of Outlook calendars. The following error occurred:", ref sb, false);
-                console.BuildOutput(ex.FriendlyMessage(), ref sb, false);
-                if (ex is Microsoft.Graph.ServiceException ||
-                    ex is ApplicationException && ex.InnerException != null && ex.InnerException is Microsoft.Graph.ServiceException) {
-                    console.Update(sb, Console.Markup.fail, logit: true);
-                } else {
-                    console.Update(sb, Console.Markup.error, logit: true);
-                    if (Settings.Instance.Proxy.Type == "IE") {
-                        if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
-                            "Test it now? If successful, please retry retrieving your Outlook calendars.",
-                            "Test IE Internet Access",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                            System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
-                        }
+                console.BuildOutput("Unable to get the list of Outlook calendars. The following error occurred: "+ ex.FriendlyMessage(), ref sb, false);
+                console.Update(sb, Console.Markup.error, logit: true);
+                if (Settings.Instance.Proxy.Type == "IE") {
+                    if (Ogcs.Extensions.MessageBox.Show("Please ensure you can access the internet with Internet Explorer.\r\n" +
+                        "Test it now? If successful, please retry retrieving your Outlook calendars.",
+                        "Test IE Internet Access",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                        System.Diagnostics.Process.Start("iexplore.exe", "http://www.google.com");
                     }
                 }
             }
@@ -1776,7 +1772,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 Ogcs.Google.Calendar.Instance.GetCalendars();
                 successfulRetrieval = true;
             } catch (AggregateException agex) {
-                agex.AnalyseAggregate(false);
+                agex.Analyse(false);
             } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                 ex.AnalyseTokenResponse(false);
             } catch (OperationCanceledException) {

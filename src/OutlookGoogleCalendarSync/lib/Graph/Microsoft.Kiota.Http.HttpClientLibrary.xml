@@ -1,0 +1,837 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Http.HttpClientLibrary</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.ContinuousAccessEvaluation">
+            <summary>
+            Process continuous access evaluation
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.ContinuousAccessEvaluation.GetClaims(System.Net.Http.HttpResponseMessage)">
+            <summary>
+               Extracts claims header value from a response
+            </summary>
+            <param name="response"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Extensions.HttpRequestMessageExtensions">
+            <summary>
+            Contains extension methods for <see cref="T:System.Net.Http.HttpRequestMessage"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Extensions.HttpRequestMessageExtensions.GetRequestOption``1(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Gets a <see cref="T:Microsoft.Kiota.Abstractions.IRequestOption"/> from <see cref="T:System.Net.Http.HttpRequestMessage"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="httpRequestMessage">The <see cref="T:System.Net.Http.HttpRequestMessage"/> representation of the request.</param>
+            <returns>A request option</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Extensions.HttpRequestMessageExtensions.CloneAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Create a new HTTP request by copying previous HTTP request's headers and properties from response's request message.
+            </summary>
+            <param name="originalRequest">The previous <see cref="T:System.Net.Http.HttpRequestMessage"/> needs to be copy.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the request.</param>
+            <returns>The <see cref="T:System.Net.Http.HttpRequestMessage"/>.</returns>
+            <remarks>
+            Re-issue a new HTTP request with the previous request's headers and properties
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Extensions.HttpRequestMessageExtensions.IsBuffered(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Checks the HTTP request's content to determine if it's buffered or streamed content.
+            </summary>
+            <param name="httpRequestMessage">The <see cref="T:System.Net.Http.HttpRequestMessage"/>needs to be sent.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.IRequestAdapter"/> implementation for sending requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.#ctor(Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider,Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory,Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory,System.Net.Http.HttpClient,Microsoft.Kiota.Http.HttpClientLibrary.ObservabilityOptions)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter"/> class.
+            <param name="authenticationProvider">The authentication provider.</param>
+            <param name="parseNodeFactory">The parse node factory.</param>
+            <param name="serializationWriterFactory">The serialization writer factory.</param>
+            <param name="httpClient">The native HTTP client.</param>
+            <param name="observabilityOptions">The observability options.</param>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.#ctor(Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider,Microsoft.Kiota.Abstractions.Serialization.IParseNodeFactory,Microsoft.Kiota.Abstractions.Serialization.ISerializationWriterFactory,System.Net.Http.HttpClient,Microsoft.Kiota.Http.HttpClientLibrary.ObservabilityOptions,System.Version)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter"/> class.
+            <param name="authenticationProvider">The authentication provider.</param>
+            <param name="parseNodeFactory">The parse node factory.</param>
+            <param name="serializationWriterFactory">The serialization writer factory.</param>
+            <param name="httpClient">The native HTTP client.</param>
+            <param name="observabilityOptions">The observability options.</param>
+            <param name="httpVersion">The HTTP version.</param>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SerializationWriterFactory">
+            <summary>Factory to use to get a serializer for payload serialization</summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.BaseUrl">
+            <summary>
+            The base url for every request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SendCollectionAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Send a <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance with a collection instance of <typeparam name="ModelType"></typeparam>
+            </summary>
+            <param name="requestInfo">The <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance to send</param>
+            <param name="factory">The factory of the response model to deserialize the response into.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the request.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SendPrimitiveCollectionAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Executes the HTTP request specified by the given RequestInformation and returns the deserialized primitive response model collection.
+            </summary>
+            <param name="requestInfo">The RequestInformation object to use for the HTTP request.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the request.</param>
+            <returns>The deserialized primitive response model collection.</returns>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.EventResponseHandlerInvokedKey">
+            <summary>
+            The key for the tracing event raised when a response handler is called.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SendAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{``0},System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Send a <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance with an instance of <typeparam name="ModelType"></typeparam>
+            </summary>
+            <param name="requestInfo">The <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance to send</param>
+            <param name="factory">The factory of the response model to deserialize the response into.</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the request.</param>
+            <returns>The deserialized response model.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SendPrimitiveAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Send a <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance with a primitive instance of <typeparam name="ModelType"></typeparam>
+            </summary>
+            <param name="requestInfo">The <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance to send</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the request.</param>
+            <returns>The deserialized primitive response model.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.SendNoContentAsync(Microsoft.Kiota.Abstractions.RequestInformation,System.Collections.Generic.Dictionary{System.String,Microsoft.Kiota.Abstractions.Serialization.ParsableFactory{Microsoft.Kiota.Abstractions.Serialization.IParsable}},System.Threading.CancellationToken)">
+            <summary>
+            Send a <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance with an empty request body
+            </summary>
+            <param name="requestInfo">The <see cref="T:Microsoft.Kiota.Abstractions.RequestInformation"/> instance to send</param>
+            <param name="errorMapping">The error factories mapping to use in case of a failed request.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use for cancelling the request.</param>
+            <returns></returns>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.ErrorMappingFoundAttributeName">
+            <summary>
+            The attribute name used to indicate whether an error code mapping was found.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.ErrorBodyFoundAttributeName">
+            <summary>
+            The attribute name used to indicate whether the error response contained a body.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.AuthenticateChallengedEventKey">
+            <summary>
+            The key for the event raised by tracing when an authentication challenge is received
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.ConvertToNativeRequestAsync``1(Microsoft.Kiota.Abstractions.RequestInformation,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.EnableBackingStore(Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory)">
+            <summary>
+            Enable the backing store with the provided <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory"/>
+            </summary>
+            <param name="backingStoreFactory">The <see cref="T:Microsoft.Kiota.Abstractions.Store.IBackingStoreFactory"/> to use</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.Dispose">
+            <summary>
+            Dispose/cleanup the client
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.HttpClientRequestAdapter.Dispose(System.Boolean)">
+            <summary>
+            Dispose/cleanup the client
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory">
+            <summary>
+            This class is used to build the HttpClient instance used by the core service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.Create(System.Net.Http.HttpMessageHandler,Microsoft.Kiota.Abstractions.IRequestOption[])">
+            <summary>
+            Initializes the <see cref="T:System.Net.Http.HttpClient"/> with the default configuration and middlewares including a authentication middleware using the <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider"/> if provided.
+            </summary>
+            <param name="finalHandler">The final <see cref="T:System.Net.Http.HttpMessageHandler"/> in the http pipeline. Can be configured for proxies, auto-decompression and auto-redirects </param>
+            <param name="optionsForHandlers">A array of <see cref="T:Microsoft.Kiota.Abstractions.IRequestOption"/> objects passed to the default handlers.</param>
+            <returns>The <see cref="T:System.Net.Http.HttpClient"/> with the default middlewares.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.Create(System.Collections.Generic.IList{System.Net.Http.DelegatingHandler},System.Net.Http.HttpMessageHandler)">
+            <summary>
+            Initializes the <see cref="T:System.Net.Http.HttpClient"/> with a custom middleware pipeline.
+            </summary>
+            <param name="handlers">The <see cref="T:System.Net.Http.DelegatingHandler"/> instances to create the <see cref="T:System.Net.Http.DelegatingHandler"/> from.</param>
+            <param name="finalHandler">The final <see cref="T:System.Net.Http.HttpMessageHandler"/> in the http pipeline. Can be configured for proxies, auto-decompression and auto-redirects</param>
+            <returns>The <see cref="T:System.Net.Http.HttpClient"/> with the custom handlers.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.Create(Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider,Microsoft.Kiota.Abstractions.IRequestOption[],System.Net.Http.HttpMessageHandler)">
+            <summary>
+            Initializes the <see cref="T:System.Net.Http.HttpClient"/> with the default configuration and authentication middleware using the <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider"/> if provided.
+            </summary>
+            <param name="authenticationProvider"></param>
+            <param name="optionsForHandlers"></param>
+            <param name="finalHandler"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.CreateDefaultHandlers(Microsoft.Kiota.Abstractions.IRequestOption[])">
+            <summary>
+            Creates a default set of middleware to be used by the <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+            <returns>A list of the default handlers used by the client.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.GetDefaultHandlerTypes">
+            <summary>
+            Gets the default handler types.
+            </summary>
+            <returns>A list of all the default handlers</returns>
+            <remarks>Order matters</remarks>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.GetDefaultHandlerActivatableTypes">
+            <summary>
+            Gets the default handler types.
+            </summary>
+            <returns>A list of all the default handlers</returns>
+            <remarks>Order matters</remarks>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType">
+            <summary>
+            Provides DI-safe trim annotations for an underlying type.
+            Required due to https://github.com/dotnet/runtime/issues/110239
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType.#ctor(System.Type)">
+            <summary>
+            Provides DI-safe trim annotations for an underlying type.
+            </summary>
+            <param name="type">The type to be wrapped.</param>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType.Type">
+            <summary>
+            The underlying type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType.op_Implicit(Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType)~System.Type">
+            <summary>
+            Implicitly converts from the wrapper to the underlying type.
+            </summary>
+            <param name="type">An instance of <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType"/></param>
+            <returns>The <see cref="F:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ActivatableType.Type"/></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ChainHandlersCollectionAndGetFirstLink(System.Net.Http.HttpMessageHandler,System.Net.Http.DelegatingHandler[])">
+            <summary>
+            Creates a <see cref="T:System.Net.Http.DelegatingHandler"/> to use for the <see cref="T:System.Net.Http.HttpClient" /> from the provided <see cref="T:System.Net.Http.DelegatingHandler"/> instances. Order matters.
+            </summary>
+            <param name="finalHandler">The final <see cref="T:System.Net.Http.HttpMessageHandler"/> in the http pipeline. Can be configured for proxies, auto-decompression and auto-redirects </param>
+            <param name="handlers">The <see cref="T:System.Net.Http.DelegatingHandler"/> instances to create the <see cref="T:System.Net.Http.DelegatingHandler"/> from.</param>
+            <returns>The created <see cref="T:System.Net.Http.DelegatingHandler"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.ChainHandlersCollectionAndGetFirstLink(System.Net.Http.DelegatingHandler[])">
+            <summary>
+            Creates a <see cref="T:System.Net.Http.DelegatingHandler"/> to use for the <see cref="T:System.Net.Http.HttpClient" /> from the provided <see cref="T:System.Net.Http.DelegatingHandler"/> instances. Order matters.
+            </summary>
+            <param name="handlers">The <see cref="T:System.Net.Http.DelegatingHandler"/> instances to create the <see cref="T:System.Net.Http.DelegatingHandler"/> from.</param>
+            <returns>The created <see cref="T:System.Net.Http.DelegatingHandler"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.KiotaClientFactory.GetDefaultHttpMessageHandler(System.Net.IWebProxy)">
+            <summary>
+            Gets a default Http Client handler with the appropriate proxy configurations
+            </summary>
+            <param name="proxy">The proxy to be used with created client.</param>
+            <returns/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ActivitySourceRegistry">
+            <summary>
+            Internal static registry for activity sources during tracing.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ActivitySourceRegistry.DefaultInstance">
+            <summary>
+            The default instance of the registry
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ActivitySourceRegistry.GetOrCreateActivitySource(System.String)">
+            <summary>
+            Get an a <see cref="T:System.Diagnostics.ActivitySource"/> instance with the given name or create one.
+            </summary>
+            <param name="sourceName">The name of the <see cref="T:System.Diagnostics.ActivitySource"/></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">When the parameter is null or empty</exception>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.AuthorizationHandler">
+            <summary>
+            Adds an Authorization header to the request if the header is not already present.
+            Also handles Continuous Access Evaluation (CAE) claims challenges if the initial
+            token request was made using this handler
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.AuthorizationHandler.#ctor(Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider)">
+            <summary>
+             Constructs an <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.AuthorizationHandler"/>
+            </summary>
+            <param name="authenticationProvider"></param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.AuthorizationHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+                Adds an Authorization header if not already provided
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.BodyInspectionHandler">
+            <summary>
+            The Body Inspection Handler allows the developer to inspect the body of the request and response.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.BodyInspectionHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption)">
+            <summary>
+            Create a new instance of <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.BodyInspectionHandler"/>
+            </summary>
+            <param name="defaultOptions">Default options to apply to the handler</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.BodyInspectionHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler">
+            <summary>
+            A <see cref="T:System.Net.Http.DelegatingHandler"/> implementation that is used for simulating server failures.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ChaosHandlerOption)">
+            <summary>
+            Create a ChaosHandler.
+            </summary>
+            <param name="chaosHandlerOptions">Optional parameter to change default behavior of handler.</param>
+        </member>
+        <member name="F:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.ChaosHandlerTriggeredEventKey">
+            <summary>
+            The key used for the open telemetry event.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Sends the request
+            </summary>
+            <param name="request">The request to send.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Create429TooManyRequestsResponse(System.TimeSpan)">
+            <summary>
+            Create a HTTP status 429 response message
+            </summary>
+            <param name="retry"><see cref="T:System.TimeSpan"/> for retry condition header value</param>
+            <returns>A <see cref="T:System.Net.Http.HttpResponseMessage"/> object simulating a 429 response</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Create503Response(System.TimeSpan)">
+            <summary>
+            Create a HTTP status 503 response message
+            </summary>
+            <param name="retry"><see cref="T:System.TimeSpan"/> for retry condition header value</param>
+            <returns>A <see cref="T:System.Net.Http.HttpResponseMessage"/> object simulating a 503 response</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Create502BadGatewayResponse">
+            <summary>
+            Create a HTTP status 502 response message
+            </summary>
+            <returns>A <see cref="T:System.Net.Http.HttpResponseMessage"/> object simulating a 502 Response</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Create500InternalServerErrorResponse">
+            <summary>
+            Create a HTTP status 500 response message
+            </summary>
+            <returns>A <see cref="T:System.Net.Http.HttpResponseMessage"/> object simulating a 500 Response</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Create504GatewayTimeoutResponse(System.TimeSpan)">
+            <summary>
+            Create a HTTP status 504 response message
+            </summary>
+            <param name="retry"><see cref="T:System.TimeSpan"/> for retry condition header value</param>
+            <returns>A <see cref="T:System.Net.Http.HttpResponseMessage"/> object simulating a 504 response</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ChaosHandler.Dispose">
+            <summary>
+            Clean up any thing we created
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Error">
+            <summary>
+            Private class to model sample responses
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Error.Code">
+            <summary>
+            The error code
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Error.Message">
+            <summary>
+            The error message
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.CompressionHandler">
+            <summary>
+            A <see cref="T:System.Net.Http.DelegatingHandler"/> implementation that handles compression.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.CompressionHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Sends a HTTP request.
+            </summary>
+            <param name="request">The <see cref="T:System.Net.Http.HttpRequestMessage"/> to be sent.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.CompressionHandler.ShouldDecompressContent(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Checks if a <see cref="T:System.Net.Http.HttpResponseMessage"/> contains a Content-Encoding: gzip header.
+            </summary>
+            <param name="httpResponse">The <see cref="T:System.Net.Http.HttpResponseMessage"/> to check for header.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.HeadersInspectionHandler">
+            <summary>
+            The Headers Inspection Handler allows the developer to inspect the headers of the request and response.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.HeadersInspectionHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption)">
+            <summary>
+            Create a new instance of <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.HeadersInspectionHandler"/>
+            </summary>
+            <param name="defaultOptions">Default options to apply to the handler</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.HeadersInspectionHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption">
+            <summary>
+            The Body Inspection Option allows the developer to inspect the body of the request and response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption.InspectRequestBody">
+            <summary>
+            Gets or sets a value indicating whether the request body should be inspected.
+            Note tht this setting increases memory usae as the request body is copied to a new stream.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption.InspectResponseBody">
+            <summary>
+            Gets or sets a value indicating whether the response body should be inspected.
+            Note tht this setting increases memory usae as the request body is copied to a new stream.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption.RequestBody">
+            <summary>
+            Gets the request body stream for the current request. This stream is available
+            only if InspectRequestBody is set to true and the request contains a body. Otherwise,
+            it's just Stream.Null. This stream is not disposed of by kiota, you need to take care of that.
+            Note that this stream is a copy of the original request body stream, which has
+            impact on memory usage. Use adequately.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.BodyInspectionHandlerOption.ResponseBody">
+            <summary>
+            Gets the response body stream for the current request. This stream is available
+            only if InspectResponseBody is set to true and the response contains a body. Otherwise,
+            it's just Stream.Null. This stream is not disposed of by kiota, you need to take care of that.
+            Note that this stream is a copy of the original request body stream, which has
+            impact on memory usage. Use adequately.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ChaosHandlerOption">
+            <summary>
+            The Chaos Handler Option request class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ChaosHandlerOption.ChaosPercentLevel">
+            <summary>
+            Percentage of responses that will have KnownChaos responses injected, assuming no PlannedChaosFactory is provided
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ChaosHandlerOption.KnownChaos">
+            <summary>
+            List of failure responses that potentially could be returned when
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ChaosHandlerOption.PlannedChaosFactory">
+            <summary>
+            Function to return chaos response based on current request.  This is used to reproduce detected failure modes.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption">
+            <summary>
+            The Headers Inspection Option allows the developer to inspect the headers of the request and response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption.InspectRequestHeaders">
+            <summary>
+            Gets or sets a value indicating whether the request headers should be inspected.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption.InspectResponseHeaders">
+            <summary>
+            Gets or sets a value indicating whether the response headers should be inspected.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption.RequestHeaders">
+            <summary>
+            Gets the request headers to for the current request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.HeadersInspectionHandlerOption.ResponseHeaders">
+            <summary>
+            Gets the response headers for the current request.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ParametersNameDecodingOption">
+            <summary>
+            The ParametersEncodingOption request class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ParametersNameDecodingOption.Enabled">
+            <summary>
+            Whether to decode the specified characters in the request query parameters names
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ParametersNameDecodingOption.ParametersToDecode">
+            <summary>
+            The list of characters to decode in the request query parameters names before executing the request
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption">
+            <summary>
+            The redirect request option class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption.MaxRedirect">
+            <summary>
+            The maximum number of redirects with a maximum value of 20. This defaults to 5 redirects.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption.ShouldRedirect">
+            <summary>
+            A delegate that's called to determine whether a response should be redirected or not. The delegate method should accept <see cref="T:System.Net.Http.HttpResponseMessage"/> as it's parameter and return a <see cref="T:System.Boolean"/>. This defaults to true.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption.AllowRedirectOnSchemeChange">
+            <summary>
+            A boolean value to determine if we redirects are allowed if the scheme changes(e.g. https to http). Defaults to false.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption">
+            <summary>
+            The retry request option class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption.Delay">
+            <summary>
+            The waiting time in seconds before retrying a request with a maximum value of 180 seconds. This defaults to 3 seconds.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption.MaxRetry">
+            <summary>
+            The maximum number of retries for a request with a maximum value of 10. This defaults to 3.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption.RetriesTimeLimit">
+            <summary>
+            The maximum time allowed for request retries.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption.ShouldRetry">
+            <summary>
+            A delegate that's called to determine whether a request should be retried or not.
+            The delegate method should accept a delay time in seconds of, number of retry attempts and <see cref="T:System.Net.Http.HttpResponseMessage"/> as it's parameters and return a <see cref="T:System.Boolean"/>. This defaults to false
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.TelemetryHandlerOption">
+            <summary>
+            The Telemetry request option class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.TelemetryHandlerOption.TelemetryConfigurator">
+            <summary>
+            A delegate that's called to configure the <see cref="T:System.Net.Http.HttpRequestMessage"/> with the appropriate telemetry values.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.IUriReplacementHandlerOption">
+            <summary>
+            Interface for making URI replacements.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.IUriReplacementHandlerOption.IsEnabled">
+            <summary>
+            Check if URI replacement is enabled for the option.
+            </summary>
+            <returns>true if replacement is enabled or false otherwise.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.IUriReplacementHandlerOption.Replace(System.Uri)">
+            <summary>
+            Accepts a URI and returns a new URI with all replacements applied.
+            </summary>
+            <param name="original">The URI to apply replacements to</param>
+            <returns>A new URI with all replacements applied.</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UriReplacementHandlerOption">
+            <summary>
+            Url replacement options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UriReplacementHandlerOption.#ctor(System.Boolean,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Creates a new instance of UriReplacementOption.
+            </summary>
+            <param name="isEnabled">Whether replacement is enabled.</param>
+            <param name="replacementPairs">Replacements with the key being a string to match against and the value being the replacement.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UriReplacementHandlerOption.#ctor(System.Boolean)">
+            <summary>
+            Creates a new instance of UriReplacementOption with no replacements.
+            </summary>
+            <param name="isEnabled">Whether replacement is enabled.</param>
+            <remarks>Replacement is disabled by default.</remarks>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UriReplacementHandlerOption.IsEnabled">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UriReplacementHandlerOption.Replace(System.Uri)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption">
+            <summary>
+            The User Agent Handler Option request class
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption.Enabled">
+            <summary>
+            Whether to append the kiota version to the user agent header
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption.ProductName">
+            <summary>
+            The product name to append to the user agent header
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption.ProductVersion">
+            <summary>
+            The product version to append to the user agent header
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler">
+            <summary>
+            This handlers decodes special characters in the request query parameters that had to be encoded due to RFC 6570 restrictions names before executing the request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler.EncodingOptions">
+            <summary>
+            The options to use when decoding parameters names in URLs
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ParametersNameDecodingOption)">
+            <summary>
+            Constructs a new <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler"/>
+            </summary>
+            <param name="options">An OPTIONAL <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.ParametersNameDecodingOption"/> to configure <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler"/></param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.ParametersNameDecodingHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler">
+            <summary>
+            A <see cref="T:System.Net.Http.DelegatingHandler"/> implementation for handling redirection of requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption)">
+            <summary>
+            Constructs a new <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler"/>
+            </summary>
+            <param name="redirectOption">An OPTIONAL <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RedirectHandlerOption"/> to configure <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler"/></param>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler.RedirectOption">
+            <summary>
+            RedirectOption property
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Sends the Request and handles redirect responses if needed
+            </summary>
+            <param name="request">The <see cref="T:System.Net.Http.HttpRequestMessage"/> to send.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/>for the request.</param>
+            <returns>The <see cref="T:System.Net.Http.HttpResponseMessage"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RedirectHandler.IsRedirect(System.Net.HttpStatusCode)">
+            <summary>
+            Checks whether <see cref="T:System.Net.HttpStatusCode"/> is redirected
+            </summary>
+            <param name="statusCode">The <see cref="T:System.Net.HttpStatusCode"/>.</param>
+            <returns>Bool value for redirection or not</returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler">
+            <summary>
+            A <see cref="T:System.Net.Http.DelegatingHandler"/> implementation using standard .NET libraries.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.RetryOption">
+            <summary>
+            RetryOption property
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption)">
+            <summary>
+            Construct a new <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler"/>
+            </summary>
+            <param name="retryOption">An OPTIONAL <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption"/> to configure <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler"/></param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Send a HTTP request
+            </summary>
+            <param name="request">The HTTP request<see cref="T:System.Net.Http.HttpRequestMessage"/>needs to be sent.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the request.</param>
+            <exception cref="T:System.AggregateException">Thrown when too many retries are performed.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.SendRetryAsync(System.Net.Http.HttpResponseMessage,Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption,System.Threading.CancellationToken,System.Diagnostics.ActivitySource)">
+            <summary>
+            Retry sending the HTTP request
+            </summary>
+            <param name="response">The <see cref="T:System.Net.Http.HttpResponseMessage"/> which is returned and includes the HTTP request needs to be retried.</param>
+            <param name="retryOption">The <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.RetryHandlerOption"/> for the retry.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the retry.</param>
+            <param name="activitySource">The <see cref="T:System.Diagnostics.ActivitySource"/> for the retry.</param>
+            <exception cref="T:System.AggregateException">Thrown when too many retries are performed.</exception>"
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.AddOrUpdateRetryAttempt(System.Net.Http.HttpRequestMessage,System.Int32)">
+            <summary>
+            Update Retry-Attempt header in the HTTP request
+            </summary>
+            <param name="request">The <see cref="T:System.Net.Http.HttpRequestMessage"/>needs to be sent.</param>
+            <param name="retryCount">Retry times</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.DelayAsync(System.Net.Http.HttpResponseMessage,System.Int32,System.Int32,System.Double@,System.Threading.CancellationToken)">
+            <summary>
+            Delay task operation for timed-retries based on Retry-After header in the response or exponential back-off
+            </summary>
+            <param name="response">The <see cref="T:System.Net.Http.HttpResponseMessage"/>returned.</param>
+            <param name="retryCount">The retry counts</param>
+            <param name="delay">Delay value in seconds.</param>
+            <param name="delayInSeconds"></param>
+            <param name="cancellationToken">The cancellationToken for the Http request</param>
+            <returns>The <see cref="T:System.Threading.Tasks.Task"/> for delay operation.</returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.CalculateExponentialDelay(System.Int32,System.Int32)">
+            <summary>
+            Calculates the delay based on the exponential back off
+            </summary>
+            <param name="retryCount">The retry count</param>
+            <param name="delay">The base to use as a delay</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.RetryHandler.ShouldRetry(System.Net.HttpStatusCode)">
+            <summary>
+            Check the HTTP status to determine whether it should be retried or not.
+            </summary>
+            <param name="statusCode">The <see cref="T:System.Net.HttpStatusCode"/>returned.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.TelemetryHandler">
+            <summary>
+            A <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.TelemetryHandler"/> implementation using standard .NET libraries.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.TelemetryHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.TelemetryHandlerOption)">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.TelemetryHandlerOption"/> constructor
+            </summary>
+            <param name="telemetryHandlerOption">The <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.TelemetryHandlerOption"/> instance to configure the telemetry</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.TelemetryHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Send a HTTP request
+            </summary>
+            <param name="request">The HTTP request<see cref="T:System.Net.Http.HttpRequestMessage"/>needs to be sent.</param>
+            <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> for the request.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UriReplacementHandler`1">
+            <summary>
+            Replaces a portion of the URL.
+            </summary>
+            <typeparam name="TUriReplacementHandlerOption">A type with the rules used to perform a URI replacement.</typeparam>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UriReplacementHandler`1.#ctor(`0)">
+            <summary>
+            Creates a new UriReplacementHandler.
+            </summary>
+            <param name="uriReplacement">An object with the URI replacement rules.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UriReplacementHandler`1.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UserAgentHandler">
+            <summary>
+            <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UserAgentHandler"/> appends the current library version to the user agent header.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UserAgentHandler.#ctor(Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption)">
+            <summary>
+            Creates a new instance of the <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UserAgentHandler"/> class
+            </summary>
+            <param name="userAgentHandlerOption">The <see cref="T:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.Options.UserAgentHandlerOption"/> instance to configure the user agent extension</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.HttpClientLibrary.Middleware.UserAgentHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.HttpClientLibrary.ObservabilityOptions">
+            <summary>
+            Holds the tracing, metrics and logging configuration for the request adapter
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.ObservabilityOptions.IncludeEUIIAttributes">
+            <summary>
+            Gets or sets a value indicating whether to include attributes which could contain EUII information.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Http.HttpClientLibrary.ObservabilityOptions.TracerInstrumentationName">
+            <summary>
+            Gets the observability name to use for the tracer
+            </summary>
+        </member>
+        <member name="T:Microsoft.Kiota.Http.Generated.Version">
+            <summary>
+            The version class
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Http.Generated.Version.Current">
+            <summary>
+            The current version string
+            </summary>
+        </member>
+    </members>
+</doc>

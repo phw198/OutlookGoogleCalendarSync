@@ -19,16 +19,21 @@ namespace OutlookGoogleCalendarSync {
             Analyse(ex, includeStackTrace: includeStackTrace);
         }
         public static void Analyse(this System.Exception ex, Boolean includeStackTrace = false) {
+            if (ex is AggregateException aex) Analyse(aex);
+
             log4net.Core.Level logLevel = log4net.Core.Level.Error;
             if (LoggingAsFail(ex) || Outlook.Errors.LogAsFail(ex)) {
                 if (ex is ApplicationException) return;
                 logLevel = Program.MyFailLevel;
             }
 
-            if (ex is Microsoft.Graph.ServiceException) {
-                Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
-                log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(gex.Error));
-                log.ErrorOrFail("StatusCode: " + gex.StatusCode + "; Code: " + gex.Error.Code + "; Message: " + gex.Error.Message, logLevel);
+            if (ex is Microsoft.Kiota.Abstractions.ApiException kiotaEx) {
+                if (!(new System.Diagnostics.StackTrace().GetFrames()?.Any(frame => frame.GetMethod()?.Name == "GetODataError") ?? false)) { 
+                    Outlook.Graph.CustomClient.Models.ODataErrors.ODataError oDataErr = Outlook.Graph.O365Errors.GetODataError(kiotaEx);
+                    log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Code: {oDataErr?.Error?.Code}; Message: {oDataErr?.Message}", logLevel);
+                } else {
+                    log.ErrorOrFail($"StatusCode: {kiotaEx.ResponseStatusCode}; Message: {kiotaEx.Message}", logLevel);
+                }
                 return;
             } else
                 log.ErrorOrFail(ex.GetType().FullName + ": " + ex.Message, logLevel);
@@ -36,7 +41,7 @@ namespace OutlookGoogleCalendarSync {
             String locationDetails = "<Unknown File>";
             try {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(ex, true);
-                foreach (System.Diagnostics.StackFrame sf in st.GetFrames()) {
+                foreach (System.Diagnostics.StackFrame sf in st.GetFrames() ?? new System.Diagnostics.StackFrame[] { }) {
                     String filename = sf.GetFileName();
                     if (string.IsNullOrEmpty(filename)) continue;
                     locationDetails = $"{sf.GetMethod().Name}() at offset {sf.GetNativeOffset()} in {System.IO.Path.GetFileName(filename)}:{sf.GetFileLineNumber()}:{sf.GetFileColumnNumber()}";
@@ -61,6 +66,19 @@ namespace OutlookGoogleCalendarSync {
                 } catch (System.Exception ex2) {
                     log.Error("Unable to include stack trace. " + ex2.Message);
                 }
+            }
+        }
+
+        public static void Analyse(this AggregateException agex, Boolean throwError = true) {
+            foreach (System.Exception ex in agex.InnerExceptions) {
+                if (ex is ApplicationException) {
+                    if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
+                    else log.Error(agex.Message);
+
+                } else if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
+                    AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
+
+                } else Analyse(ex);
             }
         }
 
@@ -89,19 +107,6 @@ namespace OutlookGoogleCalendarSync {
             return -1;
         }
 
-        public static void AnalyseAggregate(this AggregateException agex, Boolean throwError = true) {
-            foreach (System.Exception ex in agex.InnerExceptions) {
-                if (ex is ApplicationException) {
-                    if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
-                    else log.Error(agex.Message);
-
-                } else if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
-                    AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
-
-                } else Analyse(ex);
-            }
-        }
-
         public static void AnalyseTokenResponse(this global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex, Boolean throwError = true) {
             String instructions = "On the Settings > Google tab, please disconnect and re-authenticate your account.";
 
@@ -126,19 +131,16 @@ namespace OutlookGoogleCalendarSync {
         }
 
         public static String FriendlyMessage(this System.Exception ex) {
-            if (ex is global::Google.GoogleApiException) {
-                global::Google.GoogleApiException gaex = ex as global::Google.GoogleApiException;
+            if (ex is global::Google.GoogleApiException gaex) {
                 if (gaex.Error != null)
                     return gaex.Error.Message + " [" + gaex.Error.Code + "=" + gaex.HttpStatusCode + "]";
                 else
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
 
-            } else if (ex is Microsoft.Graph.ServiceException) {
-                Microsoft.Graph.ServiceException gex = ex as Microsoft.Graph.ServiceException;
-                if (gex.Error != null)
-                    return gex.Error.Message.Replace("\n", "<br/>") + " [" + gex.Error.Code + "]";
+            } else if (ex is Microsoft.Kiota.Abstractions.ApiException gex) {
+                return gex.Message.Replace("\n", "<br/>") + " [" + gex.ResponseStatusCode + "]";
             }
-            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Graph.ServiceException) ? "<br/>" + ex.InnerException.Message : "");
+            return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Kiota.Abstractions.ApiException) ? "<br/>" + ex.InnerException.Message : "");
         }
 
         #region Logging level for exception

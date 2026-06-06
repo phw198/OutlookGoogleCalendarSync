@@ -867,6 +867,14 @@
             The destination where API teams want this client library to be published.
             </summary>
         </member>
+        <member name="F:Google.Api.CommonLanguageSettings.SelectiveGapicGenerationFieldNumber">
+            <summary>Field number for the "selective_gapic_generation" field.</summary>
+        </member>
+        <member name="P:Google.Api.CommonLanguageSettings.SelectiveGapicGeneration">
+            <summary>
+            Configuration for which RPCs should be generated in the GAPIC client.
+            </summary>
+        </member>
         <member name="T:Google.Api.ClientLibrarySettings">
             <summary>
             Details about how and where to publish client libraries.
@@ -1189,6 +1197,28 @@
             feature in preview packages.
             </summary>
         </member>
+        <member name="F:Google.Api.PythonSettings.Types.ExperimentalFeatures.ProtobufPythonicTypesEnabledFieldNumber">
+            <summary>Field number for the "protobuf_pythonic_types_enabled" field.</summary>
+        </member>
+        <member name="P:Google.Api.PythonSettings.Types.ExperimentalFeatures.ProtobufPythonicTypesEnabled">
+            <summary>
+            Enables generation of protobuf code using new types that are more
+            Pythonic which are included in `protobuf>=5.29.x`. This feature will be
+            enabled by default 1 month after launching the feature in preview
+            packages.
+            </summary>
+        </member>
+        <member name="F:Google.Api.PythonSettings.Types.ExperimentalFeatures.UnversionedPackageDisabledFieldNumber">
+            <summary>Field number for the "unversioned_package_disabled" field.</summary>
+        </member>
+        <member name="P:Google.Api.PythonSettings.Types.ExperimentalFeatures.UnversionedPackageDisabled">
+            <summary>
+            Disables generation of an unversioned Python package for this client
+            library. This means that the module names will need to be versioned in
+            import statements. For example `import google.cloud.library_v2` instead
+            of `import google.cloud.library`.
+            </summary>
+        </member>
         <member name="T:Google.Api.NodeSettings">
             <summary>
             Settings for Node client libraries.
@@ -1295,6 +1325,21 @@
             <summary>
             Some settings.
             </summary>
+        </member>
+        <member name="F:Google.Api.GoSettings.RenamedServicesFieldNumber">
+            <summary>Field number for the "renamed_services" field.</summary>
+        </member>
+        <member name="P:Google.Api.GoSettings.RenamedServices">
+             <summary>
+             Map of service names to renamed services. Keys are the package relative
+             service names and values are the name to be used for the service client
+             and call options.
+            
+             publishing:
+               go_settings:
+                 renamed_services:
+                   Publisher: TopicAdmin
+             </summary>
         </member>
         <member name="T:Google.Api.MethodSettings">
             <summary>
@@ -1403,6 +1448,34 @@
             <summary>
             Total polling timeout.
             Default value: 5 minutes.
+            </summary>
+        </member>
+        <member name="T:Google.Api.SelectiveGapicGeneration">
+            <summary>
+            This message is used to configure the generation of a subset of the RPCs in
+            a service for client libraries.
+            </summary>
+        </member>
+        <member name="F:Google.Api.SelectiveGapicGeneration.MethodsFieldNumber">
+            <summary>Field number for the "methods" field.</summary>
+        </member>
+        <member name="P:Google.Api.SelectiveGapicGeneration.Methods">
+            <summary>
+            An allowlist of the fully qualified names of RPCs that should be included
+            on public client surfaces.
+            </summary>
+        </member>
+        <member name="F:Google.Api.SelectiveGapicGeneration.GenerateOmittedAsInternalFieldNumber">
+            <summary>Field number for the "generate_omitted_as_internal" field.</summary>
+        </member>
+        <member name="P:Google.Api.SelectiveGapicGeneration.GenerateOmittedAsInternal">
+            <summary>
+            Setting this to true indicates to the client generators that methods
+            that would be excluded from the generation should instead be generated
+            in a way that indicates these methods should not be consumed by
+            end users. How this is expressed is up to individual language
+            implementations to decide. Some examples may be: added annotations,
+            obfuscated identifiers, or other language idiomatic patterns.
             </summary>
         </member>
         <member name="T:Google.Api.ConfigChangeReflection">
@@ -2290,9 +2363,9 @@
         </member>
         <member name="P:Google.Api.Page.Content">
             <summary>
-            The Markdown content of the page. You can use &lt;code>&amp;#40;== include {path}
-            ==&amp;#41;&lt;/code> to include content from a Markdown file. The content can be
-            used to produce the documentation page such as HTML format page.
+            The Markdown content of the page. You can use ```(== include {path}
+            ==)``` to include content from a Markdown file. The content can be used
+            to produce the documentation page such as HTML format page.
             </summary>
         </member>
         <member name="F:Google.Api.Page.SubpagesFieldNumber">
@@ -3012,6 +3085,43 @@
              This response indicates creating the Cloud Storage Bucket in
              "locations/asia-northeast3" violates at least one location policy.
              The troubleshooting guidance is provided in the Help links.
+             </summary>
+        </member>
+        <member name="F:Google.Api.ErrorReason.MissingOrigin">
+             <summary>
+             The request is denied because origin request header is missing.
+            
+             Example of an ErrorInfo when
+             accessing "pubsub.googleapis.com" service with an empty "Origin" request
+             header.
+            
+             {
+               reason: "MISSING_ORIGIN"
+               domain: "googleapis.com"
+               metadata {
+                 "consumer":"projects/123456"
+                 "service": "pubsub.googleapis.com"
+               }
+             }
+             </summary>
+        </member>
+        <member name="F:Google.Api.ErrorReason.OverloadedCredentials">
+             <summary>
+             The request is denied because the request contains more than one credential
+             type that are individually acceptable, but not together. The customer
+             should retry their request with only one set of credentials.
+            
+             Example of an ErrorInfo when
+             accessing "pubsub.googleapis.com" service with overloaded credentials.
+            
+             {
+               reason: "OVERLOADED_CREDENTIALS"
+               domain: "googleapis.com"
+               metadata {
+                 "consumer":"projects/123456"
+                 "service": "pubsub.googleapis.com"
+               }
+             }
              </summary>
         </member>
         <member name="T:Google.Api.FieldBehaviorReflection">
@@ -4394,6 +4504,42 @@
             data loss due to errors.
             </summary>
         </member>
+        <member name="F:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.TimeSeriesResourceHierarchyLevelFieldNumber">
+            <summary>Field number for the "time_series_resource_hierarchy_level" field.</summary>
+        </member>
+        <member name="P:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.TimeSeriesResourceHierarchyLevel">
+            <summary>
+            The scope of the timeseries data of the metric.
+            </summary>
+        </member>
+        <member name="T:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types">
+            <summary>Container for nested types declared in the MetricDescriptorMetadata message type.</summary>
+        </member>
+        <member name="T:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types.TimeSeriesResourceHierarchyLevel">
+            <summary>
+            The resource hierarchy level of the timeseries data of a metric.
+            </summary>
+        </member>
+        <member name="F:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types.TimeSeriesResourceHierarchyLevel.Unspecified">
+            <summary>
+            Do not use this default value.
+            </summary>
+        </member>
+        <member name="F:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types.TimeSeriesResourceHierarchyLevel.Project">
+            <summary>
+            Scopes a metric to a project.
+            </summary>
+        </member>
+        <member name="F:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types.TimeSeriesResourceHierarchyLevel.Organization">
+            <summary>
+            Scopes a metric to an organization.
+            </summary>
+        </member>
+        <member name="F:Google.Api.MetricDescriptor.Types.MetricDescriptorMetadata.Types.TimeSeriesResourceHierarchyLevel.Folder">
+            <summary>
+            Scopes a metric to a folder.
+            </summary>
+        </member>
         <member name="T:Google.Api.Metric">
             <summary>
             A specific metric, identified by specifying values for all of the
@@ -5003,8 +5149,8 @@
         <member name="P:Google.Api.QuotaLimit.Unit">
              <summary>
              Specify the unit of the quota limit. It uses the same syntax as
-             [Metric.unit][]. The supported unit kinds are determined by the quota
-             backend system.
+             [MetricDescriptor.unit][google.api.MetricDescriptor.unit]. The supported
+             unit kinds are determined by the quota backend system.
             
              Here are some examples:
              * "1/min/{project}" for quota per minute per project.
@@ -5375,7 +5521,7 @@
              The routing header consists of one or multiple key-value pairs. Every key
              and value must be percent-encoded, and joined together in the format of
              `key1=value1&amp;key2=value2`.
-             In the examples below I am skipping the percent-encoding for readablity.
+             The examples below skip the percent-encoding for readability.
             
              Example 1
             
@@ -7168,7 +7314,8 @@
              may be set by external tools to store and retrieve arbitrary metadata.
              They are not queryable and should be preserved when modifying objects.
             
-             More info: https://kubernetes.io/docs/user-guide/annotations
+             More info:
+             https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
              </summary>
         </member>
         <member name="F:Google.Rpc.Context.AttributeContext.Types.Resource.DisplayNameFieldNumber">
@@ -7355,11 +7502,12 @@
              <summary>
              Additional structured details about this error.
             
-             Keys should match /[a-zA-Z0-9-_]/ and be limited to 64 characters in
+             Keys must match a regular expression of `[a-z][a-zA-Z0-9-_]+` but should
+             ideally be lowerCamelCase. Also, they must be limited to 64 characters in
              length. When identifying the current value of an exceeded limit, the units
              should be contained in the key, not the value.  For example, rather than
-             {"instanceLimit": "100/request"}, should be returned as,
-             {"instanceLimitPerRequest": "100"}, if the client exceeds the number of
+             `{"instanceLimit": "100/request"}`, should be returned as,
+             `{"instanceLimitPerRequest": "100"}`, if the client exceeds the number of
              instances that can be created in a single (batch) request.
              </summary>
         </member>
@@ -7464,6 +7612,107 @@
              For example: "Service disabled" or "Daily Limit for read operations
              exceeded".
              </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.ApiServiceFieldNumber">
+            <summary>Field number for the "api_service" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.ApiService">
+             <summary>
+             The API Service from which the `QuotaFailure.Violation` orginates. In
+             some cases, Quota issues originate from an API Service other than the one
+             that was called. In other words, a dependency of the called API Service
+             could be the cause of the `QuotaFailure`, and this field would have the
+             dependency API service name.
+            
+             For example, if the called API is Kubernetes Engine API
+             (container.googleapis.com), and a quota violation occurs in the
+             Kubernetes Engine API itself, this field would be
+             "container.googleapis.com". On the other hand, if the quota violation
+             occurs when the Kubernetes Engine API creates VMs in the Compute Engine
+             API (compute.googleapis.com), this field would be
+             "compute.googleapis.com".
+             </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.QuotaMetricFieldNumber">
+            <summary>Field number for the "quota_metric" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.QuotaMetric">
+             <summary>
+             The metric of the violated quota. A quota metric is a named counter to
+             measure usage, such as API requests or CPUs. When an activity occurs in a
+             service, such as Virtual Machine allocation, one or more quota metrics
+             may be affected.
+            
+             For example, "compute.googleapis.com/cpus_per_vm_family",
+             "storage.googleapis.com/internet_egress_bandwidth".
+             </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.QuotaIdFieldNumber">
+            <summary>Field number for the "quota_id" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.QuotaId">
+             <summary>
+             The id of the violated quota. Also know as "limit name", this is the
+             unique identifier of a quota in the context of an API service.
+            
+             For example, "CPUS-PER-VM-FAMILY-per-project-region".
+             </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.QuotaDimensionsFieldNumber">
+            <summary>Field number for the "quota_dimensions" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.QuotaDimensions">
+             <summary>
+             The dimensions of the violated quota. Every non-global quota is enforced
+             on a set of dimensions. While quota metric defines what to count, the
+             dimensions specify for what aspects the counter should be increased.
+            
+             For example, the quota "CPUs per region per VM family" enforces a limit
+             on the metric "compute.googleapis.com/cpus_per_vm_family" on dimensions
+             "region" and "vm_family". And if the violation occurred in region
+             "us-central1" and for VM family "n1", the quota_dimensions would be,
+            
+             {
+               "region": "us-central1",
+               "vm_family": "n1",
+             }
+            
+             When a quota is enforced globally, the quota_dimensions would always be
+             empty.
+             </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.QuotaValueFieldNumber">
+            <summary>Field number for the "quota_value" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.QuotaValue">
+             <summary>
+             The enforced quota value at the time of the `QuotaFailure`.
+            
+             For example, if the enforced quota value at the time of the
+             `QuotaFailure` on the number of CPUs is "10", then the value of this
+             field would reflect this quantity.
+             </summary>
+        </member>
+        <member name="F:Google.Rpc.QuotaFailure.Types.Violation.FutureQuotaValueFieldNumber">
+            <summary>Field number for the "future_quota_value" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.FutureQuotaValue">
+             <summary>
+             The new quota value being rolled out at the time of the violation. At the
+             completion of the rollout, this value will be enforced in place of
+             quota_value. If no rollout is in progress at the time of the violation,
+             this field is not set.
+            
+             For example, if at the time of the violation a rollout is in progress
+             changing the number of CPUs quota from 10 to 20, 20 would be the value of
+             this field.
+             </summary>
+        </member>
+        <member name="P:Google.Rpc.QuotaFailure.Types.Violation.HasFutureQuotaValue">
+            <summary>Gets whether the "future_quota_value" field is set</summary>
+        </member>
+        <member name="M:Google.Rpc.QuotaFailure.Types.Violation.ClearFutureQuotaValue">
+            <summary>Clears the value of the "future_quota_value" field</summary>
         </member>
         <member name="T:Google.Rpc.PreconditionFailure">
              <summary>
@@ -7593,6 +7842,28 @@
         <member name="P:Google.Rpc.BadRequest.Types.FieldViolation.Description">
             <summary>
             A description of why the request element is bad.
+            </summary>
+        </member>
+        <member name="F:Google.Rpc.BadRequest.Types.FieldViolation.ReasonFieldNumber">
+            <summary>Field number for the "reason" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.BadRequest.Types.FieldViolation.Reason">
+            <summary>
+            The reason of the field-level error. This is a constant value that
+            identifies the proximate cause of the field-level error. It should
+            uniquely identify the type of the FieldViolation within the scope of the
+            google.rpc.ErrorInfo.domain. This should be at most 63
+            characters and match a regular expression of `[A-Z][A-Z0-9_]+[A-Z0-9]`,
+            which represents UPPER_SNAKE_CASE.
+            </summary>
+        </member>
+        <member name="F:Google.Rpc.BadRequest.Types.FieldViolation.LocalizedMessageFieldNumber">
+            <summary>Field number for the "localized_message" field.</summary>
+        </member>
+        <member name="P:Google.Rpc.BadRequest.Types.FieldViolation.LocalizedMessage">
+            <summary>
+            Provides a localized error message for field-level errors that is safe to
+            return to the API consumer.
             </summary>
         </member>
         <member name="T:Google.Rpc.RequestInfo">

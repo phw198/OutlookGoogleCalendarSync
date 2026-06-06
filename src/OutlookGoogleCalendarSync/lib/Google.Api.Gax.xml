@@ -83,6 +83,61 @@
             The batch lifetime above which further processing of a batch will occur.
             </summary>
         </member>
+        <member name="T:Google.Api.Gax.CloudRunJobPlatformDetails">
+            <summary>
+            Google Cloud Run Job details.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunJobPlatformDetails.TryLoad(System.String)">
+            <summary>
+            Builds a <see cref="T:Google.Api.Gax.CloudRunJobPlatformDetails"/> from the given metadata
+            and Cloud Run Job environment variables.
+            The metadata is normally retrieved from the GCE metadata server.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <returns>A populated <see cref="T:Google.Api.Gax.CloudRunJobPlatformDetails"/> if the metadata represents a Cloud Run Job;
+            <c>null</c> otherwise.</returns>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunJobPlatformDetails.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructs details of a Google Cloud Run job execution.
+            </summary>
+            <param name="metadataJson">JSON metadata, normally retrieved from the GCE metadata server.
+            Must not be <c>null</c>.</param>
+            <param name="projectId">The project ID. Must not be null.</param>
+            <param name="zone">The zone in which the job code is running. Must not be null.</param>
+            <param name="jobName">The name of the job. Must not be null.</param>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunJobPlatformDetails.MetadataJson">
+            <summary>
+            The full JSON string retrieved from the metadata server. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunJobPlatformDetails.ProjectId">
+            <summary>
+            The Project ID under which this service is running. This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunJobPlatformDetails.Zone">
+            <summary>
+            The zone of the service, e.g. "us-central1-1". This is never null.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunJobPlatformDetails.Region">
+            <summary>
+            The region part of the zone. For example, a zone of "us-central1-1" has a region
+            of "us-central1".
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.CloudRunJobPlatformDetails.JobName">
+            <summary>
+            The name of the Cloud Run job being run. This is never null.
+            </summary>
+        </member>
+        <member name="M:Google.Api.Gax.CloudRunJobPlatformDetails.ToString">
+            <inheritdoc/>
+        </member>
         <member name="T:Google.Api.Gax.CloudRunPlatformDetails">
             <summary>
             Google Cloud Run details.
@@ -1310,8 +1365,23 @@
         </member>
         <member name="M:Google.Api.Gax.PagedAsyncEnumerable`2.ReadPageAsync(System.Int32,System.Threading.CancellationToken)">
             <summary>
-            Eagerly (but asynchronously) reads a single page of results with a fixed maximum size. The returned page is guaranteed
-            to have that many results, unless there is no more data available.
+            Eagerly reads a single page of results with a fixed maximum size. The returned page is not guaranteed
+            to have that many results:
+            <list type="bullet">
+            <item>
+            The resulting page may contain fewer than <paramref name="pageSize"/> items if there were not that many items available.
+            </item>
+            <item>
+            The resulting page may contain more than <paramref name="pageSize"/> items,
+            if <typeparamref name="TResource"/> is a key-value pair, where the value is itself a collection of items.
+            In such cases, an arbitrary number of keys may appear, including keys with an empty collection value.
+            The underlying API should guarantee that the number of elements across all value collections is <paramref name="pageSize"/>
+            at most.
+            </item>
+            <item>
+            Otherwise, the underlying API should guarantee that the return page contains exactly <paramref name="pageSize"/> items.
+            </item>
+            </list>
             </summary>
             <remarks>
             "Natural" pages returned by the API may contain a smaller number of resources than requested.
@@ -1348,8 +1418,23 @@
         </member>
         <member name="M:Google.Api.Gax.PagedEnumerable`2.ReadPage(System.Int32)">
             <summary>
-            Eagerly reads a single page of results with a fixed maximum size. The returned page is guaranteed
-            to have that many results, unless there is no more data available.
+            Eagerly reads a single page of results with a fixed maximum size. The returned page is not guaranteed
+            to have that many results:
+            <list type="bullet">
+            <item>
+            The resulting page may contain fewer than <paramref name="pageSize"/> items if there were not that many items available.
+            </item>
+            <item>
+            The resulting page may contain more than <paramref name="pageSize"/> items,
+            if <typeparamref name="TResource"/> is a key-value pair, where the value is itself a collection of items.
+            In such cases, an arbitrary number of keys may appear, including keys with an empty collection value.
+            The underlying API should guarantee that the number of elements across all value collections is <paramref name="pageSize"/>
+            at most.
+            </item>
+            <item>
+            Otherwise, the underlying API should guarantee that the return page contains exactly <paramref name="pageSize"/> items.
+            </item>
+            </list>
             </summary>
             <remarks>
             "Natural" pages returned by the API may contain a smaller number of resources than requested.
@@ -1584,6 +1669,12 @@
             </summary>
             <param name="cloudRunDetails">Details of Google Cloud Run.</param>
         </member>
+        <member name="M:Google.Api.Gax.Platform.#ctor(Google.Api.Gax.CloudRunJobPlatformDetails)">
+            <summary>
+            Construct with details of Google Cloud Run Job.
+            </summary>
+            <param name="cloudRunJobDetails">Details of Google Cloud Run Job.</param>
+        </member>
         <member name="P:Google.Api.Gax.Platform.GaeDetails">
             <summary>
             Google App Engine (GAE) platform details.
@@ -1593,19 +1684,25 @@
         <member name="P:Google.Api.Gax.Platform.GceDetails">
             <summary>
             Google Compute Engine (GCE) platform details.
-            <c>null</c> if not executing on GCE. 
+            <c>null</c> if not executing on GCE.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.Platform.GkeDetails">
             <summary>
             Google Container (Kubernetes) Engine (GKE) platform details.
-            <c>null</c> if not executing on GKE. 
+            <c>null</c> if not executing on GKE.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.Platform.CloudRunDetails">
             <summary>
             Google Cloud Run platform details.
-            <c>null</c> if not executing on Google Cloud Run. 
+            <c>null</c> if not executing on Google Cloud Run.
+            </summary>
+        </member>
+        <member name="P:Google.Api.Gax.Platform.CloudRunJobDetails">
+            <summary>
+            Google Cloud Run Job platform details.
+            <c>null</c> if not executing on Google Cloud Run Job.
             </summary>
         </member>
         <member name="P:Google.Api.Gax.Platform.Type">
@@ -1650,6 +1747,11 @@
         <member name="F:Google.Api.Gax.PlatformType.CloudRun">
             <summary>
             Execution platform is Google Cloud Run.
+            </summary>
+        </member>
+        <member name="F:Google.Api.Gax.PlatformType.CloudRunJob">
+            <summary>
+            Execution platform is Google Cloud Run Job.
             </summary>
         </member>
         <member name="T:Google.Api.Gax.Polling">

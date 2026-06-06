@@ -151,6 +151,10 @@
         <member name="T:System.Runtime.CompilerServices.ConfiguredAsyncDisposable">
             <summary>Provides a type that can be used to configure how awaits on an <see cref="T:System.IAsyncDisposable"/> are performed.</summary>
         </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredAsyncDisposable.DisposeAsync">
+            <summary>Asynchronously releases the unmanaged resources used by the <see cref="T:System.Runtime.CompilerServices.ConfiguredAsyncDisposable" />.</summary>
+            <returns>A task that represents the asynchronous dispose operation.</returns>
+        </member>
         <member name="T:System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1">
             <summary>Provides an awaitable async enumerable that enables cancelable iteration and configured awaits.</summary>
         </member>
@@ -165,6 +169,10 @@
             <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to use.</param>
             <returns>The configured enumerable.</returns>
             <remarks>This will replace any previous <see cref="T:System.Threading.CancellationToken"/> set by <see cref="M:System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.WithCancellation(System.Threading.CancellationToken)"/> for this iteration.</remarks>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator">
+            <summary>Returns an enumerator that iterates asynchronously through collections that enables cancelable iteration and configured awaits.</summary>
+            <returns>An enumerator for the <see cref="T:System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1" /> class.</returns>
         </member>
         <member name="T:System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.Enumerator">
             <summary>Provides an awaitable async enumerator that enables cancelable iteration and configured awaits.</summary>
@@ -185,6 +193,12 @@
             Performs application-defined tasks associated with freeing, releasing, or
             resetting unmanaged resources asynchronously.
             </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.EnumeratorCancellationAttribute">
+            <summary>Allows users of async-enumerable methods to mark the parameter that should receive the cancellation token value from <see cref="M:System.Collections.Generic.IAsyncEnumerable`1.GetAsyncEnumerator(System.Threading.CancellationToken)" />.</summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.EnumeratorCancellationAttribute.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.EnumeratorCancellationAttribute" /> class.</summary>
         </member>
         <member name="T:System.Runtime.InteropServices.LibraryImportAttribute">
             <summary>

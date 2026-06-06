@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Kiota.Authentication.Azure</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider">
+            <summary>
+            Provides an implementation of <see cref="T:Microsoft.Kiota.Abstractions.Authentication.IAccessTokenProvider"/> for Azure.Identity.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider.AllowedHostsValidator">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider.#ctor(Azure.Core.TokenCredential,System.String[],Microsoft.Kiota.Authentication.Azure.ObservabilityOptions,System.Boolean,System.String[])">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider"/> constructor
+            </summary>
+            <param name="credential">The credential implementation to use to obtain the access token.</param>
+            <param name="allowedHosts">The list of allowed hosts for which to request access tokens.</param>
+            <param name="scopes">The scopes to request the access token for.</param>
+            <param name="observabilityOptions">The observability options to use for the authentication provider.</param>
+            <param name="isCaeEnabled">Whether to enable Conditional Access Evaluation (CAE) for the token request.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider.#ctor(Azure.Core.TokenCredential,System.String[],Microsoft.Kiota.Authentication.Azure.ObservabilityOptions,System.String[])">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider"/> constructor
+            </summary>
+            <param name="credential">The credential implementation to use to obtain the access token.</param>
+            <param name="allowedHosts">The list of allowed hosts for which to request access tokens.</param>
+            <param name="scopes">The scopes to request the access token for.</param>
+            <param name="observabilityOptions">The observability options to use for the authentication provider.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider.GetAuthorizationTokenAsync(System.Uri,System.Collections.Generic.Dictionary{System.String,System.Object},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAccessTokenProvider.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAuthenticationProvider">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Abstractions.Authentication.BaseBearerTokenAuthenticationProvider"/> implementation that supports implementations of <see cref="T:Azure.Core.TokenCredential"/> from Azure.Identity.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAuthenticationProvider.#ctor(Azure.Core.TokenCredential,System.String[],Microsoft.Kiota.Authentication.Azure.ObservabilityOptions,System.Boolean,System.String[])">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAuthenticationProvider"/> constructor
+            </summary>
+            <param name="credential">The credential implementation to use to obtain the access token.</param>
+            <param name="allowedHosts">The list of allowed hosts for which to request access tokens.</param>
+            <param name="scopes">The scopes to request the access token for.</param>
+            <param name="isCaeEnabled">Whether to enable Conditional Access Evaluation (CAE) for the token request.</param>
+            <param name="observabilityOptions">The observability options to use for the authentication provider.</param>
+        </member>
+        <member name="M:Microsoft.Kiota.Authentication.Azure.AzureIdentityAuthenticationProvider.#ctor(Azure.Core.TokenCredential,System.String[],Microsoft.Kiota.Authentication.Azure.ObservabilityOptions,System.String[])">
+            <summary>
+            The <see cref="T:Microsoft.Kiota.Authentication.Azure.AzureIdentityAuthenticationProvider"/> constructor
+            </summary>
+            <param name="credential">The credential implementation to use to obtain the access token.</param>
+            <param name="allowedHosts">The list of allowed hosts for which to request access tokens.</param>
+            <param name="scopes">The scopes to request the access token for.</param>
+            <param name="observabilityOptions">The observability options to use for the authentication provider.</param>
+        </member>
+        <member name="T:Microsoft.Kiota.Authentication.Azure.ObservabilityOptions">
+            <summary>
+            Holds the tracing, metrics and logging configuration for the authentication provider
+            </summary>
+        </member>
+        <member name="P:Microsoft.Kiota.Authentication.Azure.ObservabilityOptions.TracerInstrumentationName">
+            <summary>
+            Gets the observability name to use for the tracer
+            </summary>
+        </member>
+    </members>
+</doc>
