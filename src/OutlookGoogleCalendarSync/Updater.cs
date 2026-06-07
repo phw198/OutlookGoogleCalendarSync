@@ -193,12 +193,13 @@ namespace OutlookGoogleCalendarSync {
                         }
 
                         String updateFilename = update.Filename;
-                        if (updates.CurrentlyInstalledVersion?.Version.Version.Major == 2 && update.Version.Version.Major == 3 && update.IsDelta) {
+                        Boolean nupkgOverridden = false;
+                        if (nupkgOverridden = updates.CurrentlyInstalledVersion?.Version.Version.Major == 2 && update.Version.Version.Major == 3 && update.IsDelta) {
                             log.Info("Forcing full download instead of delta " + update.Version);
                             updateFilename = update.Filename.Replace("delta.nupkg", "full.nupkg");
                         }
                         String localFile = updates.PackageDirectory + "\\" + updateFilename;
-                        if (updateManager.CheckIfAlreadyDownloaded(update, localFile)) {
+                        if (updateManager.CheckIfAlreadyDownloaded(update, localFile) || (nupkgOverridden && File.Exists(localFile))) {
                             log.Debug("This file has already been downloaded: "+ Program.MaskFilePath(localFile));
                         } else {
                             squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade downloading");
@@ -231,7 +232,10 @@ namespace OutlookGoogleCalendarSync {
 
                         if (string.IsNullOrEmpty(releaseNotes)) {
                             log.Debug("Retrieving release notes.");
-                            releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
+                            if (nupkgOverridden)
+                                releaseNotes = extractReleaseNotes(localFile);
+                            else
+                                releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
                             releaseVersion = update.Version.Version.ToString();
                             releaseType = update.Version.SpecialVersion;
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + releaseVersion;
@@ -412,6 +416,41 @@ namespace OutlookGoogleCalendarSync {
                     ex.Analyse($"Could not delete {Program.MaskFilePath(file)}");
                 }
             }
+        }
+
+        private static String extractReleaseNotes(String nupkgFilename) {
+            String releaseNotes = "";
+            log.Debug("Extracting release notes directly out of nupkg file...");
+            try {
+                using (Stream nupkgStream = File.OpenRead(nupkgFilename))
+                using (SharpCompress.Archives.Zip.ZipArchive archive = SharpCompress.Archives.Zip.ZipArchive.Open(nupkgStream)) {
+                    SharpCompress.Archives.Zip.ZipArchiveEntry nuspecEntry = archive.Entries
+                        .Reverse().FirstOrDefault(e => e.Key != null && e.Key.EndsWith(".nuspec"));
+
+                    if (nuspecEntry != null) {
+                        using (Stream nuspecStream = nuspecEntry.OpenEntryStream())
+                        using (StreamReader reader = new StreamReader(nuspecStream)) {
+                            string nuspecXml = reader.ReadToEnd();
+                            if (!string.IsNullOrEmpty(nuspecXml)) {
+                                System.Xml.Linq.XDocument doc = System.Xml.Linq.XDocument.Parse(nuspecXml);
+
+                                // Get the XML namespace from the root element (crucial for NuGet specs)
+                                System.Xml.Linq.XNamespace ns = doc.Root?.GetDefaultNamespace() ?? System.Xml.Linq.XNamespace.None;
+
+                                System.Xml.Linq.XElement releaseNotesElement = doc.Root?
+                                    .Element(ns + "metadata")?
+                                    .Element(ns + "releaseNotes");
+
+                                if (releaseNotesElement != null)
+                                    releaseNotes = releaseNotesElement.Value;
+                            }
+                        }
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to extra release notes from " + nupkgFilename);
+            }
+            return releaseNotes;
         }
 
         #region Squirrel Bits
