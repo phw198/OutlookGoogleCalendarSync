@@ -189,20 +189,26 @@ namespace OutlookGoogleCalendarSync {
                             return false;
                         }
 
-                        String localFile = updates.PackageDirectory + "\\" + update.Filename;
-                        if (updateManager.CheckIfAlreadyDownloaded(update, localFile)) {
+                        String updateFilename = update.Filename;
+                        Boolean nupkgOverridden = false;
+                        if (nupkgOverridden = updates.CurrentlyInstalledVersion?.Version.Version.Major == 2 && update.Version.Version.Major == 3 && update.IsDelta) {
+                            log.Info("Forcing full download instead of delta " + update.Version);
+                            updateFilename = update.Filename.Replace("delta.nupkg", "full.nupkg");
+                        }
+                        String localFile = updates.PackageDirectory + "\\" + updateFilename;
+                        if (updateManager.CheckIfAlreadyDownloaded(update, localFile) || (nupkgOverridden && File.Exists(localFile))) {
                             log.Debug("This file has already been downloaded: "+ Program.MaskFilePath(localFile));
                         } else {
                             squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade downloading");
-                            squirrelGaEv.AddParameter(GA4.Squirrel.file, update.Filename);
+                            squirrelGaEv.AddParameter(GA4.Squirrel.file, updateFilename);
                             try {
                                 //"https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v2.8.6-alpha"
                                 if (string.IsNullOrEmpty(nonGitHubReleaseUri)) {
-                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + update.Filename;
+                                    String nupkgUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/releases/download/v" + update.Version + "/" + updateFilename;
                                     log.Debug("Downloading " + nupkgUrl);
                                     new Extensions.OgcsWebClient().DownloadFile(nupkgUrl, localFile);
                                 } else {
-                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + update.Filename;
+                                    String nupkgUrl = nonGitHubReleaseUri + "\\" + updateFilename;
                                     log.Debug("Downloading " + nupkgUrl);
                                     new System.Net.WebClient().DownloadFile(nupkgUrl, localFile);
                                 }
@@ -213,8 +219,8 @@ namespace OutlookGoogleCalendarSync {
                             } catch (System.Exception ex) {
                                 squirrelGaEv.AddParameter(GA4.Squirrel.result, "Failed");
                                 squirrelGaEv.AddParameter(GA4.Squirrel.error, ex.Message);
-                                ex.Analyse("Failed downloading release file " + update.Filename + " for " + update.Version);
-                                ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + update.Filename + ";" + ex.Message);
+                                ex.Analyse("Failed downloading release file " + updateFilename + " for " + update.Version);
+                                ex.Data.Add("analyticsLabel", "from=" + Application.ProductVersion + ";download_file=" + updateFilename + ";" + ex.Message);
                                 throw new ApplicationException("Failed upgrading OGCS.", ex);
                             } finally {
                                 squirrelGaEv.Send();
@@ -223,7 +229,10 @@ namespace OutlookGoogleCalendarSync {
 
                         if (string.IsNullOrEmpty(releaseNotes)) {
                             log.Debug("Retrieving release notes.");
-                            releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
+                            if (nupkgOverridden)
+                                releaseNotes = extractReleaseNotes(localFile);
+                            else
+                                releaseNotes = update.GetReleaseNotes(updates.PackageDirectory);
                             releaseVersion = update.Version.Version.ToString();
                             releaseType = update.Version.SpecialVersion;
                             squirrelAnalyticsLabel = "from=" + Application.ProductVersion + ";to=" + releaseVersion;
@@ -404,6 +413,41 @@ namespace OutlookGoogleCalendarSync {
                     ex.Analyse($"Could not delete {Program.MaskFilePath(file)}");
                 }
             }
+        }
+
+        private static String extractReleaseNotes(String nupkgFilename) {
+            String releaseNotes = "";
+            log.Debug("Extracting release notes directly out of nupkg file...");
+            try {
+                using (Stream nupkgStream = File.OpenRead(nupkgFilename))
+                using (SharpCompress.Archives.Zip.ZipArchive archive = SharpCompress.Archives.Zip.ZipArchive.Open(nupkgStream)) {
+                    SharpCompress.Archives.Zip.ZipArchiveEntry nuspecEntry = archive.Entries
+                        .Reverse().FirstOrDefault(e => e.Key != null && e.Key.EndsWith(".nuspec"));
+
+                    if (nuspecEntry != null) {
+                        using (Stream nuspecStream = nuspecEntry.OpenEntryStream())
+                        using (StreamReader reader = new StreamReader(nuspecStream)) {
+                            string nuspecXml = reader.ReadToEnd();
+                            if (!string.IsNullOrEmpty(nuspecXml)) {
+                                System.Xml.Linq.XDocument doc = System.Xml.Linq.XDocument.Parse(nuspecXml);
+
+                                // Get the XML namespace from the root element (crucial for NuGet specs)
+                                System.Xml.Linq.XNamespace ns = doc.Root?.GetDefaultNamespace() ?? System.Xml.Linq.XNamespace.None;
+
+                                System.Xml.Linq.XElement releaseNotesElement = doc.Root?
+                                    .Element(ns + "metadata")?
+                                    .Element(ns + "releaseNotes");
+
+                                if (releaseNotesElement != null)
+                                    releaseNotes = releaseNotesElement.Value;
+                            }
+                        }
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to extra release notes from " + nupkgFilename);
+            }
+            return releaseNotes;
         }
 
         #region Squirrel Bits
