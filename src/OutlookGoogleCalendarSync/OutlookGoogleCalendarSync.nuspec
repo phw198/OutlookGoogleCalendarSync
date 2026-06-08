@@ -34,6 +34,7 @@
 - Sync Engine
     - Logging Google exception without start date prevents sync [[#2321](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
     - Fixed memory leak on Push Sync for remote shared calendars [[#2310](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2310)]
+    - Instances of recurring series incorrectly offset by an hour due to daylight saving [[2278](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2278)]
     - Two-way colour override for target calendar did not work [[2316]((https://github.com/phw198/OutlookGoogleCalendarSync/issues/2316)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
