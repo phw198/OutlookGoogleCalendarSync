@@ -37,16 +37,16 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models
         /// <summary>The altitude of the location.</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude? Altitude
+        public string? Altitude
         {
-            get { return BackingStore?.Get<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude?>("altitude"); }
+            get { return BackingStore?.Get<string?>("altitude"); }
             set { BackingStore?.Set("altitude", value); }
         }
 #nullable restore
 #else
-        public global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude Altitude
+        public string Altitude
         {
-            get { return BackingStore?.Get<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude>("altitude"); }
+            get { return BackingStore?.Get<string>("altitude"); }
             set { BackingStore?.Set("altitude", value); }
         }
 #endif
@@ -143,7 +143,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "accuracy", n => { Accuracy = n.GetObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_accuracy>(global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_accuracy.CreateFromDiscriminatorValue); } },
-                { "altitude", n => { Altitude = n.GetObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude>(global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude.CreateFromDiscriminatorValue); } },
+                { "altitude", n => { Altitude = n.GetStringValue(); } },
                 { "altitudeAccuracy", n => { AltitudeAccuracy = n.GetObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitudeAccuracy>(global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitudeAccuracy.CreateFromDiscriminatorValue); } },
                 { "latitude", n => { Latitude = n.GetObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_latitude>(global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_latitude.CreateFromDiscriminatorValue); } },
                 { "longitude", n => { Longitude = n.GetObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_longitude>(global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_longitude.CreateFromDiscriminatorValue); } },
@@ -158,7 +158,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_accuracy>("accuracy", Accuracy);
-            writer.WriteObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude>("altitude", Altitude);
+            writer.WriteStringValue("altitude", Altitude);
             writer.WriteObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitudeAccuracy>("altitudeAccuracy", AltitudeAccuracy);
             writer.WriteObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_latitude>("latitude", Latitude);
             writer.WriteObjectValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_longitude>("longitude", Longitude);
@@ -218,102 +218,6 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models
                 _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
                 var mappingValue = parseNode.GetChildNode("")?.GetStringValue();
                 var result = new global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_accuracy();
-                if(parseNode.GetEnumValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric>() is global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric referenceNumericValue)
-                {
-                    result.ReferenceNumeric = referenceNumericValue;
-                }
-                else if(parseNode.GetDoubleValue() is double doubleValue)
-                {
-                    result.Double = doubleValue;
-                }
-                else if(parseNode.GetStringValue() is string stringValue)
-                {
-                    result.String = stringValue;
-                }
-                return result;
-            }
-            /// <summary>
-            /// The deserialization information for the current model
-            /// </summary>
-            /// <returns>A IDictionary&lt;string, Action&lt;IParseNode&gt;&gt;</returns>
-            public virtual IDictionary<string, Action<IParseNode>> GetFieldDeserializers()
-            {
-                return new Dictionary<string, Action<IParseNode>>();
-            }
-            /// <summary>
-            /// Serializes information the current object
-            /// </summary>
-            /// <param name="writer">Serialization writer to use to serialize this model</param>
-            public virtual void Serialize(ISerializationWriter writer)
-            {
-                _ = writer ?? throw new ArgumentNullException(nameof(writer));
-                if(ReferenceNumeric != null)
-                {
-                    writer.WriteEnumValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric>(null, ReferenceNumeric);
-                }
-                else if(Double != null)
-                {
-                    writer.WriteDoubleValue(null, Double);
-                }
-                else if(String != null)
-                {
-                    writer.WriteStringValue(null, String);
-                }
-            }
-        }
-        /// <summary>
-        /// Composed type wrapper for classes <see cref="double"/>, <see cref="global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric"/>, <see cref="string"/>
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.17.0")]
-        public partial class OutlookGeoCoordinates_altitude : IBackedModel, IComposedTypeWrapper, IParsable
-        {
-            /// <summary>Stores model information.</summary>
-            public IBackingStore BackingStore { get; private set; }
-            /// <summary>Composed type representation for type <see cref="double"/></summary>
-            public double? Double
-            {
-                get { return BackingStore?.Get<double?>("double"); }
-                set { BackingStore?.Set("double", value); }
-            }
-            /// <summary>Composed type representation for type <see cref="global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric"/></summary>
-            public global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric? ReferenceNumeric
-            {
-                get { return BackingStore?.Get<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric?>("ReferenceNumeric"); }
-                set { BackingStore?.Set("ReferenceNumeric", value); }
-            }
-            /// <summary>Composed type representation for type <see cref="string"/></summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-            public string? String
-            {
-                get { return BackingStore?.Get<string?>("string"); }
-                set { BackingStore?.Set("string", value); }
-            }
-#nullable restore
-#else
-            public string String
-            {
-                get { return BackingStore?.Get<string>("string"); }
-                set { BackingStore?.Set("string", value); }
-            }
-#endif
-            /// <summary>
-            /// Instantiates a new <see cref="global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude"/> and sets the default values.
-            /// </summary>
-            public OutlookGeoCoordinates_altitude()
-            {
-                BackingStore = BackingStoreFactorySingleton.Instance.CreateBackingStore();
-            }
-            /// <summary>
-            /// Creates a new instance of the appropriate class based on discriminator value
-            /// </summary>
-            /// <returns>A <see cref="global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude"/></returns>
-            /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-            public static global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude CreateFromDiscriminatorValue(IParseNode parseNode)
-            {
-                _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-                var mappingValue = parseNode.GetChildNode("")?.GetStringValue();
-                var result = new global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.OutlookGeoCoordinates.OutlookGeoCoordinates_altitude();
                 if(parseNode.GetEnumValue<global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric>() is global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ReferenceNumeric referenceNumericValue)
                 {
                     result.ReferenceNumeric = referenceNumericValue;

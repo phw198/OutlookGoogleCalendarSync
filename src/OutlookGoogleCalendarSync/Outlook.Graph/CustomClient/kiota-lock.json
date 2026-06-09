@@ -1,6 +1,6 @@
 {
-  "descriptionHash": "56C74F02461F9C4B90439E0EB5BA55D3F42298413B279DF9ECFA665330BF090318630619855410E6A4DB23C856D41B0C3A9BB9AE03DB708897B6A1F0C5E36679",
-  "descriptionLocation": "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml",
+  "descriptionHash": "F7F64C53F7C9B12D3889F7445DCBB8B710425ACC928DC4A8887D627476FEBDFDC936CA476927D83FA2FC5A383021A0740331E13240F8A8CD03FA89A1939E68B3",
+  "descriptionLocation": "../../scripts/openapi.yaml",
   "lockFileVersion": "1.0.0",
   "kiotaVersion": "1.17.0",
   "clientClassName": "GraphServiceClient",
@@ -31,7 +31,8 @@
     "/me/calendars",
     "/me/calendars/**",
     "/me/events",
-    "/me/events/**"
+    "/me/events/**",
+    "/rootODataError"
   ],
   "excludePatterns": [],
   "disabledValidationRules": []
