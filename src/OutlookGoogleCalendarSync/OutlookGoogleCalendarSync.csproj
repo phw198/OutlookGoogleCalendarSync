@@ -661,7 +661,6 @@
     <Compile Include="Outlook.Graph\CustomClient\Models\RecurrenceRange.cs" />
     <Compile Include="Outlook.Graph\CustomClient\Models\RecurrenceRangeType.cs" />
     <Compile Include="Outlook.Graph\CustomClient\Models\ReferenceAttachment.cs" />
-    <Compile Include="Outlook.Graph\CustomClient\Models\ReferenceNumeric.cs" />
     <Compile Include="Outlook.Graph\CustomClient\Models\ResponseStatus.cs" />
     <Compile Include="Outlook.Graph\CustomClient\Models\ResponseType.cs" />
     <Compile Include="Outlook.Graph\CustomClient\Models\ScheduleInformation.cs" />

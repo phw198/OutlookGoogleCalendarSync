@@ -38,7 +38,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ODataError
         }
 #endif
         /// <summary>The primary error message.</summary>
-        public string Message { get => Error?.Message ?? string.Empty; }
+        public /*override */string Message { get => Error?.Message ?? string.Empty; }
         /// <summary>
         /// Instantiates a new <see cref="global::OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models.ODataErrors.ODataError"/> and sets the default values.
         /// </summary>
