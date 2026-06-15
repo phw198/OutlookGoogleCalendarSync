@@ -144,6 +144,42 @@ img.emoji {
 
 ----
 
+## v2.12.2.0 - Alpha
+
+:high_brightness: **Enhancements**
+- New features will only appear in v3.
+
+:hammer_and_wrench: **Maintenance**
+- v2.12.1 of OGCS entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
+- Application
+    - Updated all third-party library files (DLLs)
+
+:beetle: **Bugfix**
+- Application
+    - Unable to add shared Outlook calendars [[#2286](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2286)]
+    - Fixed restriction of sync dates for personal API keys [[#2327](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2327)]
+    - Invisible colour/category dropdown for override config [[#2303](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2303)]
+	- Improvements on upgrade mechanism
+- Sync Engine
+    - Logging Google exception without start date prevents sync [[#2321](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
+    - Fixed memory leak on Push Sync for remote shared calendars [[#2310](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2310)]
+    - Timezone offset incorrectly excluding and deleting recurring series [[#2290](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2290)]
+    - Instances of recurring series incorrectly offset by an hour due to daylight saving [[#2278](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2278)]
+    - Two-way colour override for target calendar did not work [[#2316](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2316)]
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v2.12.1.0 - Alpha
 
 :high_brightness: **Enhancements**
