@@ -1,5 +1,5 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using log4net;
+﻿using log4net;
+using Newtonsoft.Json.Linq;
 using Squirrel;
 using System;
 using System.ComponentModel;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync {
     class Updater {
@@ -22,7 +23,7 @@ namespace OutlookGoogleCalendarSync {
             get { return isBusy; } 
         }
         private String restartUpdateExe = "";
-        private static String nonGitHubReleaseUri = null; //When testing, eg: @"\\127.0.0.1\Squirrel";
+        private const String nonGitHubReleaseUri = null; //When testing, eg: @"\\127.0.0.1\Squirrel";
 
         public Updater() { }
 
@@ -125,11 +126,24 @@ namespace OutlookGoogleCalendarSync {
             isBusy = true;
             try {
                 String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                if (string.IsNullOrEmpty(nonGitHubReleaseUri))
-                    updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir,
-                        new Squirrel.FileDownloader(new Extensions.OgcsWebClient()), prerelease: Settings.Instance.AlphaReleases);
-                else
+                if (!string.IsNullOrEmpty(nonGitHubReleaseUri))
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
+                else {
+                    if (Version.TryParse(Application.ProductVersion, out Version currentVersion) && currentVersion.Major == 2) {
+                        JObject targetRelease = parseGitHubRelease(currentVersion);
+                        if (targetRelease == null)
+                            return false;
+                        else {
+                            String targetReleaseTag = targetRelease["html_url"]?.ToString().Replace("/tag/", "/download/");
+                            log.Info($"Targeting release URL: {targetReleaseTag}");
+                            File.Delete(Path.Combine(installRootDir, "OutlookGoogleCalendarSync", "packages", "RELEASES"));
+                            updateManager = new Squirrel.UpdateManager(targetReleaseTag, "OutlookGoogleCalendarSync", installRootDir,
+                                new Squirrel.FileDownloader(new Extensions.OgcsWebClient()));
+                        }
+                    } else
+                        updateManager = await Squirrel.UpdateManager.GitHubUpdateManager("https://github.com/phw198/OutlookGoogleCalendarSync", "OutlookGoogleCalendarSync", installRootDir,
+                            new Squirrel.FileDownloader(new Extensions.OgcsWebClient()), prerelease: Settings.Instance.AlphaReleases);
+                }
 
                 try {
                     updates = await updateManager.CheckForUpdate();
@@ -380,6 +394,77 @@ namespace OutlookGoogleCalendarSync {
                 updateManager?.Dispose();
             }
             return null;
+        }
+
+        /// <summary>
+        /// Squirrel works with the /latest release, but this is not always the latest release on GitHub 
+        /// Eg: v2.12.2-alpha is the latest v2 release, but /latest points to v3.0.2)
+        /// </summary>
+        /// <returns>The proper latest release to target</returns>
+        private JObject parseGitHubRelease(Version currentVersion) {
+            JObject targetRelease = null;
+
+            if (Version.TryParse(Settings.Instance.SkipVersion, out Version skipVersion))
+                log.Info($"The user has previously requested to skip the v{skipVersion.Major} release {Settings.Instance.SkipVersion}");
+            if (Version.TryParse(Settings.Instance.SkipVersion2, out Version skipVersion2))
+                log.Info($"The user has previously requested to skip the v2 release {Settings.Instance.SkipVersion2}");
+
+            try {
+                String releaseJson = new Extensions.OgcsWebClient().DownloadString("https://api.github.com/repos/phw198/OutlookGoogleCalendarSync/releases");
+                JArray releases = JArray.Parse(releaseJson);
+
+                foreach (JObject release in releases.Where(r => r["draft"] != null && !(bool)r["draft"])) {
+                    if (!Settings.Instance.AlphaReleases && release["prerelease"] != null && (bool)release["prerelease"]) {
+                        log.Debug($"Alpha release {release["tag_name"]} ignored.");
+                        continue;
+                    }
+
+                    String version = release["tag_name"]?.ToString()?.TrimStart('v');
+                    version = version?.Split('-')[0]; //Ignore any prerelease suffix
+                    if (Version.TryParse(version +".0", out Version releaseVersion)) {
+                        if (Program.VersionToInt(releaseVersion.ToString()) <= Program.VersionToInt(currentVersion.ToString())) {
+                            log.Fine($"Release v{releaseVersion} is the same or earlier than current version.");
+                            return null;
+                        }
+
+                        try {
+                            //Check for user requested skip of v3 releases
+                            if (releaseVersion.Major == 3 && skipVersion?.Major == 3) {
+                                if (Program.VersionToInt(releaseVersion.ToString()) > Program.VersionToInt(skipVersion?.ToString())) {
+                                    targetRelease = release;
+                                    break;
+                                } else {
+                                    log.Debug($"Skipping {releaseVersion}");
+                                    continue;
+                                }
+                            }
+                            //Check for user requested skip of v2 releases
+                            if (releaseVersion.Major == 2 && skipVersion2?.Major == 2) {
+                                if (Program.VersionToInt(releaseVersion.ToString()) > Program.VersionToInt(skipVersion2?.ToString())) {
+                                    targetRelease = release;
+                                    break;
+                                } else {
+                                    log.Debug($"Skipping {releaseVersion}");
+                                    continue;
+                                }
+                            }
+                            //No user requested skip, so a simple version comparison
+                            if (Program.VersionToInt(releaseVersion.ToString()) > Program.VersionToInt(currentVersion.ToString())) {
+                                targetRelease = release;
+                                break;
+                            }
+                        } finally {
+                            if (targetRelease != null)
+                                log.Info($"Found a newer v{releaseVersion.Major} release - targeting {releaseVersion}");
+                        }
+                    } else {
+                        log.Error($"Could not parse release verson {releaseVersion}");
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to parse GitHub release information.");
+            }
+            return targetRelease;
         }
 
         /// <summary>

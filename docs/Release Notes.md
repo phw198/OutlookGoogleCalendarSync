@@ -53,6 +53,25 @@
 
 ----
 
+# v2.12.2.0 - Alpha
+
+**Maintenance**
+- Application
+    - Updated all third-party library files (DLLs)
+
+**Bugfix**
+- Application
+    - Unable to add shared Outlook calendars [[#2286](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2286)]
+    - Fixed restriction of sync dates for personal API keys [[#2327](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2327)]
+    - Invisible colour/category dropdown for override config [[#2303](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2303)]
+	- Improvements on upgrade mechanism
+- Sync Engine
+    - Logging Google exception without start date prevents sync [[#2321](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
+    - Fixed memory leak on Push Sync for remote shared calendars [[#2310](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2310)]
+    - Timezone offset incorrectly excluding and deleting recurring series [[#2290](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2290)]
+    - Instances of recurring series incorrectly offset by an hour due to daylight saving [[#2278](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2278)]
+    - Two-way colour override for target calendar did not work [[#2316](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2316)]
+
 # v2.12.1.0 - Alpha
 
 **Maintenance**

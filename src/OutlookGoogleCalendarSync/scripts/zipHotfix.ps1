@@ -31,7 +31,7 @@ if ($BuildType -eq "Release") {
         Write-Host "Create a file containing the PIN in $pinFile"
     }
 
-    & 'c:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe' sign /as /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v "$($TargetName).exe"
+    & 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe' sign /as /n "Paul Woolcock" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v "$($TargetName).exe"
     
     $version = (Get-Item "$($TargetName).exe").VersionInfo.FileVersion
     if ($version -notmatch "\.0$") {

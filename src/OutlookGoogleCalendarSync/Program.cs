@@ -607,7 +607,7 @@ namespace OutlookGoogleCalendarSync {
         /// <returns>The converted integer version number.</returns>
         public static Int32 VersionToInt(String semanticVersion) {
             String paddedVersion = "";
-            foreach (String versionBit in semanticVersion.Split('.')) {
+            foreach (String versionBit in semanticVersion?.Split('.')) {
                 paddedVersion += versionBit.PadLeft(2, '0');
             }
             return Convert.ToInt32(paddedVersion);
@@ -686,7 +686,15 @@ namespace OutlookGoogleCalendarSync {
 
                 if (processes.Count() > 1) {
                     log.Warn("There are " + processes.Count() + " " + currentProcess.ProcessName + " processes currently running.");
-                    List<System.Linq.IGrouping<string, System.Diagnostics.Process>> sameExe = processes.GroupBy(p => p.MainModule.FileName).Where(e => e.Count() > 1).ToList();
+                    List<System.Linq.IGrouping<string, System.Diagnostics.Process>> sameExe = new();
+                    try {
+                        sameExe = processes.GroupBy(p => p.MainModule.FileName).Where(e => e.Count() > 1).ToList();
+                    } catch (System.ComponentModel.Win32Exception ex) {
+                        if (currentProcess.ProcessName != "OutlookGoogleCalendarSync" && ex.Message.Contains("A 32 bit processes cannot access modules of a 64 bit process.")) {
+                            ex.LogAsFail().Analyse("Cannot interrogate other processes as they are a different architecture.");
+                            return;
+                        }
+                    }
                     log.Debug(sameExe.Count() + " executables have more than one process attached; checking runtime arguments");
                     log.Debug("Current process command line:-");
                     String currentCmdLine = getProcessCommandLine(currentProcess.Id);
