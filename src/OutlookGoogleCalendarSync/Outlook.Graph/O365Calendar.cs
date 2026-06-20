@@ -68,14 +68,31 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             get { return calendarFolders; }
         }
 
+        private String mailboxTimeZone { set; get; }
+
+        /// <summary>
+        /// Get the mailbox settings
+        /// </summary>
+        public void GetSettings() {
+            _ = GraphClient; //Ensure we're authenticated, as this function doesn't use the Client, just RESTful API.
+            String mailboxSettingsStr = Authenticator.GetHttpContentWithToken("/me/mailboxSettings");
+            try {
+                this.mailboxTimeZone = Newtonsoft.Json.Linq.JObject.Parse(mailboxSettingsStr)["timeZone"]?.ToString() ?? "";
+                log.Info("Microsoft mailbox timezone: " + this.mailboxTimeZone);
+            } catch (System.Exception ex) {
+                ex.Analyse("Could not determine the timezone of the mailbox: " + mailboxSettingsStr);
+                this.mailboxTimeZone = "UTC";
+            }
+        }
+
         /// <summary>Retrieve calendar list from the cloud.</summary>
         public async System.Threading.Tasks.Task GetCalendars() {
             calendarFolders = new();
             List<MsGraph.Models.Calendar > cals = new();
-            Calendar.Instance.Authenticator.CancelTokenSource = new System.Threading.CancellationTokenSource();
 
             try {
                 CustomClient.Me.Calendars.CalendarsRequestBuilder calendarsRequest = GraphClient.Me.Calendars;
+                Calendar.Instance.Authenticator.CancelTokenSource = new System.Threading.CancellationTokenSource();
                 MsGraph.Models.CalendarCollectionResponse calPage = await calendarsRequest.GetAsync(config => {
                     config.QueryParameters.Select = new[] {
                         "id", "name", "color", "changeKey", "canShare", "canViewPrivateItems", "hexColor", "canEdit", "isDefaultCalendar", "isTallyingResponses", "isRemovable", "owner"
@@ -1558,6 +1575,28 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 return Outlook.Calendar.Instance.IsOKtoSyncReminder(alarm);
             }
             return true;
+        }
+
+        /// <summary>
+        /// Safely convert a Microsoft Graph time zone to IANA value
+        /// </summary>
+        /// <param name="timezone">Graph time zone</param>
+        /// <param name="ownerOrganised">If the associated appointment is organised by calendar owner</param>
+        /// <returns>IANA time zone</returns>
+        public static String NormaliseTimezone(String timezone, Boolean ownerOrganised) {
+            String normalisedTz = "UTC";
+            if (!string.IsNullOrEmpty(timezone) && timezone != "tzone://Microsoft/Utc") {
+                if (timezone == "tzone://Microsoft/Custom") {
+                    if (ownerOrganised) {
+                        log.Warn("The user has created the appointment with an unknown custom time zone. Falling back to their mailbox time zone.");
+                        normalisedTz = Instance.mailboxTimeZone;
+                    } else {
+                        log.Warn("Another organiser has created the appointment with an unknown custom time zone. Falling back to UTC.");
+                    }
+                } else normalisedTz = timezone;
+            }
+            normalisedTz = TimezoneDB.IANAtimezone(normalisedTz);
+            return normalisedTz;
         }
         #endregion
     }

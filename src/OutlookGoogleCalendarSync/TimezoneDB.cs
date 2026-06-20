@@ -214,21 +214,34 @@ namespace OutlookGoogleCalendarSync {
         /// Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
         /// </summary>
         /// <param name="oTZ_id">Timezone ID</param>
+        /// <returns>IANA/Olsen timezone</returns>
+        public static String IANAtimezone(String oTZ_id) {
+            return IANAtimezone(oTZ_id, oTZ_id);
+        }
+        /// <summary>
+        /// Convert from Windows Timezone to IANA/Olsen
+        /// Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
+        /// </summary>
+        /// <param name="oTZ_id">Timezone ID</param>
         /// <param name="oTZ_name">Timezone Name</param>
         /// <returns>IANA/Olsen timezone</returns>
         public static String IANAtimezone(String oTZ_id, String oTZ_name) {
             //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
             if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                log.Fine($"Timezone '{oTZ_name}' mapped to 'Etc/UTC'");
                 return "Etc/UTC";
+            }
+            if (NodaTime.DateTimeZoneProviders.Tzdb.GetZoneOrNull(oTZ_id) != null) {
+                log.Fine($"'{oTZ_id}' is already a valid IANA time zone.");
+                return oTZ_id;
             }
 
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
             String retVal = null;
             if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null) {
-                NodaTime.DateTimeZone dtz = tzDBsource.ForId(oTZ_id);
+                NodaTime.DateTimeZone dtz = tzDBsource.ForId(oTZ_id);                
                 if (dtz == null) {
-                    log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
+                    log.Fail($"Could not find mapping for '{oTZ_name}'");
                     return null;
                 } else
                     retVal = oTZ_id;
@@ -237,7 +250,7 @@ namespace OutlookGoogleCalendarSync {
                 log.Debug("Continuing to use Kiev instead of Kyiv.");
             else
                 retVal = tzDBsource.CanonicalIdMap[retVal];
-            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+            log.Fine($"Timezone '{oTZ_name}' mapped to '{retVal}'");
 
             return retVal;
         }
