@@ -147,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTime</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this Microsoft.Kiota.Abstractions.Date graphDate) {
-            return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day);
+            return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day, 0, 0, 0, DateTimeKind.Utc);
         }
 
         /// <summary>
@@ -229,7 +229,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (ai.IsAllDay ?? false)
                 return true;
             if (logicallyEquivalent)
-                return ai.Start.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0) && ai.End.SafeDateTime().TimeOfDay == new TimeSpan(0, 0, 0);
+                return ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone).TimeOfDay == new TimeSpan(0, 0, 0) && 
+                    ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone).TimeOfDay == new TimeSpan(0, 0, 0);
             else
                 return false;
         }
