@@ -167,17 +167,15 @@ namespace OutlookGoogleCalendarSync.Extensions {
             }
             return safeDate;
         }
-        public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay) {
-            System.DateTimeOffset safeDate;
-            if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
+        public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay, String timezone) {
+            System.DateTimeOffset safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
             if (isAllDay ?? false) {
                 safeDate = System.DateTime.SpecifyKind(safeDate.ToUniversalTime().Date, DateTimeKind.Utc);
-                }
             } else {
-                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
-                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
-                safeDate = System.DateTime.SpecifyKind(safeDate.DateTime, DateTimeKind.Utc);
+                //Make sure we have an IANA timezone; Graph can also hold a Windows timezone
+                timezone = TimezoneDB.IANAtimezone(timezone);
+                Int16 offset = TimezoneDB.GetUtcOffset(timezone);
+                safeDate = safeDate.ToOffset(TimeSpan.FromMinutes(offset));
             }
             return safeDate;
         }
