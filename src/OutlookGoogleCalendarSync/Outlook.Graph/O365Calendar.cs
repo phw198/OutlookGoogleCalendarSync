@@ -711,11 +711,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                     aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 } else {
+                    aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? "UTC" : ev.Start.TimeZone;
+                    aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? "UTC" : ev.End.TimeZone;
                     aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseLocalString();
                     aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseLocalString();
                 }
-                aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? aiPatch.Start.TimeZone : ev.Start.TimeZone;
-                aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? aiPatch.End.TimeZone : ev.End.TimeZone;
             }
             #endregion
 
