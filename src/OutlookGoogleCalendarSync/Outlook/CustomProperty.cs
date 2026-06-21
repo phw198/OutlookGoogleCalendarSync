@@ -379,7 +379,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             try {
                                 //Without explicit cast to String, follow error:-
                                 //Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'string' does not contain a definition for 'GetPreciseDate'
-                                retVal = ((String)prop.Value.ToString()).GetPreciseDate();
+                                retVal = ((String)prop.Value.ToString()).GetPreciseUtcDate();
                             } catch (FormatException) {
                                 retVal = minVal;
                                 throw;

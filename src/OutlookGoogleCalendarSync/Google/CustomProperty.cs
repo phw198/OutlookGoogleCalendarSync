@@ -316,7 +316,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (Exists(ev, MetadataId.ogcsModified)) {
                 String lastModded = Get(ev, MetadataId.ogcsModified);
                 try {
-                    return lastModded.GetPreciseDate();
+                    return lastModded.GetPreciseUtcDate();
                 } catch (System.FormatException) {
                     try {
                         //Deprecated format <= v2.11.6

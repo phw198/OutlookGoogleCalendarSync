@@ -165,7 +165,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
-        /// Sometime an Outlook timezone name contains a GMT offset, which isn't valid.
+        /// Sometimes an Outlook timezone name contains a GMT offset, which isn't valid.
         /// </summary>
         /// <param name="outlookTimezone">The string stored in Outlook by appointment organiser, eg "(GMT+10:00) AUS Eastern Standard Time"</param>
         /// <returns>Offset, if present</returns>
