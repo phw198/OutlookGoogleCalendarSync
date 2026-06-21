@@ -116,7 +116,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <param name="dt">Date-time offset value</param>
         /// <returns>Formatted string "yyyy-MM-ddTHH:mm:ss"</returns>
-        public static String ToPreciseLocalString(this System.DateTimeOffset dt) {            
+        public static String ToPreciseLocalString(this System.DateTimeOffset dt) {
             return dt.ToString(preciseLocalString, CultureInfo.InvariantCulture);
         }
 
@@ -134,7 +134,12 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// </summary>
         /// <returns>DateTimeOffset</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
-            return evDt.DateTimeDateTimeOffset?.ToLocalTime() ?? System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            if (evDt.DateTimeDateTimeOffset == null)
+                return System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+
+            Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+            System.DateTimeOffset retDto = (DateTimeOffset)evDt.DateTimeDateTimeOffset;
+            return retDto.ToOffset(TimeSpan.FromMinutes(offset));
         }
 
         /// <summary>
