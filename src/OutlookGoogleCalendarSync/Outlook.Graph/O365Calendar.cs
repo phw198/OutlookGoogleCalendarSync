@@ -241,8 +241,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //3. Get the specific missing master event(s)
                 CVRB calendarViewRequest = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView;
                 Kiota.RequestConfiguration<CVRB.CalendarViewRequestBuilderGetQueryParameters> reqCfg = new();
-                reqCfg.QueryParameters.StartDateTime = min.ToPreciseString();
-                reqCfg.QueryParameters.EndDateTime = max.ToPreciseString();
+                reqCfg.QueryParameters.StartDateTime = min.ToPreciseUtcString();
+                reqCfg.QueryParameters.EndDateTime = max.ToPreciseUtcString();
                 reqCfg.QueryParameters.Top = 250;
                 reqCfg.QueryParameters.Expand = new String[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
                 reqCfg.QueryParameters.Select = new String[] { "*" }; //Otherwise OriginalStart is always null
@@ -472,8 +472,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 ai.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
             } else {
-                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
-                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseLocalString();
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseLocalString();
             }
 
             ai.Recurrence = Recurrence.BuildOutlookPattern(ev);
@@ -710,8 +710,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                     aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 } else {
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
-                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseLocalString();
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseLocalString();
                 }
                 aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? aiPatch.Start.TimeZone : ev.Start.TimeZone;
                 aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? aiPatch.End.TimeZone : ev.End.TimeZone;
@@ -1272,7 +1272,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         #region STATIC functions
         public static string Signature(MsGraph.Models.Event ai) {
-            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ";" + ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseUtcString() + ";" + ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseUtcString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<MsGraph.Models.Event> ais) {
@@ -1330,8 +1330,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static string exportToCSV(MsGraph.Models.Event ai) {
             StringBuilder csv = new StringBuilder();
             
-            csv.Append(ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
-            csv.Append(ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
+            csv.Append(ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseUtcString() + ",");
+            csv.Append(ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseUtcString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");

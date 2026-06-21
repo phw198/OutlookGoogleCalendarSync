@@ -2170,20 +2170,20 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 if (ev.RecurringEventId != null && ev.Status == "cancelled" && ev.OriginalStartTime != null) {
                     signature += (ev.Summary ?? "[cancelled]");
-                    signature += ";" + ev.OriginalStartTime.SafeDateTimeOffset().ToPreciseString();
+                    signature += ";" + ev.OriginalStartTime.SafeDateTimeOffset().ToPreciseUtcString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + ev.Start.SafeDateTimeOffset().ToPreciseString() + ";";
+                    signature += ";" + ev.Start.SafeDateTimeOffset().ToPreciseUtcString() + ";";
                     if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += ev.End.SafeDateTimeOffset().ToPreciseString();
+                        signature += ev.End.SafeDateTimeOffset().ToPreciseUtcString();
                     }
                 }
             } catch {
                 log.Warn("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTimeOffset().ToPreciseString())); } catch { }
-                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTimeOffset().ToPreciseString())); } catch { }
+                try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTimeOffset().ToPreciseUtcString())); } catch { }
+                try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTimeOffset().ToPreciseUtcString())); } catch { }
                 try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                 try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 return "";
@@ -2262,8 +2262,8 @@ namespace OutlookGoogleCalendarSync.Google {
         private static String exportToCSV(Event ev) {
             System.Text.StringBuilder csv = new System.Text.StringBuilder();
 
-            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTimeOffset().ToPreciseString()) + ",");
-            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTimeOffset().ToPreciseString()) + ",");
+            csv.Append(ev.Start == null ? "null" : (ev.Start.SafeDateTimeOffset().ToPreciseUtcString()) + ",");
+            csv.Append(ev.End == null ? "null" : (ev.End.SafeDateTimeOffset().ToPreciseUtcString()) + ",");
             csv.Append("\"" + ev.Summary + "\",");
 
             if (ev.Location == null) csv.Append(",");

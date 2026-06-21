@@ -563,9 +563,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Start.Date = ai.Start.SafeDateTimeOffset(true).ToString("yyyy-MM-dd");
                 ev.End.Date = ai.End.SafeDateTimeOffset(true).ToString("yyyy-MM-dd");
             } else {
-                ev.Start.DateTimeRaw = ai.Start.SafeDateTimeOffset(false).ToPreciseString();
+                ev.Start.DateTimeRaw = ai.Start.SafeDateTimeOffset(false).ToPreciseUtcString();
                 ev.Start.TimeZone = Outlook.Graph.Calendar.NormaliseTimezone(ai.OriginalStartTimeZone, ai.IsOrganizer ?? false);
-                ev.End.DateTimeRaw = ai.End.SafeDateTimeOffset(false).ToPreciseString();
+                ev.End.DateTimeRaw = ai.End.SafeDateTimeOffset(false).ToPreciseUtcString();
                 ev.End.TimeZone = ai.OriginalEndTimeZone == ai.OriginalStartTimeZone ? ev.Start.TimeZone : Outlook.Graph.Calendar.NormaliseTimezone(ai.OriginalEndTimeZone, ai.IsOrganizer ?? false);
             }
 

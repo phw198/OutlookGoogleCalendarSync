@@ -280,7 +280,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             add(ref ai, key, value);
         }
         public static void Add(ref MsGraph.Models.Event ai, MetadataId key, System.DateTimeOffset value) {
-            add(ref ai, key, value.ToPreciseString());
+            add(ref ai, key, value.ToPreciseUtcString());
         }
         private static void add(ref MsGraph.Models.Event ai, MetadataId key, String keyValue) {
             String addkeyName = metadataIdKeyName(key);

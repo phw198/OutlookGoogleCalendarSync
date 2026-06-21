@@ -300,7 +300,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static void Add(ref AppointmentItem ai, MetadataId key, DateTimeOffset value) {
             if (key == MetadataId.ogcsModifiedText || key == MetadataId.ogcsModified /* Store deprecated key properly */)
                 //We can't use OlUserPropertyType.olDateTime, because the stupid OOM silently truncates it to the nearest minute!!
-                add(ref ai, MetadataId.ogcsModifiedText, OlUserPropertyType.olText, value.ToPreciseString());
+                add(ref ai, MetadataId.ogcsModifiedText, OlUserPropertyType.olText, value.ToPreciseUtcString());
             else
                 //Only store in this way for date values not requiring accuracy greater than minutes
                 add(ref ai, key, OlUserPropertyType.olDateTime, value.UtcDateTime);
