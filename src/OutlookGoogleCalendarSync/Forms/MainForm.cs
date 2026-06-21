@@ -1627,7 +1627,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, OutlookCalendarListEntry>? calendar = null;
-            if (cbOutlookCalendars.SelectedItem != null)
+            if (!string.IsNullOrEmpty(cbOutlookCalendars?.SelectedItem?.ToString()))
                 calendar = (KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.SelectedItem;
             ActiveCalendarProfile.UseOutlookCalendar = calendar?.Value;
 
