@@ -250,7 +250,10 @@ namespace OutlookGoogleCalendarSync.Google {
                 return System.DateTime.ParseExact(rruleUntil, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;
             else {
                 System.DateTime endDate = System.DateTime.ParseExact(rruleUntil, "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
-                return endDate.AddMinutes(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
+                if (rruleUntil.EndsWith("T000000Z"))
+                    return endDate.Date;
+                else
+                    return endDate.AddMinutes(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
             }
         }
 
