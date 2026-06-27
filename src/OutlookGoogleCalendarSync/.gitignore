@@ -1,3 +1,5 @@
+*.csproj.user
+.vs/
 /bin/
 /obj/
 /publish/
