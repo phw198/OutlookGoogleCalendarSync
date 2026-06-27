@@ -32,6 +32,7 @@
     - Placeholder [[#xx](https://github.com/phw198/OutlookGoogleCalendarSync/issues/xx)]
 - Sync Engine
     - Fixed OutlookGeoCoordinates deserialization (String vs Number) [[#2334](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2334)]
+    - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
