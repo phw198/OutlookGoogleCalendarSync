@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>2.12.2-alpha</version>
+    <version>2.12.3-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Sync Outlook and Google calendars.</description>
     <releaseNotes>
-# What's New In v2.12.2?
+# What's New In v2.12.3?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
@@ -22,21 +22,14 @@
 &lt;i class="em em-hammer_and_wrench"&gt;&lt;/i&gt; **Maintenance**  
 
 - Application
-    - Updated all third-party library files (DLLs)
+    - Placeholder [[#xx](https://github.com/phw198/OutlookGoogleCalendarSync/issues/xx)]
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Unable to add shared Outlook calendars [[#2286](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2286)]
-    - Fixed restriction of sync dates for personal API keys [[#2327](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2327)]
-    - Invisible colour/category dropdown for override config [[#2303](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2303)]
-	- Improvements on upgrade mechanism
+    - Placeholder [[#xx](https://github.com/phw198/OutlookGoogleCalendarSync/issues/xx)]
 - Sync Engine
-    - Logging Google exception without start date prevents sync [[#2321](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2321)]
-    - Fixed memory leak on Push Sync for remote shared calendars [[#2310](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2310)]
-    - Timezone offset incorrectly excluding and deleting recurring series [[#2290](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2290)]
-    - Instances of recurring series incorrectly offset by an hour due to daylight saving [[#2278](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2278)]
-    - Two-way colour override for target calendar did not work [[#2316](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2316)]
+    - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
