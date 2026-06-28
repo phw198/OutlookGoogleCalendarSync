@@ -174,6 +174,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                     this.ActiveProfile = Forms.Main.Instance.ActiveCalendarProfile;
                     Start(manualIgnition: true, updateSyncSchedule: false);
 
+                } else if (Forms.Main.Instance.bSyncNow.Text == "Sync All Profiles" ) {
+                    foreach (SettingsStore.Calendar profile in Settings.Instance.Calendars) {
+                        JobQueue.Add(new("SyncAllProfiles", profile));
+                    }
+
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
                     Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                     if (!SyncingNow) return;

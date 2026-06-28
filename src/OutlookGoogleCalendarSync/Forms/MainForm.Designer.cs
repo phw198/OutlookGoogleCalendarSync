@@ -62,6 +62,7 @@
             this.msSyncActions = new OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip(this.components);
             this.miSyncDelta = new System.Windows.Forms.ToolStripMenuItem();
             this.miSyncFull = new System.Windows.Forms.ToolStripMenuItem();
+            this.miSyncAllProfiles = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage_Settings = new System.Windows.Forms.TabPage();
             this.tabSettingsSub = new System.Windows.Forms.TabControl();
             this.tabSyncSettings = new System.Windows.Forms.TabPage();
@@ -586,7 +587,7 @@
             this.bSyncNow.Menu = this.msSyncActions;
             this.bSyncNow.Name = "bSyncNow";
             this.bSyncNow.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this.bSyncNow.Size = new System.Drawing.Size(98, 31);
+            this.bSyncNow.Size = new System.Drawing.Size(98, 55);
             this.bSyncNow.TabIndex = 0;
             this.bSyncNow.Text = "Start Sync";
             this.bSyncNow.UseVisualStyleBackColor = true;
@@ -615,6 +616,13 @@
             this.miSyncFull.Size = new System.Drawing.Size(96, 22);
             this.miSyncFull.Text = "Full Sync";
             this.miSyncFull.Click += new System.EventHandler(this.miSyncFull_Click);
+            // 
+            // miSyncAllProfiles
+            // 
+            this.miSyncAllProfiles.Name = "miSyncAllProfiles";
+            this.miSyncAllProfiles.Size = new System.Drawing.Size(96, 22);
+            this.miSyncAllProfiles.Text = "Sync All Profiles";
+            this.miSyncAllProfiles.Click += new System.EventHandler(this.miSyncAllProfiles_Click);
             // 
             // tabPage_Settings
             // 
@@ -4513,6 +4521,7 @@
         private OutlookGoogleCalendarSync.Extensions.ButtonContextMenuStrip msSyncActions;
         private System.Windows.Forms.ToolStripMenuItem miSyncDelta;
         private System.Windows.Forms.ToolStripMenuItem miSyncFull;
+        private System.Windows.Forms.ToolStripMenuItem miSyncAllProfiles;
         public System.Windows.Forms.Label lOutlookCalendar;
         public System.Windows.Forms.TabPage tabOutlook;
         private System.Windows.Forms.Panel howObfuscatePanel;

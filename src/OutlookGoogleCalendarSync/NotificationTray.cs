@@ -146,8 +146,18 @@ namespace OutlookGoogleCalendarSync {
                         items = rootMenu.DropDown.Items.Find("sync", false);
                         if (items.Count(i => i.Text == itemText) > 0)
                             log.Warn("There already exists a menu item with the name: " + itemText);
-                        else
+                        else {
+                            ToolStripItem lastItem = rootMenu.DropDown.Items[rootMenu.DropDown.Items.Count - 1];
+                            if (lastItem.Text == "Sync All Profiles") {
+                                rootMenu.DropDown.Items.Remove(lastItem);
+                                lastItem = rootMenu.DropDown.Items[rootMenu.DropDown.Items.Count - 1];
+                                if (lastItem is ToolStripSeparator)
+                                    rootMenu.DropDown.Items.Remove(lastItem);
+                            }
                             rootMenu.DropDown.Items.Add(toolStripMenuItemWithHandler(itemText, "sync", syncItem_Click));
+                            rootMenu.DropDown.Items.Add(new ToolStripSeparator());
+                            rootMenu.DropDown.Items.Add(toolStripMenuItemWithHandler("Sync All Profiles", "sync", syncItem_Click));
+                        }
                     } else
                         log.Error("'Sync Now' item found does not contain a menu");
                 } else
@@ -185,7 +195,7 @@ namespace OutlookGoogleCalendarSync {
                     if (item is ToolStripMenuItem) {
                         ToolStripMenuItem rootMenu = item as ToolStripMenuItem;
                         items = rootMenu.DropDown.Items.Find("sync", false);
-                        items.ToList().Where(i => i.Text == itemText).ToList().ForEach(j => rootMenu.DropDownItems.Remove(j));
+                        items.ToList().Where(i => i.Text == itemText || i.Text == "Sync All Profiles").ToList().ForEach(j => rootMenu.DropDownItems.Remove(j));
                     } else
                         log.Error("'Sync Now' item found does not contain a menu");
                 } else
@@ -219,11 +229,17 @@ namespace OutlookGoogleCalendarSync {
 
         private void syncItem_Click(object sender, EventArgs e) {
             String menuItemText = (sender as ToolStripMenuItem).Text;
-            SettingsStore.Calendar profile = Settings.Instance.Calendars.First(cal => cal._ProfileName == menuItemText);
-            if (profile != null) {
-                Sync.Engine.Instance.JobQueue.Add(new Sync.Engine.Job("NotificationTray", profile));
+            if (menuItemText == "Sync All Profiles") {
+                foreach (SettingsStore.Calendar profile in Settings.Instance.Calendars) {
+                    Sync.Engine.Instance.JobQueue.Add(new("SyncAllProfiles", profile));
+                }
             } else {
-                log.Error("Unable to find a profile by the name: " + menuItemText);
+                SettingsStore.Calendar profile = Settings.Instance.Calendars.First(cal => cal._ProfileName == menuItemText);
+                if (profile != null) {
+                    Sync.Engine.Instance.JobQueue.Add(new Sync.Engine.Job("NotificationTray", profile));
+                } else {
+                    log.Error("Unable to find a profile by the name: " + menuItemText);
+                }
             }
         }
 
