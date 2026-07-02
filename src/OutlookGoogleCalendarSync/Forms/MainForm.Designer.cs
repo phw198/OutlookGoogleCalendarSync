@@ -304,6 +304,7 @@
             this.tbTS1 = new System.Windows.Forms.TextBox();
             this.tbTS0 = new System.Windows.Forms.TextBox();
             this.tabPage_About = new System.Windows.Forms.TabPage();
+            this.cbIgnoreSkipPrefs = new System.Windows.Forms.CheckBox();
             this.lDonateTip = new System.Windows.Forms.Label();
             this.dgAbout = new System.Windows.Forms.DataGridView();
             this.AboutColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -337,7 +338,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cbIgnoreSkipPrefs = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2606,6 +2606,18 @@
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
             // 
+            // lWhatInfo
+            // 
+            this.lWhatInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.lWhatInfo.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lWhatInfo.Location = new System.Drawing.Point(241, 22);
+            this.lWhatInfo.Name = "lWhatInfo";
+            this.lWhatInfo.Size = new System.Drawing.Size(23, 20);
+            this.lWhatInfo.TabIndex = 42;
+            this.lWhatInfo.Text = "i";
+            this.lWhatInfo.MouseLeave += new System.EventHandler(this.lWhatInfo_MouseLeave);
+            this.lWhatInfo.MouseHover += new System.EventHandler(this.lWhatInfo_MouseHover);
+            // 
             // label36
             // 
             this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2889,18 +2901,6 @@
             this.cbUseGoogleDefaultReminder.Text = "Use Google default";
             this.cbUseGoogleDefaultReminder.UseVisualStyleBackColor = true;
             this.cbUseGoogleDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseGoogleDefaultReminder_CheckedChanged);
-            // 
-            // lWhatInfo
-            // 
-            this.lWhatInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
-            this.lWhatInfo.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lWhatInfo.Location = new System.Drawing.Point(241, 22);
-            this.lWhatInfo.Name = "lWhatInfo";
-            this.lWhatInfo.Size = new System.Drawing.Size(23, 20);
-            this.lWhatInfo.TabIndex = 42;
-            this.lWhatInfo.Text = "i";
-            this.lWhatInfo.MouseLeave += new System.EventHandler(this.lWhatInfo_MouseLeave);
-            this.lWhatInfo.MouseHover += new System.EventHandler(this.lWhatInfo_MouseHover);
             // 
             // cbLocation
             // 
@@ -3820,6 +3820,19 @@
             this.tabPage_About.TabIndex = 2;
             this.tabPage_About.Text = "About";
             // 
+            // cbIgnoreSkipPrefs
+            // 
+            this.cbIgnoreSkipPrefs.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.cbIgnoreSkipPrefs.AutoSize = true;
+            this.cbIgnoreSkipPrefs.Checked = true;
+            this.cbIgnoreSkipPrefs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbIgnoreSkipPrefs.Location = new System.Drawing.Point(143, 485);
+            this.cbIgnoreSkipPrefs.Name = "cbIgnoreSkipPrefs";
+            this.cbIgnoreSkipPrefs.Size = new System.Drawing.Size(199, 17);
+            this.cbIgnoreSkipPrefs.TabIndex = 47;
+            this.cbIgnoreSkipPrefs.Text = "Consider versions previously skipped";
+            this.cbIgnoreSkipPrefs.UseVisualStyleBackColor = true;
+            // 
             // lDonateTip
             // 
             this.lDonateTip.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -4246,19 +4259,6 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "AboutValue";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // cbIgnoreSkipPrefs
-            // 
-            this.cbIgnoreSkipPrefs.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.cbIgnoreSkipPrefs.AutoSize = true;
-            this.cbIgnoreSkipPrefs.Checked = true;
-            this.cbIgnoreSkipPrefs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbIgnoreSkipPrefs.Location = new System.Drawing.Point(143, 485);
-            this.cbIgnoreSkipPrefs.Name = "cbIgnoreSkipPrefs";
-            this.cbIgnoreSkipPrefs.Size = new System.Drawing.Size(199, 17);
-            this.cbIgnoreSkipPrefs.TabIndex = 47;
-            this.cbIgnoreSkipPrefs.Text = "Consider versions previously skipped";
-            this.cbIgnoreSkipPrefs.UseVisualStyleBackColor = true;
             // 
             // Main
             // 
