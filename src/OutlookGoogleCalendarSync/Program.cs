@@ -68,6 +68,7 @@ namespace OutlookGoogleCalendarSync {
                 parseArgumentsAndInitialise(args);
 
                 Updater.MakeSquirrelAware();
+                logWindowsBuildNumber();
                 Program.instancesRunning();
                 Forms.Splash.ShowMe();
 
@@ -731,6 +732,24 @@ namespace OutlookGoogleCalendarSync {
             log.Debug(" " + commandLine);
 
             return commandLine;
+        }
+
+        private static void logWindowsBuildNumber() {
+            String regKeyOsVer = "";
+            try {
+                log.Info($"Windows Environment: {Environment.OSVersion.VersionString}");
+                Version osVersion = null;
+                using (Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")) {
+                    regKeyOsVer = registryKey?.GetValue("CurrentMajorVersionNumber")?.ToString() ?? "0";
+                    regKeyOsVer += "." + registryKey?.GetValue("CurrentMinorVersionNumber")?.ToString() ?? "0";
+                    regKeyOsVer += "." + registryKey?.GetValue("CurrentBuildNumber")?.ToString() ?? "0";
+                    regKeyOsVer += "." + registryKey?.GetValue("UBR")?.ToString() ?? "x";
+                    osVersion = new(regKeyOsVer);
+                }
+                log.Info($"Precise Build: {osVersion?.Major}.{osVersion?.Minor}.{osVersion?.Build}.{osVersion?.Revision}");
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to determine precise Windows build number. "+ regKeyOsVer);
+            }
         }
 
         public static void Shutdown() {
