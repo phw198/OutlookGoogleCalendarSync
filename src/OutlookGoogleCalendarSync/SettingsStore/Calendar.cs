@@ -48,7 +48,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             DeleteWhenColourExcluded = true;
             Colours = new List<String>();
             ExcludeDeclinedInvites = true;
-            ExcludeGoals = true;
             AddGMeet = true;
 
             //Sync Options
@@ -134,7 +133,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public Boolean DeleteWhenColourExcluded { get; set; }
         [DataMember] public List<string> Colours { get; set; }
         [DataMember] public Boolean ExcludeDeclinedInvites { get; set; }
-        [DataMember] public Boolean ExcludeGoals { get; set; }
         [DataMember] public Boolean AddGMeet { get; set; }
         #endregion
         #region Sync Options
@@ -287,7 +285,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 log.Info("  Delete When Excluded: " + DeleteWhenColourExcluded);
                 log.Info("  Colours: " + String.Join(",", Colours.ToArray()));
                 log.Info("  Exclude Declined Invites: " + ExcludeDeclinedInvites);
-                log.Info("  Exclude Goals: " + ExcludeGoals);
                 log.Info("  Include Google Meet: " + AddGMeet);
                 log.Info("  Cloak Email: " + CloakEmail);
 

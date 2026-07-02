@@ -149,7 +149,6 @@
             this.miColourSelectInvert = new System.Windows.Forms.ToolStripMenuItem();
             this.miColourRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
-            this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
             this.gbGoogle_GAccount = new System.Windows.Forms.GroupBox();
             this.label42 = new System.Windows.Forms.Label();
             this.btRevokeGCal = new System.Windows.Forms.Button();
@@ -1599,7 +1598,6 @@
             this.gbGoogle_GConfig.Controls.Add(this.cbColourFilter);
             this.gbGoogle_GConfig.Controls.Add(this.clbColours);
             this.gbGoogle_GConfig.Controls.Add(this.cbExcludeDeclinedInvites);
-            this.gbGoogle_GConfig.Controls.Add(this.cbExcludeGoals);
             this.gbGoogle_GConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbGoogle_GConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 276);
@@ -1615,7 +1613,7 @@
             this.cbAddGMeet.AutoSize = true;
             this.cbAddGMeet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddGMeet.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddGMeet.Location = new System.Drawing.Point(13, 109);
+            this.cbAddGMeet.Location = new System.Drawing.Point(13, 102);
             this.cbAddGMeet.Name = "cbAddGMeet";
             this.cbAddGMeet.Size = new System.Drawing.Size(150, 17);
             this.cbAddGMeet.TabIndex = 54;
@@ -1729,26 +1727,13 @@
             this.cbExcludeDeclinedInvites.AutoSize = true;
             this.cbExcludeDeclinedInvites.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeDeclinedInvites.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(13, 71);
+            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(13, 82);
             this.cbExcludeDeclinedInvites.Name = "cbExcludeDeclinedInvites";
             this.cbExcludeDeclinedInvites.Size = new System.Drawing.Size(190, 17);
             this.cbExcludeDeclinedInvites.TabIndex = 49;
             this.cbExcludeDeclinedInvites.Text = "Exclude invitations I have declined";
             this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
             this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
-            // 
-            // cbExcludeGoals
-            // 
-            this.cbExcludeGoals.AutoSize = true;
-            this.cbExcludeGoals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbExcludeGoals.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeGoals.Location = new System.Drawing.Point(13, 90);
-            this.cbExcludeGoals.Name = "cbExcludeGoals";
-            this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
-            this.cbExcludeGoals.TabIndex = 48;
-            this.cbExcludeGoals.Text = "Exclude \"Goal\" events from sync";
-            this.cbExcludeGoals.UseVisualStyleBackColor = true;
-            this.cbExcludeGoals.CheckedChanged += new System.EventHandler(this.cbExcludeGoals_CheckedChanged);
             // 
             // gbGoogle_GAccount
             // 
