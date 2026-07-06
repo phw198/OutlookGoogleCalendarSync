@@ -15,5 +15,8 @@ Always adhere to the universal AI guidance structure and patterns defined in thi
 ## Core Directives
 1. **Be Minimalist**: Implement precisely what is requested with the fewest lines of code possible while meeting all requirements.
 2. **Consult Architecture**: Before touching Outlook or Google Calendar sync code, review `.ai/architecture.md`.
-3. **Adhere to Coding Standards**: Refer to `.ai/coding-standards.md` for C# coding style, WinForms/thread safety, and logging standards.
-4. **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
+3. **Adhere to Coding Standards**: Refer to `.ai/coding-standards.md` for C# coding style, WinForms/thread safety, naming conventions, and logging standards.
+4. **Follow Naming and Exception Rules**: Use camelCase for private methods and handlers, and use `Analyse()` with a contextual message for exception handling rather than bare exception logging.
+5. **Prefer Explicit Types**: Avoid `var` for local variables unless the type is obvious; prefer explicit type declarations for clarity.
+6. **Use CRLF Line Endings**: All code and repository text files must be saved with CRLF line endings. Do not introduce files with LF-only endings.
+7. **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.

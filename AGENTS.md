@@ -6,6 +6,7 @@
 ## Recent Milestone
 - Established the Universal AI Root (`.ai/`) structure with generic AI agent developer instructions, project architecture overview (using Mermaid diagrams), specific C# and WinForms coding standards (such as OTBS/K&R style brace placement and `Analyse()` logging), and reusable prompt templates.
 - Reverted to a single global NotifyIcon wrapper to handle Windows notification routing cleanly.
+- Reinforced repo guidance to keep private methods in camelCase and to use `Analyse()` with contextual messages for handled exceptions.
 
 ## Active Task
 - Testing native VS Code Chat agent execution and memory file syncing.
