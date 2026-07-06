@@ -1,5 +1,6 @@
 *.nupkg
 .sass-cache*
 /_site
+/src/.vs
 /src/packages
 /src/Releases

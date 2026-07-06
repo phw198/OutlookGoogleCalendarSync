@@ -199,6 +199,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             #endregion
 
             #region Sync
+            if (Settings.Instance.Calendars.Count > 1) {
+                msSyncActions.Items.Add(new ToolStripSeparator());
+                msSyncActions.Items.Add(miSyncAllProfiles);
+            }
             if (ActiveCalendarProfile.ExtirpateOgcsMetadata) {
                 bSyncNow.FlatStyle = FlatStyle.Flat;
                 bSyncNow.BackColor = System.Drawing.Color.PaleVioletRed;
@@ -767,6 +771,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void miSyncFull_Click(object sender, EventArgs e) {
             this.bSyncNow.Text = "Start Full Sync";
         }
+        private void miSyncAllProfiles_Click(object sender, EventArgs e) {
+            this.bSyncNow.Text = miSyncAllProfiles.Text;
+        }
 
         public enum SyncNotes {
             DailyQuotaExhaustedInfo,
@@ -1244,6 +1251,17 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void miAddProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miAddProfile.Text;
             new Forms.ProfileManage("Add", ddProfile).ShowDialog();
+            try {
+                ToolStripItem lastItem = msSyncActions.Items[msSyncActions.Items.Count - 1];
+                if (Settings.Instance.Calendars.Count > 1) {
+                    if (lastItem.Text != miSyncAllProfiles.Text) {
+                        msSyncActions.Items.Add(new ToolStripSeparator());
+                        msSyncActions.Items.Add(miSyncAllProfiles);
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to add 'Sync All Profiles' button menu item.");
+            }
         }
         private void miDeleteProfile_Click(object sender, EventArgs e) {
             btProfileAction.Text = miDeleteProfile.Text;
@@ -1273,6 +1291,22 @@ namespace OutlookGoogleCalendarSync.Forms {
             } catch (System.Exception ex) {
                 ex.Analyse("Failed to delete profile '" + profileName + "'.");
                 throw;
+            }
+
+            //Remove "Sync All Profiles" menu option?
+            try {
+                if (Settings.Instance.Calendars.Count == 1) {
+                    ToolStripItem lastItem = msSyncActions.Items[msSyncActions.Items.Count - 1];
+                    if (lastItem.Text == miSyncAllProfiles.Text) {
+                        msSyncActions.Items.Remove(lastItem);
+                        lastItem = msSyncActions.Items[msSyncActions.Items.Count - 1];
+                        if (lastItem is ToolStripSeparator)
+                            msSyncActions.Items.Remove(lastItem);
+                        miSyncDelta_Click(null, null);
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to remove 'Sync All Profiles' button menu item.");
             }
         }
         private void miRenameProfile_Click(object sender, EventArgs e) {
@@ -1627,7 +1661,7 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         public void cbOutlookCalendar_SelectedIndexChanged(object sender, EventArgs e) {
             KeyValuePair<String, OutlookCalendarListEntry>? calendar = null;
-            if (cbOutlookCalendars.SelectedItem != null)
+            if (!string.IsNullOrEmpty(cbOutlookCalendars?.SelectedItem?.ToString()))
                 calendar = (KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.SelectedItem;
             ActiveCalendarProfile.UseOutlookCalendar = calendar?.Value;
 

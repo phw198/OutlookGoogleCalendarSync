@@ -90,6 +90,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             //Analyse the Graph OData exception and then replace the aggregate exception with it
             ApiException retVal = handleAPIlimits(ref oDataErr, kiotaEx);
+            kiotaEx.Data["oDataErrMsg"] = oDataErr.Message;
+            kiotaEx.Data["oDataErrCode"] = oDataErr.Error.Code;
             ex = kiotaEx;
             return retVal;
         }

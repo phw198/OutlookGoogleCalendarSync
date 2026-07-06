@@ -138,7 +138,11 @@ namespace OutlookGoogleCalendarSync {
                     return gaex.Message + " [" + gaex.HttpStatusCode + "]";
 
             } else if (ex is Microsoft.Kiota.Abstractions.ApiException gex) {
-                return gex.Message.Replace("\n", "<br/>") + " [" + gex.ResponseStatusCode + "]";
+                string errCode = gex.ResponseStatusCode.ToString();
+                if (gex.Data.Contains("oDataErrCode")) {
+                    errCode = gex.Data["oDataErrCode"].ToString() + ", " + errCode;
+                }
+                return (gex.Data["oDataErrMsg"]?.ToString() ?? gex.Message).Replace("\n", "<br/>") + $" [{errCode}]";
             }
             return ex.Message + (ex.InnerException != null && !(ex.InnerException is global::Google.GoogleApiException || ex.InnerException is Microsoft.Kiota.Abstractions.ApiException) ? "<br/>" + ex.InnerException.Message : "");
         }

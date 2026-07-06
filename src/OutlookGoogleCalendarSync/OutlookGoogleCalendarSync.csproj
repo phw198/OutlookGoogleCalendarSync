@@ -392,9 +392,6 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Zlib.Portable, Version=1.11.0.0, Culture=neutral, PublicKeyToken=431cba815f6a8b5b, processorArchitecture=MSIL">
-      <HintPath>lib\Zlib.Portable.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '^(.*;)*DEVELOP_AGAINST_2003(;.*)*$'))">
