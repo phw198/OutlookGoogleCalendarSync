@@ -9,6 +9,7 @@ namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
         private NotifyIcon icon;
+        private INotificationHandler notificationHandler;
         
         public Timer IconAnimator;
         private Icon[] animatedIconFrames;
@@ -30,6 +31,18 @@ namespace OutlookGoogleCalendarSync {
             this.icon.Visible = true;
             this.icon.Text += (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title);
             buildMenu();
+
+            // Initialize notification handler based on OS
+            try {
+                if (Program.WindowsVersion >= 10)
+                    notificationHandler = new ModernToastNotificationHandler(this.icon, notificationClicked);
+                else
+                    notificationHandler = new LegacyNotifyIconHandler(this.icon, notificationClicked);
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to initialise the notification handler.", true);
+                log.Info("Attempting to fall back to legacy notification handler.");
+                notificationHandler = new LegacyNotifyIconHandler(this.icon, notificationClicked);
+            }
 
             if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
@@ -326,18 +339,24 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            if (notifyIcon.Tag?.ToString() == "ShowSystemNotificationWhenMinimising") {
-                Settings.Instance.ShowSystemNotificationWhenMinimising = false;
-                XMLManager.ExportElement(Settings.Instance, "ShowSystemNotificationWhenMinimising", false, Settings.ConfigFile);
-                notifyIcon.Tag = "";
+            notificationClicked(notifyIcon?.Tag?.ToString());
+        }
 
-            } else if (notifyIcon.Tag?.ToString() == "OOMsecurity") {
-                Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
-                notifyIcon.Tag = "";
+        private void notificationClicked(string tag) {
+            try {
+                if (tag == "ShowSystemNotificationWhenMinimising") {
+                    Settings.Instance.ShowSystemNotificationWhenMinimising = false;
+                    XMLManager.ExportElement(Settings.Instance, "ShowSystemNotificationWhenMinimising", false, Settings.ConfigFile);
 
-            } else {
-                Forms.Main.Instance.MainFormShow(true);
-                Forms.Main.Instance.tabApp.SelectedTab = Forms.Main.Instance.tabPage_Sync;
+                } else if (tag == "OOMsecurity") {
+                    Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
+
+                } else {
+                    Forms.Main.Instance.CallControlMethodThreadSafe(Forms.Main.Instance, "MainFormShow", true);
+                    Forms.Main.Instance.SetControlPropertyThreadSafe(Forms.Main.Instance.tabApp, "SelectedTab", Forms.Main.Instance.tabPage_Sync);
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Problem handling notification click.");
             }
         }
 
@@ -347,15 +366,15 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
+        /// <summary>
+        /// Show a notification bubble from the system tray icon.
+        /// This will use the modern toast notification on Windows 10 and above, and fall back to the legacy balloon notification on older versions of Windows.
+        /// </summary>
+        /// <param name="message">The text to display. The first line will be used as the title in modern toasts.</param>
+        /// <param name="iconType">The type of icon to display for pre-Win10.</param>
+        /// <param name="tagValue">A code to trigger specific action when clicked.</param>
         public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
-            this.icon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
-            this.icon.ShowBalloonTip(
-                500,
-                "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : " - " + Program.Title),
-                message,
-                iconType
-            );
-            this.icon.Tag = tagValue;
+            notificationHandler?.ShowNotification(message, iconType, tagValue);
         }
     }
 }

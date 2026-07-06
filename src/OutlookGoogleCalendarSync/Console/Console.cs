@@ -405,7 +405,7 @@ namespace OutlookGoogleCalendarSync {
                 content = header + contentInnerHtml + footer;
 
                 if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\r\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
             }
