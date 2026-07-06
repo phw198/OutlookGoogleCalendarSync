@@ -4622,7 +4622,6 @@
         private System.Windows.Forms.PictureBox pbExpandGoogleConfig;
         private System.Windows.Forms.GroupBox gbGoogle_GConfig;
         private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
-        private System.Windows.Forms.CheckBox cbExcludeGoals;
         private System.Windows.Forms.PictureBox pbExpandGoogleOauth;
         private System.Windows.Forms.GroupBox gbGoogle_GOAuth;
         private System.Windows.Forms.LinkLabel llAPIConsole;
