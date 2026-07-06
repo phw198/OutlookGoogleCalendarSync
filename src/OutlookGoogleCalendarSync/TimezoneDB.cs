@@ -1,9 +1,10 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using log4net;
+﻿using log4net;
 using NodaTime.TimeZones;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync {
     public class TimezoneDB {
@@ -214,32 +215,56 @@ namespace OutlookGoogleCalendarSync {
         /// Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
         /// </summary>
         /// <param name="oTZ_id">Timezone ID</param>
+        /// <returns>IANA/Olsen timezone</returns>
+        public static String IANAtimezone(String oTZ_id) {
+            return IANAtimezone(oTZ_id, oTZ_id);
+        }
+        /// <summary>
+        /// Convert from Windows Timezone to IANA/Olsen
+        /// Eg "(UTC) Dublin, Edinburgh, Lisbon, London" => "Europe/London"
+        /// </summary>
+        /// <param name="oTZ_id">Timezone ID</param>
         /// <param name="oTZ_name">Timezone Name</param>
         /// <returns>IANA/Olsen timezone</returns>
         public static String IANAtimezone(String oTZ_id, String oTZ_name) {
             //http://unicode.org/repos/cldr/trunk/common/supplemental/windowsZones.xml
             if (oTZ_id.Equals("UTC", StringComparison.OrdinalIgnoreCase)) {
-                log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"Etc/UTC\"");
+                log.Fine($"Timezone '{oTZ_name}' mapped to 'Etc/UTC'");
                 return "Etc/UTC";
+            }
+            if (NodaTime.DateTimeZoneProviders.Tzdb.GetZoneOrNull(oTZ_id) != null) {
+                log.Fine($"'{oTZ_id}' is already a valid IANA time zone.");
+                return oTZ_id;
             }
 
             NodaTime.TimeZones.TzdbDateTimeZoneSource tzDBsource = TimezoneDB.Instance.Source;
-            String retVal = null;
-            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out retVal) || retVal == null) {
-                NodaTime.DateTimeZone dtz = tzDBsource.ForId(oTZ_id);
-                if (dtz == null) {
-                    log.Fail("Could not find mapping for \"" + oTZ_name + "\"");
+            String ianaId = null;
+            if (!tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(oTZ_id, out ianaId)) {
+                //No direct NodaTime mapping found, so try falling back to Windows system time zones
+                System.Collections.ObjectModel.ReadOnlyCollection<TimeZoneInfo> sysTZ = TimeZoneInfo.GetSystemTimeZones();
+                TimeZoneInfo tzi = sysTZ.FirstOrDefault(t => t.DisplayName == oTZ_id || t.StandardName == oTZ_id || t.Id != oTZ_id && !t.Id.StartsWith("Etc/GMT"));
+                if (tzi != null) {
+                    log.Fine($"Checking {tzi.Id} maps to a valid IANA timezone...");
+                    tzDBsource.WindowsToTzdbIds.TryGetValue(tzi.Id, out ianaId);
+                }
+                if (string.IsNullOrEmpty(ianaId) || ianaId.StartsWith("Etc/GMT")) {
+                    //Next see if we already have a custom mapping by the user
+                    tzi = Forms.TimezoneMap.GetSystemTimezone(oTZ_id, sysTZ);
+                    tzi ??= Forms.TimezoneMap.TimezoneMap_StaThread(oTZ_id, sysTZ.First(), sysTZ);
+                    ianaId = null;
+                }
+                if (tzi == null || (string.IsNullOrEmpty(ianaId) && !tzDBsource.WindowsMapping.PrimaryMapping.TryGetValue(tzi.Id, out ianaId))) {
+                    log.Fail($"Could not find mapping for '{oTZ_name}'");
                     return null;
-                } else
-                    retVal = oTZ_id;
+                }
             }
-            if (retVal == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
+            if (ianaId == "Europe/Kiev" && TimezoneDB.Instance.RevertKyiv)
                 log.Debug("Continuing to use Kiev instead of Kyiv.");
             else
-                retVal = tzDBsource.CanonicalIdMap[retVal];
-            log.Fine("Timezone \"" + oTZ_name + "\" mapped to \"" + retVal + "\"");
+                ianaId = tzDBsource.CanonicalIdMap[ianaId];
+            log.Fine($"Timezone '{oTZ_name}' mapped to '{ianaId}'");
 
-            return retVal;
+            return ianaId;
         }
 
 

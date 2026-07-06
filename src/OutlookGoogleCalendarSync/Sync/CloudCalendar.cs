@@ -57,6 +57,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                 #region Read Outlook items
                 console.Update($"Scanning Outlook calendar '{Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Name}'...");
+                Outlook.Graph.Calendar.Instance.GetSettings();
                 outlookEntries = Outlook.Graph.Calendar.Instance.GetCalendarEntriesInRange(Sync.Engine.Calendar.Instance.Profile, false);
                 String consoleOutput = outlookEntries.Count + " Outlook calendar entries found.";
                 if (Outlook.Graph.Recurrence.OutlookExceptions != null && Outlook.Graph.Recurrence.OutlookExceptions.Count > 0)

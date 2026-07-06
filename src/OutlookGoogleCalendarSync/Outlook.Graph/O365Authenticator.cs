@@ -37,7 +37,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             get { return authResult?.ExpiresOn.UtcDateTime < DateTime.UtcNow.AddMinutes(1); }
         }
         public String AccessToken {
-            get { return authResult.AccessToken; }
+            get { return authResult?.AccessToken; }
         }
 
         public void GetAuthenticated(Boolean nonInteractiveAuth = false) {
@@ -107,7 +107,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             MsalCacheHelper cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).Result;
             cacheHelper.RegisterCache(oAuthApp.UserTokenCache);
 
-            String[] scopes = new string[] { "user.read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared" };
+            String[] scopes = new string[] { "user.read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared", "MailboxSettings.Read" };
 
             IAccount firstAccount = (await oAuthApp.GetAccountsAsync()).FirstOrDefault();
             if (firstAccount == null)
@@ -227,10 +227,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <param name="url">The Graph URL</param>
         /// <param name="token">The bearer token</param>
         /// <returns>String containing the results of the GET operation</returns>
-        private String GetHttpContentWithToken(String url) {
+        public String GetHttpContentWithToken(String url) {
             Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
             try {
                 wc.Headers.Add("Authorization", "Bearer " + authResult?.AccessToken);
+                if (!url.StartsWith(graphBaseUrl)) url = graphBaseUrl + url;
                 String content = wc.DownloadString(url);
                 return content;
             } catch (System.Exception ex) {
