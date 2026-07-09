@@ -212,7 +212,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (this.ActiveProfile is SettingsStore.Calendar profile) {
                 Forms.Main.Instance.NotificationTray.IconAnimator.Start();
                 if (Settings.Instance.ShowSystemNotifications && !Settings.Instance.ShowSystemNotificationsIfChange) 
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo($"Profile: {profile._ProfileName}\r\n" + (manualIgnition ? "S" : "Autos") + "yncing calendars: " + profile.SyncDirection.Name + "...");
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo($"Profile '{profile._ProfileName}'\r\n" + (manualIgnition ? "S" : "Autos") + "yncing calendars: " + profile.SyncDirection.Name + "...");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
                 Sync.Engine.Calendar.Instance.StartSync(manualIgnition, updateSyncSchedule);
                 Forms.Main.Instance.NotificationTray.IconAnimatorStop();
