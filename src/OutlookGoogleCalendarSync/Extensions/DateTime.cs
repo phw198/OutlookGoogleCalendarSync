@@ -104,15 +104,6 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
-        /// Returns the non-null Date or DateTime properties as a DateTime
-        /// </summary>
-        /// <returns>DateTime</returns>
-        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this EventDateTime evDt) {
-            return SafeDateTimeOffset(evDt).DateTime;
-        }
-
-        /// <summary>
         /// Returns the non-null Date or DateTime properties as a DateTimeOffset
         /// </summary>
         /// <returns>DateTimeOffset</returns>

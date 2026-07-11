@@ -423,7 +423,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(historicRecurring).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTime() == from && ev.Recurrence == null)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTimeOffset().DateTime == from && ev.Recurrence == null)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -2347,7 +2347,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
                     if (ev.Start.DateTimeDateTimeOffset != null) {
-                        System.DateTime gDate = ev.Start.SafeDateTime();
+                        System.DateTime gDate = ev.Start.SafeDateTimeOffset().DateTime;
                         eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
@@ -2364,8 +2364,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Warn("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
                     try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
-                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
-                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTime().ToString())); } catch { }
+                    try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTimeOffset().DateTime.ToString())); } catch { }
+                    try { log.Warn("  ev.End: " + (ev.End == null ? "null!" : ev.End.SafeDateTimeOffset().DateTime.ToString())); } catch { }
                     try { log.Warn("  ev.Status: " + ev.Status ?? "null!"); } catch { }
                     try { log.Warn("  ev.RecurringEventId: " + ev.RecurringEventId ?? "null"); } catch { }
                 }
