@@ -12,6 +12,10 @@ When assisting with code modifications, debugging, or documentation:
 - **Use CRLF Line Endings**: Save all repository source code and text files with CRLF line endings.
 - **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
 
+## Agent Architecture
+- **Agnostic Instructions**: All rich, platform-independent agent instructions, workflows, and release logic must reside in `.ai/agents/` (e.g., `.ai/agents/release-preparer.md`).
+- **Platform Redirections**: Platform-specific agent definitions (such as `.github/agents/*.agent.md` for VS Code) must be minimalist "pointers" or redirections that simply instruct the agent to load and follow the agnostic files in `.ai/agents/`. This ensures the core logic is portable across different AI tools and environments.
+
 ## Key Files to Monitor
 - **Memory Log**: Always refer to the root-level [AGENTS.md](../AGENTS.md) to understand current progress, milestones, and active tasks, and keep it updated as changes are completed.
 - **Rules Config**: Ensure actions adhere to the root-level [.clinerules](../.clinerules).

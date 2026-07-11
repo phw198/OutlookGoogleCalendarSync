@@ -7,8 +7,10 @@ Always adhere to the universal AI guidance structure and patterns defined in thi
 - Universal AI guidance resides in `.ai/` in the project root.
   - Architecture overview: `.ai/architecture.md`
   - Coding standards: `.ai/coding-standards.md`
+  - Agnostic agent instructions: `.ai/agents/`
   - Reusable templates: `.ai/templates/`
 - Standard memory log: `AGENTS.md` (the industry-standard universal memory log in the root).
+- **Agnostic Agent Architecture**: Specialized agent logic is stored in `.ai/agents/`. Platform-specific agent files (like `.github/agents/`) must only be thin pointers that redirect agents to read the agnostic instructions in `.ai/agents/`.
 - Always read `AGENTS.md` and the appropriate files in `.ai/` before performing any tasks or edits.
 - Keep `AGENTS.md` updated as milestones are reached or work is completed.
 
