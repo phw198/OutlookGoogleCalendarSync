@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync {
 
             // Initialize notification handler based on OS
             try {
-                if (Program.WindowsVersion >= 10)
+                if (Program.WindowsVersion.Major >= 10)
                     notificationHandler = new ModernToastNotificationHandler(this.icon, notificationClicked);
                 else
                     notificationHandler = new LegacyNotifyIconHandler(this.icon, notificationClicked);

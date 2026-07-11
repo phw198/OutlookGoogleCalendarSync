@@ -734,27 +734,26 @@ namespace OutlookGoogleCalendarSync {
             return commandLine;
         }
 
-        public static int? WindowsVersion { get; private set; }
+        public static Version WindowsVersion { get; private set; }
 
         private static void getWindowsBuildNumber() {
             String regKeyOsVer = "";
+            Version osVersion = null;
             try {
                 log.Info($"Windows Environment: {Environment.OSVersion.VersionString}");
-                WindowsVersion = Environment.OSVersion.Version.Major;
 
-                Version osVersion = null;
                 using (Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")) {
                     regKeyOsVer = registryKey?.GetValue("CurrentMajorVersionNumber")?.ToString() ?? "0";
-                    if (regKeyOsVer != "0") WindowsVersion = Convert.ToInt16(regKeyOsVer);
                     regKeyOsVer += "." + registryKey?.GetValue("CurrentMinorVersionNumber")?.ToString() ?? "0";
                     regKeyOsVer += "." + registryKey?.GetValue("CurrentBuildNumber")?.ToString() ?? "0";
                     regKeyOsVer += "." + registryKey?.GetValue("UBR")?.ToString() ?? "x";
                     osVersion = new(regKeyOsVer);
                 }
-                log.Info($"Precise Build: {osVersion?.Major}.{osVersion?.Minor}.{osVersion?.Build}.{osVersion?.Revision}");
             } catch (System.Exception ex) {
                 ex.Analyse("Unable to determine precise Windows build number. " + regKeyOsVer);
             }
+            WindowsVersion = osVersion ?? Environment.OSVersion.Version;
+            log.Info($"Precise Build: {osVersion?.Major}.{osVersion?.Minor}.{osVersion?.Build}.{osVersion?.Revision}");
         }
 
         public static void Shutdown() {
