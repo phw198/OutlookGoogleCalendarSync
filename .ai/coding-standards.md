@@ -30,3 +30,11 @@ Please adhere to these coding standards when developing or modifying code for OG
 - **Testing**:
   - Always verify code compiles and runs locally before committing.
   - Test all sync variations (Outlook -> Google, Google -> Outlook, Bidirectional) when changing the underlying `Engine.cs` or provider mechanics.
+
+## DateTime & TimeZone Handling
+- **Prefer `DateTimeOffset`**: Use `DateTimeOffset` for all timestamps, especially when interacting with external APIs (Google, Graph).
+- **Avoid Implicit Casts**: Do not implicitly cast `DateTime` to `DateTimeOffset`. This uses the local system timezone and can cause equality comparisons to fail against UTC values from APIs.
+- **Clock-Time Equality**: For comparing "wall clock" time (same hour/minute on the dial), explicitly use `.DateTime` from the `DateTimeOffset` (e.g., `dto.DateTime == dt`).
+- **Date-Only Equality**: For comparing the calendar date only, use the `.Date` property (e.g., `dto.Date == dt.Date`).
+- **Instant Equality**: For comparing the exact universal instant, compare `.UtcDateTime` or direct `DateTimeOffset` if offsets are known.
+- **Safe Helpers**: Always use the `SafeDateTimeOffset()` extension methods. The older `SafeDateTime()` is deprecated and must not be used.
