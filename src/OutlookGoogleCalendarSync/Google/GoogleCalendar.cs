@@ -541,17 +541,6 @@ namespace OutlookGoogleCalendarSync.Google {
                 }
             }
 
-            //Goals
-            if ((IsDefaultCalendar() ?? true) && profile.ExcludeGoals) {
-                goals = result.Where(ev =>
-                    !string.IsNullOrEmpty(ev.Description) && ev.Description.Contains("This event was added from Goals in Google Calendar.") &&
-                    ev.Organizer != null && ev.Organizer.Email == "unknownorganizer@calendar.google.com" && ev.Organizer.DisplayName == "Google Calendar").ToList();
-                if (goals.Count > 0) {
-                    log.Debug(goals.Count + " Google Events are Goals and will be excluded.");
-                    result = result.Except(goals).ToList();
-                }
-            }
-
             List<Event> allExcluded = colour.Concat(availability).Concat(allDays).Concat(privacy).Concat(subject).Concat(declined).Concat(goals).ToList();
             foreach (Event ev in allExcluded) {
                 if (!ExcludedByConfig.Contains(ev.Id))

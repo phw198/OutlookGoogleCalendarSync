@@ -469,8 +469,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                     Ogcs.Google.Calendar.BuildOfflineColourPicker(clbColours);
                     cbDeleteWhenColourExcl.Checked = profile.DeleteWhenColourExcluded;
                     cbExcludeDeclinedInvites.Checked = profile.ExcludeDeclinedInvites;
-                    cbExcludeGoals.Checked = profile.ExcludeGoals;
-                    cbExcludeGoals.Enabled = Ogcs.Google.Calendar.IsDefaultCalendar() ?? true;
                     cbAddGMeet.Checked = profile.AddGMeet;
 
                     if (Settings.Instance.UsingPersonalAPIkeys()) {
@@ -1873,7 +1871,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.SelectedIndexChanged += cbGoogleCalendars_SelectedIndexChanged;
             }
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
-            cbExcludeGoals.Enabled = Ogcs.Google.Calendar.IsDefaultCalendar() ?? true;
             if (sender != null) {
                 log.Warn("Google calendar selection changed to: " + (ActiveCalendarProfile.UseGoogleCalendar?.ToString(true) ?? "<None>"));
                 ddGoogleColour.Rebuild(true);
@@ -1997,9 +1994,6 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbExcludeDeclinedInvites_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeDeclinedInvites = cbExcludeDeclinedInvites.Checked;
-        }
-        private void cbExcludeGoals_CheckedChanged(object sender, EventArgs e) {
-            ActiveCalendarProfile.ExcludeGoals = cbExcludeGoals.Checked;
         }
         private void cbGMeet_CheckedChanged(object sender, EventArgs e) {
             if (!this.LoadingProfileConfig && !cbAddDescription.Checked) {

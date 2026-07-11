@@ -150,7 +150,6 @@
             this.miColourSelectInvert = new System.Windows.Forms.ToolStripMenuItem();
             this.miColourRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.cbExcludeDeclinedInvites = new System.Windows.Forms.CheckBox();
-            this.cbExcludeGoals = new System.Windows.Forms.CheckBox();
             this.gbGoogle_GAccount = new System.Windows.Forms.GroupBox();
             this.label42 = new System.Windows.Forms.Label();
             this.btRevokeGCal = new System.Windows.Forms.Button();
@@ -306,6 +305,7 @@
             this.tbTS1 = new System.Windows.Forms.TextBox();
             this.tbTS0 = new System.Windows.Forms.TextBox();
             this.tabPage_About = new System.Windows.Forms.TabPage();
+            this.cbIgnoreSkipPrefs = new System.Windows.Forms.CheckBox();
             this.lDonateTip = new System.Windows.Forms.Label();
             this.dgAbout = new System.Windows.Forms.DataGridView();
             this.AboutColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -339,7 +339,6 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cbIgnoreSkipPrefs = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -1607,7 +1606,6 @@
             this.gbGoogle_GConfig.Controls.Add(this.cbColourFilter);
             this.gbGoogle_GConfig.Controls.Add(this.clbColours);
             this.gbGoogle_GConfig.Controls.Add(this.cbExcludeDeclinedInvites);
-            this.gbGoogle_GConfig.Controls.Add(this.cbExcludeGoals);
             this.gbGoogle_GConfig.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbGoogle_GConfig.ForeColor = System.Drawing.SystemColors.MenuHighlight;
             this.gbGoogle_GConfig.Location = new System.Drawing.Point(10, 276);
@@ -1623,7 +1621,7 @@
             this.cbAddGMeet.AutoSize = true;
             this.cbAddGMeet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbAddGMeet.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbAddGMeet.Location = new System.Drawing.Point(13, 109);
+            this.cbAddGMeet.Location = new System.Drawing.Point(13, 102);
             this.cbAddGMeet.Name = "cbAddGMeet";
             this.cbAddGMeet.Size = new System.Drawing.Size(150, 17);
             this.cbAddGMeet.TabIndex = 54;
@@ -1737,26 +1735,13 @@
             this.cbExcludeDeclinedInvites.AutoSize = true;
             this.cbExcludeDeclinedInvites.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbExcludeDeclinedInvites.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(13, 71);
+            this.cbExcludeDeclinedInvites.Location = new System.Drawing.Point(13, 82);
             this.cbExcludeDeclinedInvites.Name = "cbExcludeDeclinedInvites";
             this.cbExcludeDeclinedInvites.Size = new System.Drawing.Size(190, 17);
             this.cbExcludeDeclinedInvites.TabIndex = 49;
             this.cbExcludeDeclinedInvites.Text = "Exclude invitations I have declined";
             this.cbExcludeDeclinedInvites.UseVisualStyleBackColor = true;
             this.cbExcludeDeclinedInvites.CheckedChanged += new System.EventHandler(this.cbExcludeDeclinedInvites_CheckedChanged);
-            // 
-            // cbExcludeGoals
-            // 
-            this.cbExcludeGoals.AutoSize = true;
-            this.cbExcludeGoals.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbExcludeGoals.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbExcludeGoals.Location = new System.Drawing.Point(13, 90);
-            this.cbExcludeGoals.Name = "cbExcludeGoals";
-            this.cbExcludeGoals.Size = new System.Drawing.Size(182, 17);
-            this.cbExcludeGoals.TabIndex = 48;
-            this.cbExcludeGoals.Text = "Exclude \"Goal\" events from sync";
-            this.cbExcludeGoals.UseVisualStyleBackColor = true;
-            this.cbExcludeGoals.CheckedChanged += new System.EventHandler(this.cbExcludeGoals_CheckedChanged);
             // 
             // gbGoogle_GAccount
             // 
@@ -2629,6 +2614,18 @@
             this.gbSyncOptions_What.TabStop = false;
             this.gbSyncOptions_What.Text = "  What";
             // 
+            // lWhatInfo
+            // 
+            this.lWhatInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.lWhatInfo.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lWhatInfo.Location = new System.Drawing.Point(241, 22);
+            this.lWhatInfo.Name = "lWhatInfo";
+            this.lWhatInfo.Size = new System.Drawing.Size(23, 20);
+            this.lWhatInfo.TabIndex = 42;
+            this.lWhatInfo.Text = "i";
+            this.lWhatInfo.MouseLeave += new System.EventHandler(this.lWhatInfo_MouseLeave);
+            this.lWhatInfo.MouseHover += new System.EventHandler(this.lWhatInfo_MouseHover);
+            // 
             // label36
             // 
             this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2912,18 +2909,6 @@
             this.cbUseGoogleDefaultReminder.Text = "Use Google default";
             this.cbUseGoogleDefaultReminder.UseVisualStyleBackColor = true;
             this.cbUseGoogleDefaultReminder.CheckedChanged += new System.EventHandler(this.cbUseGoogleDefaultReminder_CheckedChanged);
-            // 
-            // lWhatInfo
-            // 
-            this.lWhatInfo.Font = new System.Drawing.Font("Webdings", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
-            this.lWhatInfo.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lWhatInfo.Location = new System.Drawing.Point(241, 22);
-            this.lWhatInfo.Name = "lWhatInfo";
-            this.lWhatInfo.Size = new System.Drawing.Size(23, 20);
-            this.lWhatInfo.TabIndex = 42;
-            this.lWhatInfo.Text = "i";
-            this.lWhatInfo.MouseLeave += new System.EventHandler(this.lWhatInfo_MouseLeave);
-            this.lWhatInfo.MouseHover += new System.EventHandler(this.lWhatInfo_MouseHover);
             // 
             // cbLocation
             // 
@@ -3843,6 +3828,19 @@
             this.tabPage_About.TabIndex = 2;
             this.tabPage_About.Text = "About";
             // 
+            // cbIgnoreSkipPrefs
+            // 
+            this.cbIgnoreSkipPrefs.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.cbIgnoreSkipPrefs.AutoSize = true;
+            this.cbIgnoreSkipPrefs.Checked = true;
+            this.cbIgnoreSkipPrefs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbIgnoreSkipPrefs.Location = new System.Drawing.Point(143, 485);
+            this.cbIgnoreSkipPrefs.Name = "cbIgnoreSkipPrefs";
+            this.cbIgnoreSkipPrefs.Size = new System.Drawing.Size(199, 17);
+            this.cbIgnoreSkipPrefs.TabIndex = 47;
+            this.cbIgnoreSkipPrefs.Text = "Consider versions previously skipped";
+            this.cbIgnoreSkipPrefs.UseVisualStyleBackColor = true;
+            // 
             // lDonateTip
             // 
             this.lDonateTip.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -4270,19 +4268,6 @@
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
-            // cbIgnoreSkipPrefs
-            // 
-            this.cbIgnoreSkipPrefs.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.cbIgnoreSkipPrefs.AutoSize = true;
-            this.cbIgnoreSkipPrefs.Checked = true;
-            this.cbIgnoreSkipPrefs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbIgnoreSkipPrefs.Location = new System.Drawing.Point(143, 485);
-            this.cbIgnoreSkipPrefs.Name = "cbIgnoreSkipPrefs";
-            this.cbIgnoreSkipPrefs.Size = new System.Drawing.Size(199, 17);
-            this.cbIgnoreSkipPrefs.TabIndex = 47;
-            this.cbIgnoreSkipPrefs.Text = "Consider versions previously skipped";
-            this.cbIgnoreSkipPrefs.UseVisualStyleBackColor = true;
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -4646,7 +4631,6 @@
         private System.Windows.Forms.PictureBox pbExpandGoogleConfig;
         private System.Windows.Forms.GroupBox gbGoogle_GConfig;
         private System.Windows.Forms.CheckBox cbExcludeDeclinedInvites;
-        private System.Windows.Forms.CheckBox cbExcludeGoals;
         private System.Windows.Forms.PictureBox pbExpandGoogleOauth;
         private System.Windows.Forms.GroupBox gbGoogle_GOAuth;
         private System.Windows.Forms.LinkLabel llAPIConsole;

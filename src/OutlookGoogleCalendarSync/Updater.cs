@@ -19,8 +19,8 @@ namespace OutlookGoogleCalendarSync {
             get { return bt != null; }
         }
         private Boolean isBusy = false;
-        public Boolean IsBusy { 
-            get { return isBusy; } 
+        public Boolean IsBusy {
+            get { return isBusy; }
         }
         private String restartUpdateExe = "";
         private const String nonGitHubReleaseUri = null; //When testing, eg: @"\\127.0.0.1\Squirrel";
@@ -112,7 +112,7 @@ namespace OutlookGoogleCalendarSync {
                     Ogcs.Exception.Analyse(ex);
                 }
             }
-            
+
             log.Info("This " + (isSquirrelInstall ? "is" : "is not") + " a Squirrel install.");
             return isSquirrelInstall;
         }
@@ -124,12 +124,16 @@ namespace OutlookGoogleCalendarSync {
             Forms.UpdateInfo updateInfoFrm = null;
             UpdateInfo updates = null;
             isBusy = true;
+
+            //Adapt update mechanism if releasing both v2 and v3; out-the-box Squirrel gets confused
+            const Boolean maintainingV2 = true;
+
             try {
                 String installRootDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 if (!string.IsNullOrEmpty(nonGitHubReleaseUri))
                     updateManager = new Squirrel.UpdateManager(nonGitHubReleaseUri, "OutlookGoogleCalendarSync", installRootDir);
                 else {
-                    if (Version.TryParse(Application.ProductVersion, out Version currentVersion) && currentVersion.Major == 2) {
+                    if (maintainingV2 && Version.TryParse(Application.ProductVersion, out Version currentVersion)) {
                         JObject targetRelease = parseGitHubRelease(currentVersion);
                         if (targetRelease == null)
                             return false;
@@ -214,7 +218,7 @@ namespace OutlookGoogleCalendarSync {
                         }
                         String localFile = updates.PackageDirectory + "\\" + updateFilename;
                         if (updateManager.CheckIfAlreadyDownloaded(update, localFile) || (nupkgOverridden && File.Exists(localFile))) {
-                            log.Debug("This file has already been downloaded: "+ Program.MaskFilePath(localFile));
+                            log.Debug("This file has already been downloaded: " + Program.MaskFilePath(localFile));
                         } else {
                             squirrelGaEv.AddParameter(GA4.Squirrel.state, "Upgrade downloading");
                             squirrelGaEv.AddParameter(GA4.Squirrel.file, updateFilename);
@@ -295,7 +299,7 @@ namespace OutlookGoogleCalendarSync {
                                 try {
                                     await updateManager.ApplyReleases(updates, updateInfoFrm.ShowUpgradeProgress);
                                     break;
-                                
+
                                 } catch (System.ComponentModel.Win32Exception ex) {
                                     if (ex.GetErrorCode() == "0x80004005") { //"The system cannot find the file specified" in ApplyDelta()
                                         log.Warn("The base nupkg file CRC is not matching and cannot be used for delta update.");
@@ -335,7 +339,7 @@ namespace OutlookGoogleCalendarSync {
 
                             log.Info("The application has been successfully updated.");
                             squirrelGaEv.AddParameter(GA4.Squirrel.result, "Successful");
-                            
+
                             updateInfoFrm.UpgradeCompleted();
                             while (updateInfoFrm.AwaitingRestart) {
                                 Application.DoEvents();
@@ -397,8 +401,9 @@ namespace OutlookGoogleCalendarSync {
         }
 
         /// <summary>
-        /// Squirrel works with the /latest release, but this is not always the latest release on GitHub 
-        /// Eg: v2.12.2-alpha is the latest v2 release, but /latest points to v3.0.2)
+        /// Squirrel works with the most recent release, but this is not always the latest release for the OGCS version running
+        /// Eg: running v3.0.1:  v2.12.2-alpha is the most recent release, but latest for v3 is v3.0.2; or
+        ///     running v2.12.1: v3.0.2-alpha  is the most recent release, but latest for v2 is v2.12.2
         /// </summary>
         /// <returns>The proper latest release to target</returns>
         private JObject parseGitHubRelease(Version currentVersion) {
@@ -421,8 +426,11 @@ namespace OutlookGoogleCalendarSync {
 
                     String version = release["tag_name"]?.ToString()?.TrimStart('v');
                     version = version?.Split('-')[0]; //Ignore any prerelease suffix
-                    if (Version.TryParse(version +".0", out Version releaseVersion)) {
-                        if (Program.VersionToInt(releaseVersion.ToString()) <= Program.VersionToInt(currentVersion.ToString())) {
+                    if (Version.TryParse(version + ".0", out Version releaseVersion)) {
+                        if (releaseVersion.Major == 2 && currentVersion.Major == 3) {
+                            log.Fine($"Only found a v2 release {releaseVersion}; continuing to scan...");
+                            continue;
+                        } else if (Program.VersionToInt(releaseVersion.ToString()) <= Program.VersionToInt(currentVersion.ToString())) {
                             log.Fine($"Release v{releaseVersion} is the same or earlier than current version.");
                             return null;
                         }
@@ -625,7 +633,7 @@ namespace OutlookGoogleCalendarSync {
                 }).Start();
                 try {
                     Telemetry.GA4Event.Event squirrelGaEv = new(Telemetry.GA4Event.Event.Name.squirrel);
-                    squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString() +" " + DateTime.Now.ToString("g"));
+                    squirrelGaEv.AddParameter(GA4.Squirrel.uninstall, version.ToString() + " " + DateTime.Now.ToString("g"));
                     String completedSyncs = XMLManager.ImportElement("CompletedSyncs", Settings.ConfigFile) ?? "0";
                     squirrelGaEv.AddParameter(GA4.General.sync_count, completedSyncs);
                     squirrelGaEv.Send(withBlankEnvelope: true, async: false);
@@ -700,7 +708,7 @@ namespace OutlookGoogleCalendarSync {
             bwUpdater.RunWorkerCompleted += new RunWorkerCompletedEventHandler(checkForZip_completed);
             bwUpdater.RunWorkerAsync();
         }
-        
+
         private void checkForZip(object sender, DoWorkEventArgs e) {
             string releaseURL = null;
             string releaseVersion = null;
@@ -757,7 +765,7 @@ namespace OutlookGoogleCalendarSync {
                 Int32 releaseNum = Program.VersionToInt(releaseVersion);
                 if (releaseNum > myReleaseNum) {
                     log.Info("New " + releaseType + " ZIP release found: " + releaseVersion);
-                    
+
                     DialogResult dr = DialogResult.Cancel;
                     var t = new System.Threading.Thread(() => new Forms.UpdateInfo(releaseVersion, releaseType, null, out dr));
                     t.SetApartmentState(System.Threading.ApartmentState.STA);
@@ -796,7 +804,7 @@ namespace OutlookGoogleCalendarSync {
         private void checkForZip_completed(object sender, RunWorkerCompletedEventArgs e) {
             if (isManualCheck)
                 Forms.Main.Instance.btCheckForUpdate.Text = "Check For Update";
-        }        
+        }
 
         private static void parseRelease(string source, ref string releaseType, ref string releaseURL, ref string releaseVersion, string maxVersion = null) {
             log.Debug("Finding " + (maxVersion == null ? "" : $"v{maxVersion} ") + "Beta release...");
@@ -823,7 +831,7 @@ namespace OutlookGoogleCalendarSync {
                 }
             }
 
-            if (string.IsNullOrEmpty(releaseVersion)) 
+            if (string.IsNullOrEmpty(releaseVersion))
                 log.Error("Could you not identify any ZIP release details.");
         }
         #endregion
