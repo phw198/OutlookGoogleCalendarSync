@@ -79,7 +79,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 Outlook.Graph.Calendar.ExportToCSV("Outputting all Appointments.", "outlook_appointments.csv", outlookEntries);
 
                 Boolean success = true;
-                String bubbleText = "";
+                String bubbleText = $"Profile '{Profile._ProfileName}': Sync Summary\r\n";
 
                 if (this.Profile.ExtirpateOgcsMetadata) {
                     return extirpateCustomProperties(outlookEntries, googleEntries);
@@ -119,12 +119,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                     if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                 }
                 if (!success) return SyncResult.Fail;
-                if (bubbleText != "") {
+                String[] bubbleLines = bubbleText.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (bubbleLines.Count() > 1) {
                     log.Info(bubbleText.Replace("\r\n", ". "));
                     System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
-                    String changes = rgx.Replace(bubbleText, "").Trim('0');
-                    if (Settings.Instance.ShowSystemNotifications &&
-                        (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                    String changes = rgx.Replace(string.Join(".", bubbleText.Skip(1)), "").Trim('0');
+                    if (Settings.Instance.ShowSystemNotifications && (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes)))
+                        Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
                 }
 
                 return SyncResult.OK;
@@ -238,7 +239,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #endregion
 
                 } finally {
-                    bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
+                    bubbleText += "Google: " + googleEntriesToBeCreated.Count + " created; " +
                         googleEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
 
                     if (this.Profile.SyncDirection.Id == Direction.OutlookToGoogle.Id) {

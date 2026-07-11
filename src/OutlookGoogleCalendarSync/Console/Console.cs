@@ -405,7 +405,11 @@ namespace OutlookGoogleCalendarSync {
                 content = header + contentInnerHtml + footer;
 
                 if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo("Issue encountered.\n" +
+                    String profileTitle = "";
+                    if (Sync.Engine.Instance.ActiveProfile is SettingsStore.Calendar profile) {
+                        profileTitle = $"Profile '{profile._ProfileName}': ";
+                    }
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo(profileTitle + "Issue encountered.\r\n" +
                         "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
                 }
             }

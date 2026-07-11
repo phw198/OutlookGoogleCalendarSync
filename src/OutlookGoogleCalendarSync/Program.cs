@@ -68,7 +68,7 @@ namespace OutlookGoogleCalendarSync {
                 parseArgumentsAndInitialise(args);
 
                 Updater.MakeSquirrelAware();
-                logWindowsBuildNumber();
+                getWindowsBuildNumber();
                 Program.instancesRunning();
                 Forms.Splash.ShowMe();
 
@@ -734,11 +734,14 @@ namespace OutlookGoogleCalendarSync {
             return commandLine;
         }
 
-        private static void logWindowsBuildNumber() {
+        public static Version WindowsVersion { get; private set; }
+
+        private static void getWindowsBuildNumber() {
             String regKeyOsVer = "";
+            Version osVersion = null;
             try {
                 log.Info($"Windows Environment: {Environment.OSVersion.VersionString}");
-                Version osVersion = null;
+
                 using (Microsoft.Win32.RegistryKey registryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")) {
                     regKeyOsVer = registryKey?.GetValue("CurrentMajorVersionNumber")?.ToString() ?? "0";
                     regKeyOsVer += "." + registryKey?.GetValue("CurrentMinorVersionNumber")?.ToString() ?? "0";
@@ -746,10 +749,11 @@ namespace OutlookGoogleCalendarSync {
                     regKeyOsVer += "." + registryKey?.GetValue("UBR")?.ToString() ?? "x";
                     osVersion = new(regKeyOsVer);
                 }
-                log.Info($"Precise Build: {osVersion?.Major}.{osVersion?.Minor}.{osVersion?.Build}.{osVersion?.Revision}");
             } catch (System.Exception ex) {
-                ex.Analyse("Unable to determine precise Windows build number. "+ regKeyOsVer);
+                ex.Analyse("Unable to determine precise Windows build number. " + regKeyOsVer);
             }
+            WindowsVersion = osVersion ?? Environment.OSVersion.Version;
+            log.Info($"Precise Build: {osVersion?.Major}.{osVersion?.Minor}.{osVersion?.Build}.{osVersion?.Revision}");
         }
 
         public static void Shutdown() {

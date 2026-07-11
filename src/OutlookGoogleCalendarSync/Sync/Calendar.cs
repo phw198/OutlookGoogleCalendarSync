@@ -404,7 +404,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         if (ai.IsRecurring && ai.Start.Date < this.Profile.SyncStart && ai.End.Date < this.Profile.SyncStart) {
                             if (!Sync.Engine.Instance.ManualForceCompare && Profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id && Profile.MergeItems &&
                                 Outlook.CustomProperty.AnyStartsWith(ai, Outlook.CustomProperty.MetadataId.gCalendarId) &&
-                                Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gCalendarId) != this.Profile.UseGoogleCalendar.Id)
+                                Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gCalendarId) != this.Profile.UseGoogleCalendar.Id) //
                             {
                                 log.Fine("Outlook recurring master, outside sync window, originates from a different Google calendar than that being synced. Will not attempt to find matching Google master event.");
                                 outlookEntries.Remove(ai);
@@ -462,7 +462,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #endregion
 
                     Boolean success = true;
-                    String bubbleText = "";
+                    String bubbleText = $"Profile '{Profile._ProfileName}': Sync Summary\r\n";
                     if (this.Profile.ExtirpateOgcsMetadata) {
                         return extirpateCustomProperties(outlookEntries, googleEntries);
                     }
@@ -476,7 +476,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     if (this.Profile.AddColours || this.Profile.SetEntriesColour) {
                         Outlook.Calendar.Categories.ValidateCategories();
-                     
+
                         if (this.Profile.ColourMaps.Count > 0) {
                             this.Profile.ColourMaps.ToList().ForEach(c => {
                                 if (Outlook.Calendar.Categories.OutlookColour(c.Key) == null) {
@@ -500,12 +500,13 @@ namespace OutlookGoogleCalendarSync.Sync {
                         if (Sync.Engine.Instance.CancellationPending) return SyncResult.UserCancelled;
                     }
                     if (!success) return SyncResult.Fail;
-                    if (bubbleText != "") {
+                    String[] bubbleLines = bubbleText.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    if (bubbleLines.Count() > 1) {
                         log.Info(bubbleText.Replace("\r\n", ". "));
                         System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
-                        String changes = rgx.Replace(bubbleText, "").Trim('0');
-                        if (Settings.Instance.ShowSystemNotifications && 
-                            (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                        String changes = rgx.Replace(string.Join(".", bubbleLines.Skip(1)), "").Trim('0');
+                        if (Settings.Instance.ShowSystemNotifications && (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) 
+                            Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
                     }
 
                     return SyncResult.OK;
@@ -679,7 +680,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     #endregion
 
                 } finally {
-                    bubbleText = "Google: " + googleEntriesToBeCreated.Count + " created; " +
+                    bubbleText += "Google: " + googleEntriesToBeCreated.Count + " created; " +
                         googleEntriesToBeDeleted.Count + " deleted; " + entriesUpdated + " updated";
 
                     if (this.Profile.SyncDirection.Id == Direction.OutlookToGoogle.Id) {

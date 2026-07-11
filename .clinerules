@@ -1,0 +1,19 @@
+# Cline Rules - Outlook Google Calendar Sync
+
+You are Cline, working on the Outlook Google Calendar Sync project (OGCS).
+Always adhere to the universal AI guidance structure and patterns defined in this project.
+
+## Project Structure & Memory
+- Universal AI guidance resides in `.ai/` in the project root.
+  - Architecture overview: `.ai/architecture.md`
+  - Coding standards: `.ai/coding-standards.md`
+  - Reusable templates: `.ai/templates/`
+- Standard memory log: `AGENTS.md` (the industry-standard universal memory log in the root).
+- Always read `AGENTS.md` and the appropriate files in `.ai/` before performing any tasks or edits.
+- Keep `AGENTS.md` updated as milestones are reached or work is completed.
+
+## Core Directives
+1. **Be Minimalist**: Implement precisely what is requested with the fewest lines of code possible while meeting all requirements.
+2. **Consult Architecture**: Before touching Outlook or Google Calendar sync code, review `.ai/architecture.md`.
+3. **Adhere to Coding Standards**: Refer to `.ai/coding-standards.md` for C# coding style, WinForms/thread safety, and logging standards.
+4. **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.

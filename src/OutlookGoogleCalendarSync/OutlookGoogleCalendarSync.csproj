@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <Import Project="..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.props" Condition="Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.props')" />
   <PropertyGroup>
     <ProjectGuid>{B35C9DB2-79BC-46A3-9BE4-BCE33BC3721E}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,7 +10,6 @@
     <AssemblyName>OutlookGoogleCalendarSync</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <SourceAnalysisOverrideSettingsFile>C:\Users\ZSIANTI\AppData\Roaming\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -272,6 +272,9 @@
     <Reference Include="Microsoft.IdentityModel.Validators, Version=8.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.IdentityModel.Validators.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Toolkit.Uwp.Notifications, Version=7.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Toolkit.Uwp.Notifications.7.1.3\lib\net461\Microsoft.Toolkit.Uwp.Notifications.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Kiota.Abstractions, Version=1.21.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>lib\Graph\Microsoft.Kiota.Abstractions.dll</HintPath>
     </Reference>
@@ -498,6 +501,10 @@
     <Compile Include="Google.Graph\GoogleRecurrence.cs" />
     <Compile Include="Google\GoogleRecurrence.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="Notifications\INotificationHandler.cs" />
+    <Compile Include="Notifications\LegacyNotifyIconHandler.cs" />
+    <Compile Include="Notifications\ModernToastNotificationHandler.cs" />
+    <Compile Include="Notifications\NotificationTray.cs" />
     <Compile Include="Outlook.Factory\OutlookFactory.cs" />
     <Compile Include="Outlook.Factory\OutlookGraph.cs" />
     <Compile Include="Outlook.Factory\OutlookInterface.cs" />
@@ -701,7 +708,6 @@
     <Compile Include="Sync\CloudCalendar.cs" />
     <Compile Include="Sync\Engine.cs" />
     <Compile Include="TimezoneDB.cs" />
-    <Compile Include="NotificationTray.cs" />
     <Compile Include="Obfuscate.cs" />
     <Compile Include="Telemetry.cs" />
     <Compile Include="Forms\Splash.cs">
@@ -943,6 +949,10 @@
     <None Include="Resources\paypalDonate.gif" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Pulls the metadata for the compiler, matching the local 10.0.26100 SDK, but guarantees 0 bytes are added to your output folder -->
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.8249" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+  <ItemGroup>
     <PublishFile Include="logger.xml">
       <Visible>False</Visible>
       <Group>
@@ -963,6 +973,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('lib\Grpc.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Grpc.Core.targets'))" />
     <Error Condition="!Exists('lib\Google.Api.CommonProtos.targets')" Text="$([System.String]::Format('$(ErrorText)', 'lib\Google.Api.CommonProtos.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.0\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.0\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.6.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.6.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.targets'))" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>powershell $(ProjectDir)\scripts\zipHotfix.ps1 -BuildType $(ConfigurationName) -TargetName $(TargetName)</PostBuildEvent>
@@ -1029,4 +1044,8 @@
     <Message Importance="high" Text="=== [ValueTuple Fix] Checking for config file at: $(FinalConfigOut) ===" />
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ScriptPath)&quot; -configPath &quot;$(FinalConfigOut)&quot;" />
   </Target>
+  <Import Project="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.0\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets" Condition="Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.0\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" />
+  <Import Project="..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
+  <Import Project="..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.6.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.6.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" />
+  <Import Project="..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.targets" Condition="Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\build\Microsoft.Windows.SDK.Contracts.targets')" />
 </Project>
