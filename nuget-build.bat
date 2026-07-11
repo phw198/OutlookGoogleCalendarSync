@@ -1,4 +1,4 @@
-set RELEASE=3.0.2-alpha
+set RELEASE=3.0.3-alpha
 set RELEASEDIR=Release-v3
 
 REM Check for new NodaTime DB @ http://nodatime.org/tzdb/latest.txt
@@ -28,13 +28,13 @@ REM exit /b
 REM PAUSE
 
 cd src\OutlookGoogleCalendarSync\bin\%RELEASEDIR%
-del Portable_OGCS_v3.0.2.zip
+del Portable_OGCS_v3.0.3.zip
 REM https://documentation.help/7-Zip/update1.htm
-"c:\Program Files\7-Zip\7z.exe" u Portable_OGCS_v3.0.1.zip -u- -up0q0r2x2y2z1w2!Portable_OGCS_v3.0.2.zip *.dll *.ps1 ErrorReportingTemplate.json logger.xml tzdb.nzd OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.exe.config OutlookGoogleCalendarSync.pdb Console\* 
+"c:\Program Files\7-Zip\7z.exe" u Portable_OGCS_v3.0.2.zip -u- -up0q0r2x2y2z1w2!Portable_OGCS_v3.0.3.zip *.dll *.ps1 ErrorReportingTemplate.json logger.xml tzdb.nzd OutlookGoogleCalendarSync.exe OutlookGoogleCalendarSync.exe.config OutlookGoogleCalendarSync.pdb Console\* 
 
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.1.zip Microsoft.Office.Interop.Outlook.DLL
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.1.zip stdole.dll
-"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.1.zip "Windows Defender SmartScreen Unblock.ps1"
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.2.zip Microsoft.Office.Interop.Outlook.DLL
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.2.zip stdole.dll
+"c:\Program Files\7-Zip\7z.exe" e -y Portable_OGCS_v3.0.2.zip "Windows Defender SmartScreen Unblock.ps1"
 
 "c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v3.0.2.zip Microsoft.Office.Interop.Outlook.DLL
 "c:\Program Files\7-Zip\7z.exe" a Portable_OGCS_v3.0.2.zip stdole.dll
