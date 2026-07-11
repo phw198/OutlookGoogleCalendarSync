@@ -249,7 +249,7 @@ namespace OutlookGoogleCalendarSync.Google {
             add(ref ev, addkeyName, value, keySet);
         }
         private static void Add(ref Event ev, MetadataId key, DateTimeOffset value) {
-            Add(ref ev, key, value.ToPreciseString());
+            Add(ref ev, key, value.ToPreciseUtcString());
         }
         private static void add(ref Event ev, String keyName, String keyValue, int? keySet) {
             if (keySet.HasValue && keySet.Value != 0) keyName += "-" + keySet.Value.ToString("D2");
@@ -316,7 +316,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (Exists(ev, MetadataId.ogcsModified)) {
                 String lastModded = Get(ev, MetadataId.ogcsModified);
                 try {
-                    return lastModded.GetPreciseDate();
+                    return lastModded.GetPreciseUtcDate();
                 } catch (System.FormatException) {
                     try {
                         //Deprecated format <= v2.11.6

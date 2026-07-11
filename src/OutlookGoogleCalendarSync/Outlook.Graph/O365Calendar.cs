@@ -241,8 +241,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //3. Get the specific missing master event(s)
                 CVRB calendarViewRequest = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].CalendarView;
                 Kiota.RequestConfiguration<CVRB.CalendarViewRequestBuilderGetQueryParameters> reqCfg = new();
-                reqCfg.QueryParameters.StartDateTime = min.ToPreciseString();
-                reqCfg.QueryParameters.EndDateTime = max.ToPreciseString();
+                reqCfg.QueryParameters.StartDateTime = min.ToPreciseUtcString();
+                reqCfg.QueryParameters.EndDateTime = max.ToPreciseUtcString();
                 reqCfg.QueryParameters.Top = 250;
                 reqCfg.QueryParameters.Expand = new String[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
                 reqCfg.QueryParameters.Select = new String[] { "*" }; //Otherwise OriginalStart is always null
@@ -272,10 +272,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Recurrence.GetOutlookMasterEvent(result);
             List<MsGraph.Models.Event> seriesOccurrences = result.Where(ai => ai.Type == MsGraph.Models.EventType.Occurrence).ToList();
             result = result.Except(seriesOccurrences).ToList();
-            result.Sort((x, y) => x.Start.SafeDateTimeOffset(x.AllDayEvent()).CompareTo(y.Start.SafeDateTimeOffset(y.AllDayEvent())));
+            result.Sort((x, y) => x.Start.SafeDateTimeOffset(x.AllDayEvent(), x.OriginalStartTimeZone).CompareTo(y.Start.SafeDateTimeOffset(y.AllDayEvent(), y.OriginalStartTimeZone)));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent()) == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
+            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone) == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
@@ -472,8 +472,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 ai.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
             } else {
-                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
-                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
+                ai.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseLocalString();
+                ai.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseLocalString();
             }
 
             ai.Recurrence = Recurrence.BuildOutlookPattern(ev);
@@ -561,6 +561,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     MsGraph.Models.Event aiPatch = new MsGraph.Models.Event() {
                         Id = createdAi.Id,
                         Start = createdAi.Start,
+                        OriginalStartTimeZone = createdAi.OriginalStartTimeZone,
                         Subject = createdAi.Subject,
                         SeriesMasterId = createdAi.SeriesMasterId,
                         Recurrence = createdAi.Recurrence
@@ -686,8 +687,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             Boolean startChange = false;
             Boolean endChange = false;
             Boolean aiAllDay = ai.AllDayEvent();
-            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(aiAllDay), aiAllDay);
-            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(aiAllDay), aiAllDay);
+            OgcsDateTimeOffset aiStart = new(ai.Start.SafeDateTimeOffset(aiAllDay, ai.OriginalStartTimeZone), aiAllDay);
+            OgcsDateTimeOffset aiEnd = new(ai.End.SafeDateTimeOffset(aiAllDay, ai.OriginalEndTimeZone), aiAllDay);
             if (ev.AllDayEvent()) {
                 Sync.Engine.CompareAttribute("All-Day", Sync.Direction.GoogleToOutlook, true, aiAllDay, sb, ref itemModified);
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(ev.Start.SafeDateTimeOffset(), true), aiStart, sb, ref itemModified);
@@ -710,11 +711,11 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                     aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToString("yyyy-MM-dd");
                 } else {
-                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseString();
-                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseString();
+                    aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? "UTC" : ev.Start.TimeZone;
+                    aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? "UTC" : ev.End.TimeZone;
+                    aiPatch.Start.DateTime = ev.Start.SafeDateTimeOffset().ToPreciseLocalString();
+                    aiPatch.End.DateTime = ev.End.SafeDateTimeOffset().ToPreciseLocalString();
                 }
-                aiPatch.Start.TimeZone = string.IsNullOrEmpty(ev.Start.TimeZone) ? aiPatch.Start.TimeZone : ev.Start.TimeZone;
-                aiPatch.End.TimeZone = string.IsNullOrEmpty(ev.End.TimeZone) ? aiPatch.End.TimeZone : ev.End.TimeZone;
             }
             #endregion
 
@@ -727,7 +728,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         aiPatch.Recurrence.Range.RecurrenceTimeZone = ai.Start.TimeZone;
                     }
                     if (startChange) {
-                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset(aiAllDay).ToGraphDate();
+                        aiPatch.Recurrence.Range.StartDate = ai.Start.SafeDateTimeOffset(aiAllDay, ai.OriginalStartTimeZone).ToGraphDate();
                     }
                 }
             }
@@ -1272,7 +1273,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         #region STATIC functions
         public static string Signature(MsGraph.Models.Event ai) {
-            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ";" + ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString()).Trim();
+            return (ai.Subject + ";" + ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).ToPreciseUtcString() + ";" + ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone).ToPreciseUtcString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<MsGraph.Models.Event> ais) {
@@ -1330,8 +1331,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         private static string exportToCSV(MsGraph.Models.Event ai) {
             StringBuilder csv = new StringBuilder();
             
-            csv.Append(ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
-            csv.Append(ai.End.SafeDateTimeOffset(ai.AllDayEvent()).ToPreciseString() + ",");
+            csv.Append(ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).ToPreciseUtcString() + ",");
+            csv.Append(ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone).ToPreciseUtcString() + ",");
             csv.Append("\"" + ai.Subject + "\",");
 
             if (ai.Location == null) csv.Append(",");
@@ -1407,10 +1408,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 try {
                     if (ai.IsAllDay ?? false) {
                         log.Fine("GetSummary - all day event");
-                        eventSummary += ai.Start.SafeDateTimeOffset(true).Date.ToShortDateString();
+                        eventSummary += ai.Start.SafeDateTimeOffset(true, ai.OriginalStartTimeZone).Date.ToShortDateString();
                     } else {
                         log.Fine("GetSummary - not all day event");
-                        eventSummary += ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset(ai.AllDayEvent()).DateTime.ToShortTimeString();
+                        eventSummary += ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).DateTime.ToShortDateString() + " " + ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).DateTime.ToShortTimeString();
                     }
                     eventSummary += " " + (ai.Recurrence != null ? "(R) " : (!string.IsNullOrEmpty(ai.SeriesMasterId) ? "(R1) " : "")) + "=> ";
 
@@ -1562,17 +1563,17 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
             if (profile.ReminderDND) {
-                System.DateTime alarm;
+                System.DateTimeOffset alarm;
                 if ((bool)ai.IsReminderOn)
-                    alarm = ai.Start.SafeDateTime().AddMinutes((int)-ai.ReminderMinutesBeforeStart);
+                    alarm = ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).AddMinutes((int)-ai.ReminderMinutesBeforeStart);
                 else {
                     if (profile.UseGoogleDefaultReminder && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
                         log.Fine("Using default Google reminder value: " + Ogcs.Google.Calendar.Instance.MinDefaultReminder);
-                        alarm = ai.Start.SafeDateTime().AddMinutes(-Ogcs.Google.Calendar.Instance.MinDefaultReminder);
+                        alarm = ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).AddMinutes(-Ogcs.Google.Calendar.Instance.MinDefaultReminder);
                     } else
                         return false;
                 }
-                return Outlook.Calendar.Instance.IsOKtoSyncReminder(alarm);
+                return Outlook.Calendar.Instance.IsOKtoSyncReminder(alarm.LocalDateTime);
             }
             return true;
         }
