@@ -2511,12 +2511,17 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
             if (!this.LoadingProfileConfig && sender != null) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
-            cbUseGoogleDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id;
-            cbUseOutlookDefaultReminder.Enabled = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id;
-            cbReminderDND.Enabled = cbAddReminders.Checked;
-            dtDNDstart.Enabled = cbAddReminders.Checked;
-            dtDNDend.Enabled = cbAddReminders.Checked;
+            if (!(cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id)) {
+                cbUseGoogleDefaultReminder.Checked = false;
+            }
+            if (!(cbUseOutlookDefaultReminder.Enabled = cbAddReminders.Checked && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id)) {
+                cbUseOutlookDefaultReminder.Checked = false;
+            }
+            cbReminderDND.Enabled =
+            dtDNDstart.Enabled =
+            dtDNDend.Enabled =
             lDNDand.Enabled = cbAddReminders.Checked;
+            if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;
