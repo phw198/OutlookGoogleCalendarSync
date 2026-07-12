@@ -781,7 +781,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private System.DateTime WindowsTimeZone(EventDateTime time) {
-            System.DateTime theDate = time.SafeDateTime();
+            System.DateTime theDate = time.SafeDateTimeOffset().DateTime;
             /*if (time.TimeZone == null)*/
             return theDate;
 

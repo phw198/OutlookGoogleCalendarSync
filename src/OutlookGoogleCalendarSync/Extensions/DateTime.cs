@@ -121,15 +121,6 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
-        /// Returns the non-null Date or DateTime properties as a DateTime
-        /// </summary>
-        /// <returns>DateTime</returns>
-        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this EventDateTime evDt) {
-            return SafeDateTimeOffset(evDt).DateTime;
-        }
-
-        /// <summary>
         /// Returns the non-null Date or DateTime properties as a DateTimeOffset
         /// </summary>
         /// <returns>DateTimeOffset</returns>
@@ -150,23 +141,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day, 0, 0, 0, DateTimeKind.Utc);
         }
 
-        /// <summary>
-        /// Parses the DateTimeTimeZone string to a local DateTime
-        /// </summary>
-        /// <returns>Local DateTime</returns>
-        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt) {
-            System.DateTime safeDate;
-            if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
-            } else {
-                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
-                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
-                safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Utc);
-                safeDate = safeDate.ToLocalTime();
-            }
-            return safeDate;
-        }
+
         public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay, String timezone) {
             System.DateTimeOffset safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
             if (isAllDay ?? false) {
