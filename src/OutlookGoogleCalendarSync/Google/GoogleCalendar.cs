@@ -98,6 +98,10 @@ namespace OutlookGoogleCalendarSync.Google {
         };
         
         private static Random random = new Random();
+        /// <summary>
+        /// The minimum default reminder, in minutes, configured for the calendar.
+        /// int.MinValue if none configured.
+        /// </summary>
         public int MinDefaultReminder = int.MinValue;
         public Int16 UTCoffset { get; internal set; }
         public String SubscriptionInvite {
@@ -711,13 +715,12 @@ namespace OutlookGoogleCalendarSync.Google {
                         };
                         ev.Reminders.Overrides = new List<EventReminder> { reminder };
                     } else {
-                        ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
+                        ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue;
                     }
                 } else {
-                    ev.Reminders.UseDefault = false;
+                    ev.Reminders.UseDefault = false; // No reminder to be set in Google due to DND
                 }
-            } else
-                ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
+            }
 
             //Add the Outlook appointment ID into Google event
             CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -1054,7 +1057,11 @@ namespace OutlookGoogleCalendarSync.Google {
             #region Reminders
             if (profile.AddReminders) {
                 Boolean OKtoSyncReminder = Outlook.Calendar.Instance.IsOKtoSyncReminder(ai);
-                if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
+                bool hasGooglePopupOverrides = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
+                bool hasGoogleEmailOverrides = ev.Reminders?.Overrides?.Any(r => r.Method == "email") ?? false;
+                ev.Reminders ??= new Event.RemindersData();
+
+                if (hasGooglePopupOverrides) {
                     //Find the popup reminder(s) in Google
                     for (int r = ev.Reminders.Overrides.Count - 1; r >= 0; r--) {
                         EventReminder reminder = ev.Reminders.Overrides[r];
@@ -1068,46 +1075,54 @@ namespace OutlookGoogleCalendarSync.Google {
                                     sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                     ev.Reminders.Overrides.Remove(reminder);
                                     itemModified++;
-                                } //if Outlook reminders set
-                            } else {
+                                }
+                            } else { // DND is active, remove Google override
                                 sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
                                 ev.Reminders.Overrides.Remove(reminder);
-                                ev.Reminders.UseDefault = false;
                                 itemModified++;
                             }
                         } //if Google reminder found
-                    } //foreach reminder
+                    }
+                    // After potentially removing overrides, if no overrides are left and the default should be used, ensure that's set
+                    if (ev.Reminders.Overrides.Count() == 0) {
+                        if (profile.UseGoogleDefaultReminder && OKtoSyncReminder) {
+                            bool googleBugWorkaround = !ev.AllDayEvent(); //See section lower down for details
+                            if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), googleBugWorkaround.ToString(), sb, ref itemModified))
+                                ev.Reminders.UseDefault = googleBugWorkaround;
+                        } else {
+                            if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), false.ToString(), sb, ref itemModified))
+                                ev.Reminders.UseDefault = false;
+                        }
+                    }
 
-                } else { //no Google popup reminders set
-                    if (ai.ReminderSet && OKtoSyncReminder) {
+                } else { // No explicit Google popup reminders
+                    if (ai.ReminderSet && OKtoSyncReminder) { // Outlook has an explicit reminder, and DND is OK
                         sb.AppendLine("Reminder: nothing => " + ai.ReminderMinutesBeforeStart);
                         ev.Reminders.UseDefault = false;
                         EventReminder newReminder = new EventReminder {
                             Method = "popup",
                             Minutes = ai.ReminderMinutesBeforeStart
                         };
-                        ev.Reminders.Overrides = new List<EventReminder> { newReminder };
+                        ev.Reminders.Overrides ??= new List<EventReminder>();
+                        ev.Reminders.Overrides.Add(newReminder);
                         itemModified++;
 
-                    } else if (ev.Reminders.Overrides == null) { //No Google email reminders either
-                        Boolean newVal = OKtoSyncReminder ? profile.UseGoogleDefaultReminder : false;
+                    } else { // No explicit Outlook reminder OR DND is active
+                        // If there are no Google popup overrides and no Google email overrides
+                        if (!hasGoogleEmailOverrides) {
+                            Boolean newVal = ((!ai.ReminderSet || !OKtoSyncReminder) && profile.UseGoogleDefaultReminder && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue);
 
-                        //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
-                        //Which means it keeps adding the default back in!! Let's stop that:
-                        if (newVal && ev.AllDayEvent()) {
-                            log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
-                            newVal = false;
-                        }
+                            //Google bug?! For all-day events, default notifications are added as overrides and UseDefault=false
+                            //Which means it keeps adding the default back in!! Let's stop that:
+                            if (newVal && ev.AllDayEvent()) {
+                                log.Warn("Evading Google bug - not allowing default calendar notification to be (re?)set for all-day event.");
+                                newVal = false;
+                            }
 
-                        if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), newVal.ToString(), sb, ref itemModified)) {
-                            ev.Reminders.UseDefault = newVal;
+                            if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), newVal.ToString(), sb, ref itemModified))
+                                ev.Reminders.UseDefault = newVal;
                         }
                     }
-                }
-            } else {
-                if (ev.Reminders.Overrides == null) {
-                    if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), profile.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
-                        ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
                 }
             }
             #endregion
