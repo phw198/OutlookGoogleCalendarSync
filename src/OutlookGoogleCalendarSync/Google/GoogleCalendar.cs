@@ -182,7 +182,7 @@ namespace OutlookGoogleCalendarSync.Google {
             if (filterToSyncDates && (instancesFromMasterSeries?.Any() ?? false) && 
                 instancesFromMasterSeries.FirstOrDefault().RecurringEventId == recurringEventId) return instancesFromMasterSeries;
 
-            List<Event> result = new List<Event>();            
+            List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
             Int16 pageNum = 1;
@@ -505,10 +505,13 @@ namespace OutlookGoogleCalendarSync.Google {
 
             //Availability, All-Days, Privacy, Subject
             if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) { //Sync direction means G->O will delete previously synced all-days
-                if (profile.ExcludeFree) {
-                    availability = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && ev.Transparency == "transparent").ToList();
+                if (profile.ExcludeFree || profile.ExcludeOoO) {
+                    availability = result.Where(ev => String.IsNullOrEmpty(ev.RecurringEventId) && (
+                        (profile.ExcludeFree && ev.Transparency == "transparent") ||
+                        (profile.ExcludeOoO && ev.EventType == "outOfOffice")
+                    )).ToList();
                     if (availability.Count > 0) {
-                        log.Debug(availability.Count + " Google Free items excluded.");
+                        log.Debug(availability.Count + " Google Free/Out of Office items excluded.");
                         result = result.Except(availability).ToList();
                     }
                 }

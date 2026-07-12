@@ -291,8 +291,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                             //Availability, Privacy, Subject
                             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
-                                if (filtered = ((profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
-                                    (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree))) {
+                                if (filtered = (
+                                    (profile.ExcludeTentative && ai.BusyStatus == OlBusyStatus.olTentative) ||
+                                    (profile.ExcludeFree && ai.BusyStatus == OlBusyStatus.olFree) ||
+                                    (profile.ExcludeOoO && ai.BusyStatus == OlBusyStatus.olOutOfOffice)
+                                )) {
                                     availabilityFiltered++; continue;
                                 }
 
