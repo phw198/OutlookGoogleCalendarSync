@@ -28,6 +28,7 @@ Update version references in the build script so that packages are packaged, zip
    - Change `set RELEASE={CURRENT_VERSION}-alpha` to `set RELEASE={NEW_VERSION}-alpha` (or matching release type).
    - Change `del Portable_OGCS_v{CURRENT_VERSION}.zip` to `del Portable_OGCS_v{NEW_VERSION}.zip`.
    - Change `!Portable_OGCS_v{CURRENT_VERSION}.zip` to `!Portable_OGCS_v{NEW_VERSION}.zip`.
+   - Update the commented Squirrel releasify command from `OutlookGoogleCalendarSync.{CURRENT_VERSION}-alpha.nupkg` to `OutlookGoogleCalendarSync.{NEW_VERSION}-alpha.nupkg`.
    - Change `Portable_OGCS_v{PREVIOUS_VERSION}.zip` to `Portable_OGCS_v{CURRENT_VERSION}.zip` across all 7-Zip commands where the older zip is updated or unpacked.
 
 ### Step 2: Update Latest ZIP Release Documentation (`docs/latest_zip_release.md`)
@@ -70,3 +71,16 @@ Update version references in the build script so that packages are packaged, zip
 
 ### Step 5: Update Documentation Release Notes (`docs/Release Notes.md`)
 Copy the generated release notes from `src/OutlookGoogleCalendarSync/OutlookGoogleCalendarSync.nuspec` into `docs/Release Notes.md` as a new top-level entry, maintaining the existing Markdown heading and bullet-point formatting. Ensure that the new release notes are placed above the previous release's notes.
+
+### Step 6: Validate Portable ZIP Contents
+1. If the `NEW_VERSION` has a major release number of `3` (using semver):
+   - Locate the `Portable_OGCS_v{NEW_VERSION}.zip` file (expected in `src/OutlookGoogleCalendarSync/bin/Release-v3`).
+   - **Crucially**: Verify the ZIP file exists. If not, report that the build process must be run to create the ZIP before this validation can proceed.
+   - If the ZIP exists, compare its contents to the actual files in the `src/OutlookGoogleCalendarSync/bin/Release-v3` folder, **excluding** the `app.publish` subdirectory and any other `.zip` files from the comparison.
+   - Report any differences (extra files in ZIP, missing files from ZIP, or files with different binary content).
+   - For `.dll` files, perform a binary comparison to ensure they are identical.
+   - **Cleanup**: After the comparison, delete the temporary directory created for extracting the ZIP contents (e.g., `/tmp/ogcs_zip_compare`).
+
+## Agent Self-Correction Notes
+- **Portable ZIP File Location**: The `Portable_OGCS_v{NEW_VERSION}.zip` file is *not* located in `src/Releases`. It is correctly found in `src/OutlookGoogleCalendarSync/bin/Release-v3` alongside the build output. This must be the primary lookup location.
+- **Temporary File Handling**: Avoid attempting to create directories or files directly in `/memories/session/` as this often leads to `EACCES: permission denied` errors. For temporary file operations (e.g., extracting ZIP contents for comparison), use `/tmp/` which is a standard, writable temporary directory on Linux systems.
