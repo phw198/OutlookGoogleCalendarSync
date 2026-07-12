@@ -64,6 +64,37 @@ img.emoji {
 </script>
 </div>
 
+## v3.0.3.0 - Alpha
+
+**Enhancements**
+- Application
+    - Option added to manually sync _all_ Profiles [[#1427](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1427)]
+    - Modern Toast notifications for Windows 10 [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
+    - Removed obsolete Google Goals feature
+    - Improved upgrade detection, handling both v2 and v3 installations
+
+**Bugfix**
+- Application
+    - Notifications within Windows Action Center function properly [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
+- Sync Engine
+    - Fixed OutlookGeoCoordinates deserialization (String vs Number) [[#2334](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2334)]
+    - Time zone with ID `tzone://Microsoft/Custom` not found in source [[#2148](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2148)]
+        - New permission required to read time zone from mailbox settings
+    - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v3.0.2.0 - Alpha
 
 **Enhancements**
