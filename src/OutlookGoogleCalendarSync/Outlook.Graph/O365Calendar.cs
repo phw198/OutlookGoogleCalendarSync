@@ -351,13 +351,18 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id) { //Sync direction means O->G will delete previously synced excluded items
                 List<MsGraph.Models.Event> filterable = result.Where(ai => (ai.Type == MsGraph.Models.EventType.SingleInstance || ai.Type == MsGraph.Models.EventType.SeriesMaster)).ToList();
 
-                if (profile.ExcludeFree || profile.ExcludeTentative) {
-                    availability = filterable.Where(ai => ai.ShowAs == MsGraph.Models.FreeBusyStatus.Free || ai.ShowAs == MsGraph.Models.FreeBusyStatus.Tentative).ToList();
+                if (profile.ExcludeFree || profile.ExcludeTentative || profile.ExcludeOoO) {
+                    availability = filterable.Where(ai =>
+                        (profile.ExcludeFree && ai.ShowAs == MsGraph.Models.FreeBusyStatus.Free) ||
+                        (profile.ExcludeTentative && ai.ShowAs == MsGraph.Models.FreeBusyStatus.Tentative) ||
+                        (profile.ExcludeOoO && ai.ShowAs == MsGraph.Models.FreeBusyStatus.Oof)
+                    ).ToList();
                     if (availability.Count > 0) {
-                        log.Debug(availability.Count + " Outlook Free/Tentative items excluded.");
+                        log.Debug(availability.Count + " Outlook Free/Tentative/Out of Office items excluded.");
                         result = result.Except(availability).ToList();
                     }
                 }
+
                 if (profile.ExcludeAllDays) {
                     allDays = filterable.Where(ai => ai.AllDayEvent(true) && (profile.ExcludeFreeAllDays ? ai.ShowAs == MsGraph.Models.FreeBusyStatus.Free : true)).ToList();
                     if (allDays.Count > 0) {
