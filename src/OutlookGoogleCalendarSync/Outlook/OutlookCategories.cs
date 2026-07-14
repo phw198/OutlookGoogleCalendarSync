@@ -46,7 +46,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 { OutlookCOM.OlCategoryColor.olCategoryColorGray, Color.FromArgb(196, 196, 196) },
                 { OutlookCOM.OlCategoryColor.olCategoryColorGreen, Color.FromArgb(74, 182, 63) },
                 { OutlookCOM.OlCategoryColor.olCategoryColorMaroon, Color.FromArgb(163, 78, 120) },
-                { OutlookCOM.OlCategoryColor.olCategoryColorNone, Color.FromArgb(255, 255, 255) },
+                { OutlookCOM.OlCategoryColor.olCategoryColorNone, Color.Transparent },
                 { OutlookCOM.OlCategoryColor.olCategoryColorOlive, Color.FromArgb(133, 154, 82) },
                 { OutlookCOM.OlCategoryColor.olCategoryColorOrange, Color.FromArgb(240, 108, 21) },
                 { OutlookCOM.OlCategoryColor.olCategoryColorPeach, Color.FromArgb(255, 202, 76) },
@@ -110,6 +110,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public String Delimiter { get; }
+        public readonly KeyValuePair<String, OutlookCOM.OlCategoryColor> NO_CATEGORY_ASSIGNED = new("<No category assigned>", OutlookCOM.OlCategoryColor.olCategoryColorNone);
 
         public Categories() {
             try {
@@ -169,7 +170,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public void BuildPicker(ref System.Windows.Forms.CheckedListBox clb) {
             clb.BeginUpdate();
             clb.Items.Clear();
-            clb.Items.Add("<No category assigned>");
+            clb.Items.Add(NO_CATEGORY_ASSIGNED.Key);
             foreach (String catName in getNames()) {
                 clb.Items.Add(catName);
             }
@@ -188,6 +189,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// <returns>The Outlook category type</returns>
         public OutlookCOM.OlCategoryColor? OutlookColour(String categoryName) {
             if (string.IsNullOrEmpty(categoryName)) log.Warn("Category name is empty.");
+            else if (categoryName == NO_CATEGORY_ASSIGNED.Key) return OutlookCOM.OlCategoryColor.olCategoryColorNone;
 
             foreach (OutlookCOM.Category category in this.categories) {
                 if (category.Name == categoryName.Trim()) return category.Color;
@@ -252,7 +254,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             foreach (OutlookCOM.Category category in this.categories) {
                 items.Add(new Categories.ColourInfo(category.Color, Categories.Map.RgbColour(category.Color), category.Name));
             }
-            return items.OrderBy(i => i.Text).ToList();
+            Categories.ColourInfo noCategory = new Categories.ColourInfo(NO_CATEGORY_ASSIGNED.Value, Map.RgbColour(NO_CATEGORY_ASSIGNED.Value), NO_CATEGORY_ASSIGNED.Key);
+            return new List<Categories.ColourInfo> { noCategory }.Concat(items.OrderBy(i => i.Text)).ToList();
         }
 
         /// <summary>

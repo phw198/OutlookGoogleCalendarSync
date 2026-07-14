@@ -2055,13 +2055,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 getOutlookCategoryColour(aiCategories, ref categoryColour);
             }
 
-            EventColour.Palette retVal;
-            if (categoryColour == null)
-                retVal = null;
-            else if (categoryColour == OlCategoryColor.olCategoryColorNone)
-                retVal = EventColour.Palette.NullPalette;
-            else
-                retVal = GetColour((OlCategoryColor)categoryColour);
+            EventColour.Palette retVal = GetColour((OlCategoryColor)(categoryColour ?? Outlook.Calendar.Categories.NO_CATEGORY_ASSIGNED.Value));
 
             if (!checkOverrideManuallyAltered)
                 return retVal;
