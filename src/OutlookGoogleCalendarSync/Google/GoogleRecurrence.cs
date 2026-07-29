@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             log.Debug("Found " + googleExceptions.Count + " exceptions.");
             if (log.IsFineEnabled())
-                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{(ge.Start == null ? "null" : ge.Start.SafeDateTimeOffset().ToString())};"));
+                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{(ge.Start == null ? "null" : ge.Start.SafeDateTime().ToString())};"));
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <param name="originalInstanceDate">The date to search for</param>
         /// <returns></returns>
         public static Event GetGoogleInstance(String recurringEventId, System.DateTime originalInstanceDate) {
-            return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTimeOffset().Date == originalInstanceDate);
+            return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate.Date);
         }
 
         /// <summary>
@@ -345,10 +345,10 @@ namespace OutlookGoogleCalendarSync.Google {
             foreach (Event gExcp in googleExceptions) {
                 if (gExcp.RecurringEventId == gRecurringEventID) {
                     if (((oIsDeleted == Outlook.Recurrence.DeletionState.NotDeleted || (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
-                        && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTimeOffset().DateTime
+                        && oExcp.OriginalDate == gExcp.OriginalStartTime.SafeDateTime()
                         ) ||
                         (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted &&
-                        oExcp.OriginalDate.Date == gExcp.OriginalStartTime.SafeDateTimeOffset().Date
+                        oExcp.OriginalDate.Date == gExcp.OriginalStartTime.SafeDateTime().Date
                         )) {
                         return gExcp;
                     }
@@ -362,10 +362,10 @@ namespace OutlookGoogleCalendarSync.Google {
             foreach (Event gInst in gInstances) {
                 if (gInst.RecurringEventId == gRecurringEventID) {
                     if (((oIsDeleted == Outlook.Recurrence.DeletionState.NotDeleted || (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted && !oExcp.Deleted)) /* Weirdness when exception is cancelled by organiser but not yet deleted/accepted by recipient */
-                        && oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTimeOffset().DateTime
+                        && oExcp.OriginalDate == gInst.OriginalStartTime.SafeDateTime()
                         ) ||
                         (oIsDeleted == Outlook.Recurrence.DeletionState.Deleted &&
-                        oExcp.OriginalDate.Date == gInst.OriginalStartTime.SafeDateTimeOffset().Date
+                        oExcp.OriginalDate.Date == gInst.OriginalStartTime.SafeDateTime().Date
                         )) {
                         return gInst;
                     }
@@ -466,7 +466,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         }
                         for (int g = 0; g < gRecurrences.Count; g++) {
                             Event ev = gRecurrences[g];
-                            System.DateTime gDate = ev.OriginalStartTime.SafeDateTimeOffset().DateTime;
+                            System.DateTime gDate = ev.OriginalStartTime.SafeDateTime();
                             if (isDeleted == Outlook.Recurrence.DeletionState.Deleted && !ai.AllDayEvent) { //Deleted items get truncated?!
                                 gDate = gDate.Date;
                             }
@@ -488,7 +488,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                                         log.Warn("This item is not really deleted, but moved to another date in Outlook on " + ai2.Start.Date.ToString("dd-MMM-yyyy"));
                                                         skipDelete = true;
                                                         log.Fine("Now checking if there is a Google item on that date - we don't want a duplicate.");
-                                                        Event duplicate = gRecurrences.FirstOrDefault(g => ai2.Start.Date == g.OriginalStartTime.SafeDateTimeOffset().Date);
+                                                        Event duplicate = gRecurrences.FirstOrDefault(g => ai2.Start.Date == g.OriginalStartTime.SafeDateTime().Date);
                                                         if (duplicate != null) {
                                                             log.Warn("Determined a 'duplicate' exists on that date - this will be deleted.");
                                                             duplicate.Status = "cancelled";
@@ -519,7 +519,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                         Ogcs.Google.Calendar.Instance.UpdateCalendarEntry_save(ref modifiedEv);
                                         if (oExcp.OriginalDate.Date != oExcp.AppointmentItem.Start.Date) {
                                             log.Fine("Double checking there is no other Google item on " + oExcp.AppointmentItem.Start.Date.ToString("dd-MMM-yyyy") + " that " + oExcp.OriginalDate.Date.ToString("dd-MMM-yyyy") + " was moved to - we don't want a duplicate.");
-                                            Event duplicate = gRecurrences.FirstOrDefault(g => oExcp.AppointmentItem.Start.Date == g.OriginalStartTime.SafeDateTimeOffset().Date);
+                                            Event duplicate = gRecurrences.FirstOrDefault(g => oExcp.AppointmentItem.Start.Date == g.OriginalStartTime.SafeDateTime().Date);
                                             if (duplicate != null && duplicate.Status != "cancelled") {
                                                 log.Warn("Determined a 'duplicate' exists on that date - this will be deleted.");
                                                 duplicate.Status = "cancelled";
