@@ -104,7 +104,21 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
-        /// Returns the non-null Date or DateTime properties as a DateTimeOffset
+        /// Returns the non-null Date or DateTime properties as a DateTime.
+        /// For use with classic Outlook or where the user's Windows clock is relevant.
+        /// </summary>
+        /// <returns>DateTime</returns>
+        public static System.DateTime SafeDateTime(this EventDateTime evDt) {
+            if (evDt.DateTimeDateTimeOffset == null)
+                return System.DateTime.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture).Date;
+            else
+                return evDt.DateTimeDateTimeOffset.Value.ToLocalTime().DateTime;
+        }
+
+        /// <summary>
+        /// Returns the non-null Date or DateTime properties as a DateTimeOffset.
+        /// Retains cloud-native offset and timezone.
+        /// Use this for Cloud-to-Cloud synchronization (Google <-> Graph) where local system time is irrelevant.
         /// </summary>
         /// <returns>DateTimeOffset</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {

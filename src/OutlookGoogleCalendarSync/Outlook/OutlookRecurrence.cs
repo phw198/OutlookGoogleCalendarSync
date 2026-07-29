@@ -52,8 +52,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             int gInstance = Convert.ToInt16(ruleBook["BYSETPOS"]);
                             oPattern.Instance = (gInstance == -1) ? 5 : gInstance;
                             oPattern.DayOfWeekMask = getDOWmask(ruleBook);
-                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 &&
-                                ev.Start.SafeDateTimeOffset().Day > 28) {
+                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 && ev.Start.SafeDateTime().Day > 28) {
                                 //In Outlook this is simply a monthly recurring
                                 oPattern.RecurrenceType = OlRecurrenceType.olRecursMonthly;
                             }
@@ -94,7 +93,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             #region RANGE
             ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
-            oPattern.PatternStartDate = ev.Start.SafeDateTimeOffset().DateTime;
+            oPattern.PatternStartDate = ev.Start.SafeDateTime();
             if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1 && ruleBook["FREQ"] != "YEARLY")
                 oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
             if (ruleBook.ContainsKey("COUNT"))
@@ -127,7 +126,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             log.Fine("Building a temporary recurrent Appointment generated from Event");
             AppointmentItem evAI = Ogcs.Outlook.Calendar.Instance.IOutlook.GetFolderByID(Sync.Engine.Calendar.Instance.Profile.UseOutlookCalendar.Id).Items.Add() as AppointmentItem;
-            evAI.Start = ev.Start.SafeDateTimeOffset().DateTime;
+            evAI.Start = ev.Start.SafeDateTime();
 
             RecurrencePattern evOpattern = null;
             try {
@@ -278,8 +277,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 oPattern = ai.GetRecurrencePattern();
 
                 foreach (Event gExcp in evExceptions) {
-                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTimeOffset().DateTime;
-                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTimeOffset().DateTime;
+                    System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
+                    System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
                     String gExcpDetails = "Google exception with original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : "");
                     log.Fine("Found " + gExcpDetails);
 
@@ -313,7 +312,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             int itemModified = 0;
                             Outlook.Calendar.Instance.UpdateCalendarEntry(ref newAiExcp, gExcp, ref itemModified,
-                                forceCompare || gExcp.Start.SafeDateTimeOffset().Date != newAiExcp.Start.Date);
+                                forceCompare || gExcp.Start.SafeDateTime().Date != newAiExcp.Start.Date);
                             if (itemModified > 0) {
                                 try {
                                     newAiExcp.Save();

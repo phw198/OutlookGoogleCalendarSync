@@ -810,7 +810,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private System.DateTime WindowsTimeZone(EventDateTime time) {
-            System.DateTime theDate = time.SafeDateTimeOffset().DateTime;
+            System.DateTime theDate = time.SafeDateTime();
             /*if (time.TimeZone == null)*/
             return theDate;
 

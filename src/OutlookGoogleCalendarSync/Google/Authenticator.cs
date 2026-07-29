@@ -421,7 +421,7 @@ namespace OutlookGoogleCalendarSync.Google {
             } else {
                 Boolean subscribed;
                 Event subscription = subscriptions.Last();
-                System.DateTime subscriptionStart = subscription.Start.SafeDateTimeOffset().Date;
+                System.DateTime subscriptionStart = subscription.Start.SafeDateTime().Date;
                 log.Debug("Last subscription date: " + subscriptionStart.ToString());
                 Double subscriptionRemaining = (subscriptionStart.AddYears(1) - System.DateTime.Now.Date).TotalDays;
                 if (subscriptionRemaining >= 0) {
