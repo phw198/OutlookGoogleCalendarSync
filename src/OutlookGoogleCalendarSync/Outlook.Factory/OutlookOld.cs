@@ -775,13 +775,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false) {
-            ai.Start = WindowsTimeZone(ev.Start);
-            ai.End = WindowsTimeZone(ev.End);
+            ai.Start = WindowsTimeZone(ev.Start, ev.AllDayEvent());
+            ai.End = WindowsTimeZone(ev.End, ev.AllDayEvent());
             return ai;
         }
 
-        private System.DateTime WindowsTimeZone(EventDateTime time) {
-            System.DateTime theDate = time.SafeDateTimeOffset().DateTime;
+        private System.DateTime WindowsTimeZone(EventDateTime time, Boolean allDay) {
+            System.DateTime theDate = time.SafeDateTimeOffset(!allDay).DateTime;
             /*if (time.TimeZone == null)*/
             return theDate;
 

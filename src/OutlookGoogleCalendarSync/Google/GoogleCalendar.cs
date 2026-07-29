@@ -2333,13 +2333,13 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <param name="eventSummaryAnonymised">Anonymised version of the returned summary string value.</param>
         /// <param name="onlyIfNotVerbose">Only return if user doesn't have Verbose output on. Useful for indicating offending item during errors.</param>
         /// <returns></returns>
-        public static String GetEventSummary(Event ev, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false) {
+        public static String GetEventSummary(Event ev, out String eventSummaryAnonymised, Boolean onlyIfNotVerbose = false, Boolean convertToLocalTime = false) {
             String eventSummary = "";
             eventSummaryAnonymised = null;
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
                     if (ev.Start.DateTimeDateTimeOffset != null) {
-                        System.DateTime gDate = ev.Start.SafeDateTimeOffset().DateTime;
+                        System.DateTime gDate = ev.Start.SafeDateTimeOffset(/*convertToLocalTime*/).DateTime;
                         eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
                     } else
                         eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();

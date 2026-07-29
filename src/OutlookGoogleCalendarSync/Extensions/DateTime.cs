@@ -123,14 +123,18 @@ namespace OutlookGoogleCalendarSync.Extensions {
         /// <summary>
         /// Returns the non-null Date or DateTime properties as a DateTimeOffset
         /// </summary>
+        /// <param name="convertToLocal">When assigning/comparing value to Classic Outlook client, must be in local time.</param>
         /// <returns>DateTimeOffset</returns>
-        public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
+        public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt, Boolean convertToLocal = false) {
             if (evDt.DateTimeDateTimeOffset == null)
                 return System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 
-            Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+            Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone, evDt.DateTimeDateTimeOffset.Value.UtcDateTime);
             System.DateTimeOffset retDto = (DateTimeOffset)evDt.DateTimeDateTimeOffset;
-            return retDto.ToOffset(TimeSpan.FromMinutes(offset));
+            retDto = retDto.ToOffset(TimeSpan.FromMinutes(offset));
+            
+            if (convertToLocal) return retDto.ToLocalTime();
+            return retDto;
         }
 
         /// <summary>

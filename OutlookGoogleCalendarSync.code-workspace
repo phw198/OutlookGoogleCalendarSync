@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "name": "App Code",
+      "path": "src"
+    },
+    {
+      "name": "Documentation",
+      "path": "docs"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.vs": true,
+      "**/bin": true,
+      "**/obj": true
+    }
+  }
+}

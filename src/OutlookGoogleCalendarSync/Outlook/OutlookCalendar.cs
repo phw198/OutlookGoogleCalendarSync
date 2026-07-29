@@ -419,7 +419,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private void createCalendarEntry(Event ev, ref AppointmentItem ai) {
-            string itemSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonItemSummary);
+            string itemSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonItemSummary, convertToLocalTime: !ev.AllDayEvent());
             log.Debug("Processing >> " + (anonItemSummary ?? itemSummary));
             Forms.Main.Instance.Console.Update(itemSummary, anonItemSummary, Console.Markup.calendar, verbose: true);
 
@@ -582,7 +582,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 }
             }
 
-            String evSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary);
+            String evSummary = Ogcs.Google.Calendar.GetEventSummary(ev, out String anonSummary, convertToLocalTime: !ev.AllDayEvent());
             log.Debug("Processing >> " + (anonSummary ?? evSummary));
 
             StringBuilder sb = new StringBuilder();
@@ -611,8 +611,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean endChange = false;
             OgcsDateTimeOffset aiStart = new(ai.Start, aiAllDay);
             OgcsDateTimeOffset aiEnd = new(ai.End, aiAllDay);
-            System.DateTimeOffset evStartParsedDate = ev.Start.SafeDateTimeOffset();
-            System.DateTimeOffset evEndParsedDate = ev.End.SafeDateTimeOffset();
+            System.DateTimeOffset evStartParsedDate = ev.Start.SafeDateTimeOffset(!ev.AllDayEvent());
+            System.DateTimeOffset evEndParsedDate = ev.End.SafeDateTimeOffset(!ev.AllDayEvent());
             if (ev.AllDayEvent()) {
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, true), aiStart, sb, ref itemModified);
                 endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, true), aiEnd, sb, ref itemModified);

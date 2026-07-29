@@ -110,6 +110,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public String Delimiter { get; }
+        public readonly KeyValuePair<String, OutlookCOM.OlCategoryColor> NO_CATEGORY_ASSIGNED = new("<No category assigned>", OutlookCOM.OlCategoryColor.olCategoryColorNone);
 
         public Categories() {
             try {
