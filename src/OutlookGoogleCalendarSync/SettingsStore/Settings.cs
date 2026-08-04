@@ -83,6 +83,7 @@ namespace OutlookGoogleCalendarSync {
             PersonalClientIdentifier = "";
             PersonalClientSecret = "";
             DisconnectOutlookBetweenSync = false;
+            SuppressOutlookReminders = false;
             TimezoneMaps = new TimezoneMappingDictionary();
 
             apiLimit_inEffect = false;
@@ -151,6 +152,8 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         [DataMember] public Boolean DisconnectOutlookBetweenSync { get; set; }
+        /// <summary>Hide classic Outlook's own native reminder popups, eg when it's only running in the background for OGCS automation while "New Outlook" is used day-to-day.</summary>
+        [DataMember] public Boolean SuppressOutlookReminders { get; set; }
         [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
         [CollectionDataContract(
             ItemName = "TimeZoneMap",
@@ -433,6 +436,7 @@ namespace OutlookGoogleCalendarSync {
             log.Info(Program.MaskFilePath(ConfigFile));
             log.Info("OUTLOOK SETTINGS:-");
             log.Info("  Disconnect Between Sync: " + DisconnectOutlookBetweenSync);
+            log.Info("  Suppress Outlook Reminders: " + SuppressOutlookReminders);
             if (TimezoneMaps.Count > 0) {
                 log.Info("  Custom Timezone Mapping:-");
                 TimezoneMaps.ToList().ForEach(tz => log.Info("    " + tz.Key + " => " + tz.Value));

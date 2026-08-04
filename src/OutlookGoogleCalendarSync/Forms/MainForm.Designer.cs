@@ -277,6 +277,7 @@
             this.cbShowSystemNotifications = new System.Windows.Forms.CheckBox();
             this.cbMinimiseToTray = new System.Windows.Forms.CheckBox();
             this.cbStartInTray = new System.Windows.Forms.CheckBox();
+            this.cbSuppressOutlookReminders = new System.Windows.Forms.CheckBox();
             this.cbStartOnStartup = new System.Windows.Forms.CheckBox();
             this.lSettingInfo = new System.Windows.Forms.Label();
             this.bSave = new OutlookGoogleCalendarSync.Extensions.MenuButton();
@@ -2982,6 +2983,7 @@
             this.tabAppBehaviour.Controls.Add(this.cbShowSystemNotifications);
             this.tabAppBehaviour.Controls.Add(this.cbMinimiseToTray);
             this.tabAppBehaviour.Controls.Add(this.cbStartInTray);
+            this.tabAppBehaviour.Controls.Add(this.cbSuppressOutlookReminders);
             this.tabAppBehaviour.Controls.Add(this.cbStartOnStartup);
             this.tabAppBehaviour.Location = new System.Drawing.Point(4, 24);
             this.tabAppBehaviour.Name = "tabAppBehaviour";
@@ -3473,7 +3475,18 @@
             this.cbStartInTray.Text = "Start in tray";
             this.cbStartInTray.UseVisualStyleBackColor = true;
             this.cbStartInTray.CheckedChanged += new System.EventHandler(this.cbStartInTrayCheckedChanged);
-            // 
+            //
+            // cbSuppressOutlookReminders
+            //
+            this.cbSuppressOutlookReminders.AutoSize = true;
+            this.cbSuppressOutlookReminders.Location = new System.Drawing.Point(185, 53);
+            this.cbSuppressOutlookReminders.Name = "cbSuppressOutlookReminders";
+            this.cbSuppressOutlookReminders.Size = new System.Drawing.Size(224, 17);
+            this.cbSuppressOutlookReminders.TabIndex = 42;
+            this.cbSuppressOutlookReminders.Text = "Suppress classic Outlook\'s own reminders";
+            this.cbSuppressOutlookReminders.UseVisualStyleBackColor = true;
+            this.cbSuppressOutlookReminders.CheckedChanged += new System.EventHandler(this.cbSuppressOutlookReminders_CheckedChanged);
+            //
             // cbStartOnStartup
             // 
             this.cbStartOnStartup.AutoSize = true;
@@ -4606,6 +4619,7 @@
         private System.Windows.Forms.CheckBox cbShowSystemNotificationsIfChange;
         private System.Windows.Forms.CheckBox cbMinimiseToTray;
         private System.Windows.Forms.CheckBox cbStartInTray;
+        private System.Windows.Forms.CheckBox cbSuppressOutlookReminders;
         private System.Windows.Forms.CheckBox cbStartOnStartup;
         private System.Windows.Forms.Label txtProfileLoading;
         private System.Windows.Forms.Panel panelProfileLoading;
