@@ -316,6 +316,18 @@ namespace OutlookGoogleCalendarSync.Google {
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd, false, recurringId);
         }
 
+        /// <summary>Get calendar Events that have fallen before the "days in the past" sync window, so are no longer touched by a normal sync</summary>
+        public List<Event> GetPastCalendarEntries() {
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
+            List<Event> pastEvents = GetCalendarEntriesInRange(new System.DateTime(1970, 1, 1), profile.SyncStart, true);
+            //Recurring masters/exceptions can have a first-occurrence date long in the past, yet still be an active series with future occurrences.
+            //Only single events are safe to consider "finished" based on their date alone.
+            pastEvents = pastEvents.Where(ev => ev.Recurrence == null && String.IsNullOrEmpty(ev.RecurringEventId)).ToList();
+            if (profile.RemovePastEventsOnlyOGCS)
+                pastEvents = pastEvents.Where(ev => CustomProperty.ExistAnyOutlookIDs(ev)).ToList();
+            return pastEvents;
+        }
+
         /// <summary>Get calendar Events occurring between the specified dates</summary>
         /// <returns>Single events, recurring master and exceptions</returns>
         public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false, String recurringId = null) {

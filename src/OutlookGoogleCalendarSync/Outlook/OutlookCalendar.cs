@@ -110,10 +110,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// </summary>
         /// <param name="suppressAdvisories">Don't give user feedback, eg during background Push sync</param>
         /// <returns></returns>
-        public List<AppointmentItem> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories) {
+        public List<AppointmentItem> GetCalendarEntriesInRange(SettingsStore.Calendar profile, Boolean suppressAdvisories,
+            System.DateTime? overrideMin = null, System.DateTime? overrideMax = null) {
             List<AppointmentItem> filtered = new List<AppointmentItem>();
             try {
-                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
+                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories, overrideMin: overrideMin, overrideMax: overrideMax);
             } catch (System.Runtime.InteropServices.InvalidComObjectException ex) {
                 if (Outlook.Errors.HandleComError(ex) == Outlook.Errors.ErrorType.ObjectSeparatedFromRcw) {
                     try { Outlook.Calendar.Instance.Reset(); } catch { }
@@ -139,7 +140,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } catch (System.ArgumentNullException ex) {
                 ex.LogAsFail().Analyse("It seems that Outlook has just been closed.");
                 Outlook.Calendar.Instance.Reset();
-                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories);
+                filtered = FilterCalendarEntries(profile, suppressAdvisories: suppressAdvisories, overrideMin: overrideMin, overrideMax: overrideMax);
 
             } catch (System.Exception) {
                 if (!suppressAdvisories) Forms.Main.Instance.Console.Update("Unable to access the Outlook calendar.", Console.Markup.error);
@@ -148,7 +149,19 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return filtered;
         }
 
-        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true, Boolean suppressAdvisories = false) {
+        /// <summary>Get calendar items that have fallen before the "days in the past" sync window, so are no longer touched by a normal sync</summary>
+        public List<AppointmentItem> GetPastCalendarEntries(SettingsStore.Calendar profile) {
+            List<AppointmentItem> pastEntries = GetCalendarEntriesInRange(profile, true, overrideMin: new System.DateTime(1970, 1, 1), overrideMax: profile.SyncStart);
+            //A recurring master's Start reflects its first occurrence, which can be long in the past for an otherwise still-active series.
+            //Only single (non-recurring) appointments are safe to consider "finished" based on their date alone.
+            pastEntries = pastEntries.Where(ai => !ai.IsRecurring).ToList();
+            if (profile.RemovePastEventsOnlyOGCS)
+                pastEntries = pastEntries.Where(ai => CustomProperty.ExistAnyGoogleIDs(ai, profile)).ToList();
+            return pastEntries;
+        }
+
+        public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true, Boolean suppressAdvisories = false,
+            System.DateTime? overrideMin = null, System.DateTime? overrideMax = null) {
             //Filtering info @ https://msdn.microsoft.com/en-us/library/cc513841%28v=office.12%29.aspx
 
             List<AppointmentItem> result = new List<AppointmentItem>();
@@ -172,10 +185,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 OutlookItems.Sort("[Start]", Type.Missing);
                 OutlookItems.IncludeRecurrences = false;
 
-                System.DateTime min = System.DateTime.MinValue;
-                System.DateTime max = System.DateTime.MaxValue;
-                min = profile.SyncStart;
-                max = profile.SyncEnd;
+                System.DateTime min = overrideMin ?? profile.SyncStart;
+                System.DateTime max = overrideMax ?? profile.SyncEnd;
 
                 string filter = "[End] >= '" + min.ToString(profile.OutlookDateFormat) +
                     "' AND [Start] < '" + max.ToString(profile.OutlookDateFormat) + "'";

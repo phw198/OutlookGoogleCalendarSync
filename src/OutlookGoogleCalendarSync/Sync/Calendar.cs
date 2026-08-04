@@ -623,6 +623,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 }
 
+                if (!this.Profile.DisableDelete && this.Profile.RemovePastEvents) {
+                    List<Event> pastGoogleEntries = Ogcs.Google.Calendar.Instance.GetPastCalendarEntries();
+                    if (pastGoogleEntries.Count > 0) {
+                        console.Update(pastGoogleEntries.Count + " past Google calendar entries also flagged for removal.", Console.Markup.info);
+                        googleEntriesToBeDeleted.AddRange(pastGoogleEntries);
+                    }
+                }
+
                 int entriesUpdated = 0;
                 try {
                     #region Delete Google Entries
@@ -728,6 +736,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Calendar.ReleaseObject(outlookEntriesToBeDeleted.Last());
                             outlookEntriesToBeDeleted.Remove(outlookEntriesToBeDeleted.Last());
                         }
+                    }
+                }
+
+                if (!this.Profile.DisableDelete && this.Profile.RemovePastEvents) {
+                    List<AppointmentItem> pastOutlookEntries = Outlook.Calendar.Instance.GetPastCalendarEntries(this.Profile);
+                    if (pastOutlookEntries.Count > 0) {
+                        console.Update(pastOutlookEntries.Count + " past Outlook calendar entries also flagged for removal.", Console.Markup.info);
+                        outlookEntriesToBeDeleted.AddRange(pastOutlookEntries);
                     }
                 }
 
