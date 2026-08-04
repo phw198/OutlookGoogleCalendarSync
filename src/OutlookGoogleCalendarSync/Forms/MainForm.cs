@@ -228,6 +228,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbHideSplash.Checked = Settings.Instance.HideSplashScreen ?? false;
             cbSuppressSocialPopup.Checked = Settings.Instance.SuppressSocialPopup;
             cbStartInTray.Checked = Settings.Instance.StartInTray;
+            cbSuppressOutlookReminders.Checked = Settings.Instance.SuppressOutlookReminders;
             cbMinimiseToTray.Checked = Settings.Instance.MinimiseToTray;
             cbMinimiseNotClose.Checked = Settings.Instance.MinimiseNotClose;
             cbPortable.Checked = Settings.Instance.Portable && !Program.IsInstalled;
@@ -2688,6 +2689,12 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbStartInTrayCheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.StartInTray = cbStartInTray.Checked;
+        }
+
+        private void cbSuppressOutlookReminders_CheckedChanged(object sender, System.EventArgs e) {
+            Settings.Instance.SuppressOutlookReminders = cbSuppressOutlookReminders.Checked;
+            Ogcs.Extensions.MessageBox.Show("This takes effect the next time OGCS connects to Outlook (eg on next sync, or after restarting OGCS).",
+                "Restart required", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
         }
 
         private void cbMinimiseToTrayCheckedChanged(object sender, System.EventArgs e) {
