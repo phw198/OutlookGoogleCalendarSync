@@ -169,6 +169,14 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             mainFrm.Console.Update(ex.Message, Console.Markup.fail, newLine: false);
                                             syncResult = SyncResult.ReconnectThenRetry;
 
+                                        } else if (ex.IsTransientNetworkError()) {
+                                            //Eg no internet, DNS failure, connection reset, timeout - don't interrupt the user with a
+                                            //modal "try again?" prompt for what's likely a temporary connectivity blip (#1150) - just
+                                            //log it and let the next scheduled sync retry automatically, same as other known-transient errors.
+                                            Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                            mainFrm.Console.Update("A network connectivity problem was encountered.<br/>Will retry at the next scheduled sync.", Console.Markup.fail, notifyBubble: true);
+                                            syncResult = SyncResult.AutoRetry;
+
                                         } else {
                                             Ogcs.Exception.Analyse(ex, true);
                                             mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
