@@ -320,8 +320,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             //Invitation
                             if (profile.OnlyRespondedInvites) {
                                 //These are actually filtered out later on when identifying differences
-                                if (filtered = ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
-                                    responseFiltered++;
+                                try {
+                                    if (filtered = ai.ResponseStatus == OlResponseStatus.olResponseNotResponded)
+                                        responseFiltered++;
+                                } catch (System.Runtime.InteropServices.COMException ex) {
+                                    if (ex.TargetSite.Name == "get_ResponseStatus") {
+                                        log.Warn("Could not access ResponseStatus property for " + GetEventSummary(ai));
+                                    } else throw;
+                                }
                             }
                         } finally {
                             if (filtered && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && CustomProperty.ExistAnyGoogleIDs(ai, profile)) {
@@ -1692,9 +1698,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 //Check if items to be deleted have invitations not responded to
                 int responseFiltered = 0;
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (outlook[o].ResponseStatus == OlResponseStatus.olResponseNotResponded) {
-                        outlook.Remove(outlook[o]);
-                        responseFiltered++;
+                    try {
+                        if (outlook[o].ResponseStatus == OlResponseStatus.olResponseNotResponded) {
+                            outlook.Remove(outlook[o]);
+                            responseFiltered++;
+                        }
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        if (ex.TargetSite.Name == "get_ResponseStatus") {
+                            log.Warn("Could not access ResponseStatus property for " + GetEventSummary(outlook[o]));
+                        } else throw;
                     }
                 }
                 if (responseFiltered > 0) log.Info(responseFiltered + " Outlook items will not be deleted due to only syncing invites that have been responded to.");
