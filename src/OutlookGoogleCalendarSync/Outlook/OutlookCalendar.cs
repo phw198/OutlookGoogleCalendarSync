@@ -153,11 +153,69 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public List<AppointmentItem> GetPastCalendarEntries(SettingsStore.Calendar profile) {
             List<AppointmentItem> pastEntries = GetCalendarEntriesInRange(profile, true, overrideMin: new System.DateTime(1970, 1, 1), overrideMax: profile.SyncStart);
             //A recurring master's Start reflects its first occurrence, which can be long in the past for an otherwise still-active series.
-            //Only single (non-recurring) appointments are safe to consider "finished" based on their date alone.
-            pastEntries = pastEntries.Where(ai => !ai.IsRecurring).ToList();
+            List<AppointmentItem> toRemove = new List<AppointmentItem>();
+            foreach (AppointmentItem ai in pastEntries) {
+                if (!ai.IsRecurring) {
+                    //Single event - safe to consider "finished" based on its own date.
+                    toRemove.Add(ai);
+                } else if (recurringSeriesHasEnded(ai, profile)) {
+                    //Series is bounded and has fully finished - safe to remove entirely.
+                    toRemove.Add(ai);
+                } else if (ai.RecurrenceState == OlRecurrenceState.olApptMaster) {
+                    //Still-active series - leave the master and future occurrences alone, but individually
+                    //remove any occurrence that has itself fallen before the sync window.
+                    toRemove.AddRange(getPastOccurrences(ai, profile));
+                }
+            }
             if (profile.RemovePastEventsOnlyOGCS)
-                pastEntries = pastEntries.Where(ai => CustomProperty.ExistAnyGoogleIDs(ai, profile)).ToList();
-            return pastEntries;
+                toRemove = toRemove.Where(x => CustomProperty.ExistAnyGoogleIDs(x, profile)).ToList();
+            return toRemove;
+        }
+
+        /// <summary>Whether a recurring series is bounded by an end date that has already passed.</summary>
+        private static Boolean recurringSeriesHasEnded(AppointmentItem ai, SettingsStore.Calendar profile) {
+            if (ai.RecurrenceState != OlRecurrenceState.olApptMaster) return false; //Leave exception instances alone.
+            RecurrencePattern oPattern = null;
+            try {
+                oPattern = ai.GetRecurrencePattern();
+                return !oPattern.NoEndDate && oPattern.PatternEndDate < profile.SyncStart;
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to determine whether recurring series has ended.");
+                return false; //If in doubt, leave it alone.
+            } finally {
+                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
+            }
+        }
+
+        /// <summary>
+        /// For a still-active recurring series, find each individual occurrence that has fallen before the
+        /// sync window, so it can be removed without affecting the series or its future occurrences.
+        /// Walks day-by-day from the series' own start, reusing the same robust occurrence lookup used
+        /// elsewhere for matching Google exceptions, so moved/deleted occurrences are handled correctly.
+        /// </summary>
+        private static List<AppointmentItem> getPastOccurrences(AppointmentItem masterAi, SettingsStore.Calendar profile) {
+            List<AppointmentItem> occurrences = new List<AppointmentItem>();
+            RecurrencePattern oPattern = null;
+            try {
+                oPattern = masterAi.GetRecurrencePattern();
+                System.DateTime candidate = oPattern.PatternStartDate.Date;
+                System.DateTime cutoff = profile.SyncStart.Date;
+                while (candidate < cutoff) {
+                    AppointmentItem occurrence = null;
+                    try {
+                        Recurrence.GetOutlookInstance(oPattern, candidate, ref occurrence, processingDeletions: true);
+                        if (occurrence != null) occurrences.Add(occurrence);
+                    } catch (System.Exception ex) {
+                        ex.Analyse("Failed retrieving occurrence for " + candidate.ToShortDateString() + " of recurring series.");
+                    }
+                    candidate = candidate.AddDays(1);
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed enumerating past occurrences of recurring series.");
+            } finally {
+                oPattern = (RecurrencePattern)ReleaseObject(oPattern);
+            }
+            return occurrences;
         }
 
         public List<AppointmentItem> FilterCalendarEntries(SettingsStore.Calendar profile, Boolean filterBySettings = true, Boolean suppressAdvisories = false,

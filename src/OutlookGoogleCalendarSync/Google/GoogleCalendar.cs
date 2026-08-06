@@ -321,11 +321,90 @@ namespace OutlookGoogleCalendarSync.Google {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
             List<Event> pastEvents = GetCalendarEntriesInRange(new System.DateTime(1970, 1, 1), profile.SyncStart, true);
             //Recurring masters/exceptions can have a first-occurrence date long in the past, yet still be an active series with future occurrences.
-            //Only single events are safe to consider "finished" based on their date alone.
-            pastEvents = pastEvents.Where(ev => ev.Recurrence == null && String.IsNullOrEmpty(ev.RecurringEventId)).ToList();
+            List<Event> toRemove = new List<Event>();
+            foreach (Event ev in pastEvents) {
+                if (!String.IsNullOrEmpty(ev.RecurringEventId)) continue; //Exception instance - handled via its own master, below.
+                if (ev.Recurrence == null) {
+                    //Single event - safe to consider "finished" based on its own date.
+                    toRemove.Add(ev);
+                } else if (recurringSeriesHasEnded(ev, profile.SyncStart)) {
+                    //Series is bounded and has fully finished - safe to remove entirely.
+                    toRemove.Add(ev);
+                } else {
+                    //Still-active series - leave the master and future occurrences alone, but individually
+                    //remove any occurrence that has itself fallen before the sync window.
+                    toRemove.AddRange(getPastOccurrences(ev.Id, profile.SyncStart));
+                }
+            }
             if (profile.RemovePastEventsOnlyOGCS)
-                pastEvents = pastEvents.Where(ev => CustomProperty.ExistAnyOutlookIDs(ev)).ToList();
-            return pastEvents;
+                toRemove = toRemove.Where(ev => CustomProperty.ExistAnyOutlookIDs(ev)).ToList();
+            return toRemove;
+        }
+
+        /// <summary>Whether a recurring series is bounded by a RRULE UNTIL date that has already passed.</summary>
+        private static Boolean recurringSeriesHasEnded(Event ev, System.DateTime syncStart) {
+            Dictionary<String, String> rules = Recurrence.ExplodeRrule(ev.Recurrence);
+            if (rules == null || !rules.ContainsKey("UNTIL")) return false; //Open-ended, or COUNT-bounded - can't safely determine an end date.
+            try {
+                System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
+                return endDate < syncStart;
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to determine whether recurring series has ended.");
+                return false; //If in doubt, leave it alone.
+            }
+        }
+
+        /// <summary>For a still-active recurring series, find each individual occurrence that has fallen before the sync window.</summary>
+        private List<Event> getPastOccurrences(String recurringEventId, System.DateTime cutoff) {
+            List<Event> result = new List<Event>();
+            Events request = null;
+            String pageToken = null;
+            try {
+                SettingsStore.Calendar profile = Settings.Profile.InPlay();
+                do {
+                    EventsResource.InstancesRequest ir = Service.Events.Instances(profile.UseGoogleCalendar.Id, recurringEventId);
+                    ir.TimeMinDateTimeOffset = new System.DateTime(1970, 1, 1);
+                    ir.TimeMaxDateTimeOffset = cutoff;
+                    ir.TimeZone = "UTC";
+                    ir.MaxResults = 2500;
+                    ir.PageToken = pageToken;
+                    int backoff = 0;
+                    while (backoff < BackoffLimit) {
+                        try {
+                            request = ir.Execute();
+                            break;
+                        } catch (global::Google.GoogleApiException ex) {
+                            switch (HandleAPIlimits(ref ex, null)) {
+                                case ApiException.throwException: throw;
+                                case ApiException.freeAPIexhausted:
+                                    Ogcs.Exception.LogAsFail(ref ex);
+                                    Ogcs.Exception.Analyse(ex);
+                                    System.ApplicationException aex = new System.ApplicationException(SubscriptionInvite, ex);
+                                    Ogcs.Exception.LogAsFail(ref aex);
+                                    throw aex;
+                                case ApiException.backoffThenRetry:
+                                    backoff++;
+                                    if (backoff == BackoffLimit) {
+                                        log.Error("API limit backoff was not successful. Paginated retrieve failed.");
+                                        throw;
+                                    } else {
+                                        int backoffDelay = (int)Math.Pow(2, backoff);
+                                        log.Warn("API rate limit reached. Backing off " + backoffDelay + "sec before retry.");
+                                        System.Threading.Thread.Sleep(backoffDelay * 1000);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    if (request != null) {
+                        pageToken = request.NextPageToken;
+                        if (request.Items != null) result.AddRange(request.Items.Where(i => i.Status != "cancelled"));
+                    }
+                } while (pageToken != null);
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to retrieve past occurrences for recurring series " + recurringEventId);
+            }
+            return result;
         }
 
         /// <summary>Get calendar Events occurring between the specified dates</summary>
