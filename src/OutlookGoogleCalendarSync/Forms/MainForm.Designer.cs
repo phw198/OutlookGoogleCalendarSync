@@ -189,6 +189,8 @@
             this.cbMergeItems = new System.Windows.Forms.CheckBox();
             this.cbDisableDeletion = new System.Windows.Forms.CheckBox();
             this.cbConfirmOnDelete = new System.Windows.Forms.CheckBox();
+            this.cbRemovePastEvents = new System.Windows.Forms.CheckBox();
+            this.cbRemovePastEventsOnlyOGCS = new System.Windows.Forms.CheckBox();
             this.howObfuscatePanel = new System.Windows.Forms.Panel();
             this.btCloseRegexRules = new System.Windows.Forms.Button();
             this.cbObfuscateDirection = new System.Windows.Forms.ComboBox();
@@ -2020,6 +2022,8 @@
             this.gbSyncOptions_How.Controls.Add(this.cbMergeItems);
             this.gbSyncOptions_How.Controls.Add(this.cbDisableDeletion);
             this.gbSyncOptions_How.Controls.Add(this.cbConfirmOnDelete);
+            this.gbSyncOptions_How.Controls.Add(this.cbRemovePastEvents);
+            this.gbSyncOptions_How.Controls.Add(this.cbRemovePastEventsOnlyOGCS);
             this.gbSyncOptions_How.Controls.Add(this.howObfuscatePanel);
             this.gbSyncOptions_How.Controls.Add(this.lDirection);
             this.gbSyncOptions_How.Font = new System.Drawing.Font("Arial Black", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -2272,6 +2276,30 @@
             this.cbConfirmOnDelete.Text = "Confirm deletions";
             this.cbConfirmOnDelete.UseVisualStyleBackColor = true;
             this.cbConfirmOnDelete.CheckedChanged += new System.EventHandler(this.cbConfirmOnDelete_CheckedChanged);
+            //
+            // cbRemovePastEvents
+            //
+            this.cbRemovePastEvents.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbRemovePastEvents.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbRemovePastEvents.Location = new System.Drawing.Point(190, 67);
+            this.cbRemovePastEvents.Name = "cbRemovePastEvents";
+            this.cbRemovePastEvents.Size = new System.Drawing.Size(160, 17);
+            this.cbRemovePastEvents.TabIndex = 35;
+            this.cbRemovePastEvents.Text = "Remove past events";
+            this.cbRemovePastEvents.UseVisualStyleBackColor = true;
+            this.cbRemovePastEvents.CheckedChanged += new System.EventHandler(this.cbRemovePastEvents_CheckedChanged);
+            //
+            // cbRemovePastEventsOnlyOGCS
+            //
+            this.cbRemovePastEventsOnlyOGCS.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbRemovePastEventsOnlyOGCS.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbRemovePastEventsOnlyOGCS.Location = new System.Drawing.Point(205, 85);
+            this.cbRemovePastEventsOnlyOGCS.Name = "cbRemovePastEventsOnlyOGCS";
+            this.cbRemovePastEventsOnlyOGCS.Size = new System.Drawing.Size(150, 17);
+            this.cbRemovePastEventsOnlyOGCS.TabIndex = 36;
+            this.cbRemovePastEventsOnlyOGCS.Text = "Only if created by OGCS";
+            this.cbRemovePastEventsOnlyOGCS.UseVisualStyleBackColor = true;
+            this.cbRemovePastEventsOnlyOGCS.CheckedChanged += new System.EventHandler(this.cbRemovePastEventsOnlyOGCS_CheckedChanged);
             // 
             // howObfuscatePanel
             // 
@@ -4454,6 +4482,8 @@
         private System.Windows.Forms.CheckBox cbMergeItems;
         private System.Windows.Forms.CheckBox cbDisableDeletion;
         private System.Windows.Forms.CheckBox cbConfirmOnDelete;
+        private System.Windows.Forms.CheckBox cbRemovePastEvents;
+        private System.Windows.Forms.CheckBox cbRemovePastEventsOnlyOGCS;
         private System.Windows.Forms.Button btObfuscateRules;
         private System.Windows.Forms.GroupBox gbOutlook_ODate;
         private System.Windows.Forms.TextBox tbOutlookDateFormat;

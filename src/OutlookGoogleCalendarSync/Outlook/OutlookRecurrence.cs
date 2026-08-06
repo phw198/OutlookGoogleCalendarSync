@@ -285,7 +285,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
+                        GetOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
                             if (gExcp.Status != "cancelled") {
                                 log.Warn("Unable to find Outlook exception for " + gExcpDetails);
@@ -339,7 +339,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return updatesMade;
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
+        /// <summary>Robustly find the Outlook AppointmentItem for a specific occurrence date of a recurring series, checking exceptions first.</summary>
+        internal static void GetOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 

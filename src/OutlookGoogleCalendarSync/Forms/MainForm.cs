@@ -503,6 +503,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbDisableDeletion.Checked = profile.DisableDelete;
                     cbConfirmOnDelete.Enabled = !profile.DisableDelete;
                     cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
+                    cbRemovePastEvents.Enabled = !profile.DisableDelete;
+                    cbRemovePastEvents.Checked = profile.RemovePastEvents;
+                    cbRemovePastEventsOnlyOGCS.Enabled = !profile.DisableDelete && profile.RemovePastEvents;
+                    cbRemovePastEventsOnlyOGCS.Checked = profile.RemovePastEventsOnlyOGCS;
                     cbOfuscate.Checked = profile.Obfuscation.Enabled;
                     howObfuscatePanel.Visible = false;
 
@@ -2128,6 +2132,17 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
             ActiveCalendarProfile.DisableDelete = cbDisableDeletion.Checked;
             cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
+            cbRemovePastEvents.Enabled = !cbDisableDeletion.Checked;
+            cbRemovePastEventsOnlyOGCS.Enabled = !cbDisableDeletion.Checked && cbRemovePastEvents.Checked;
+        }
+
+        private void cbRemovePastEvents_CheckedChanged(object sender, System.EventArgs e) {
+            ActiveCalendarProfile.RemovePastEvents = cbRemovePastEvents.Checked;
+            cbRemovePastEventsOnlyOGCS.Enabled = cbRemovePastEvents.Checked;
+        }
+
+        private void cbRemovePastEventsOnlyOGCS_CheckedChanged(object sender, System.EventArgs e) {
+            ActiveCalendarProfile.RemovePastEventsOnlyOGCS = cbRemovePastEventsOnlyOGCS.Checked;
         }
 
         private void cbOfuscate_CheckedChanged(object sender, EventArgs e) {
