@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Ogcs = OutlookGoogleCalendarSync;
-using O365 = Microsoft.Graph;
 
 namespace OutlookGoogleCalendarSync.Outlook {
     /// <summary>
@@ -408,7 +407,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     if (ev.Recurrence != null && ev.RecurringEventId == null && Google.Recurrence.HasExceptions(ev)) {
                         Forms.Main.Instance.Console.Update("This is a recurring item with some exceptions:-", verbose: true);
-                        Recurrence.CreateOutlookExceptions(ev, ref newAi);
+                        if (Recurrence.CreateOutlookExceptions(ev, ref newAi) > 0)
+                            newAi.Save();
                         Forms.Main.Instance.Console.Update("Recurring exceptions completed.", verbose: true);
                     }
                 } finally {
@@ -632,7 +632,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             Recurrence.BuildOutlookPattern(ev, ai);
                             ai.Save(); //Explicit save required to make ai.IsRecurring true again
                         } else {
-                            oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
+                            oPattern = ai.GetRecurrencePattern();
                             if (startChange) {
                                 oPattern.PatternStartDate = evStartParsedDate;
                                 oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
@@ -650,7 +650,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (oPattern == null)
                     oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
                 if (oPattern != null) {
-                    oPattern.Duration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
+                    int evDuration = Convert.ToInt32((evEndParsedDate - evStartParsedDate).TotalMinutes);
+                    if (Sync.Engine.CompareAttribute("Recurrence Duration", Sync.Direction.GoogleToOutlook,
+                        evDuration.ToString(), oPattern.Duration.ToString(), sb, ref itemModified)) {
+                        oPattern.Duration = evDuration;
+                    }
                     Recurrence.CompareOutlookPattern(ev, ref oPattern, Sync.Direction.GoogleToOutlook, sb, ref itemModified);
                 }
             } finally {
