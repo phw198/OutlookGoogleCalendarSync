@@ -13,11 +13,12 @@ When assisting with code modifications, debugging, or documentation:
 - **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
 
 ## Agent Architecture
-- **Agnostic Instructions**: All rich, platform-independent agent instructions, workflows, and release logic must reside in `.ai/agents/` (e.g., `.ai/agents/release-preparer.md`) and skills in `.ai/skills/` (e.g., `.ai/skills/update-ai-files/SKILL.md`).
+- **Agnostic Instructions**: All rich, platform-independent agent instructions and workflows must reside in `.ai/agents/` (e.g., `.ai/agents/ogcs-release-preparer.md`), global guidance in `.github/instructions/`, and skills in `.ai/skills/` (e.g., `.ai/skills/update-ai-files/SKILL.md`).
 - **Platform Redirections (Shims)**: Platform-specific agent and skill definitions must be minimalist "pointers" or redirections in standard locations.
-  - **Custom Agents**: Pointers reside at `.github/agents/*.agent.md`. They require YAML frontmatter including `name`, `description`, and `tools`.
+  - **Custom Agents**: Pointers reside at `.github/agents/ogcs-*.agent.md`. They require YAML frontmatter including `name`, `description`, and `tools`.
+  - **Global Guidance**: Workspace-wide guidance resides at `.github/instructions/ogcs-*.instructions.md` with `applyTo: "**"`; do not represent this guidance as a selectable agent.
   - **Custom Skills**: Pointers reside at `.github/skills/<name>/SKILL.md`. They require YAML frontmatter including `name`, `description`, and `user-invocable: true`.
-- **Naming Consistency**: The `name` in YAML frontmatter should exactly match the filename (for agents) or folder name (for skills) to ensure reliable discovery.
+- **Naming Consistency**: Selectable custom agents and prompts must use the `ogcs-` prefix, and their YAML `name` must exactly match the filename. Skills retain unprefixed names unless they are OGCS-specific.
 - **UI Discovery**: VS Code requires these shims in the `.github/` hierarchy for UI integration. A "Reload Window" should not be required after adding or modifying these shims.
 
 ## Key Files to Monitor

@@ -1,5 +1,5 @@
 ---
-name: release-preparer
+name: ogcs-release-preparer
 description: Expert agent for automating documentation, changelogs, and script updates for a new software release.
 tools: ['terminal', 'edit', 'read']
 ---
