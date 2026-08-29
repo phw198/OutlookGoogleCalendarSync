@@ -8,11 +8,15 @@
 - Reverted to a single global NotifyIcon wrapper to handle Windows notification routing cleanly.
 - Bumped version variables and references across `nuget-build.bat`, `docs/latest_zip_release.md`, and `src/OutlookGoogleCalendarSync/OutlookGoogleCalendarSync.nuspec` from 3.0.2 to 3.0.3.
 - Populated the `nuspec` release notes with missing GitHub issue #1870 (Modern Toast notifications) by identifying merge commits from the active branch since the last master branch commit.
-- Initialised the custom agent `.ai/agents/release-preparer.md` to automate future release script updates, documentation updates, and git commit-based release note generation.
+- Initialised the custom agent `.ai/agents/ogcs-release-preparer.md` to automate future release script updates, documentation updates, and git commit-based release note generation.
 - Implemented an agnostic agent architecture (Pattern 1): rich instructions reside in `.ai/` while `.github/` contains thin pointers (shims) for VS Code UI integration.
 - Successfully established the shim pattern for both Custom Agents (`.github/agents/*.agent.md`) and Custom Skills (`.github/skills/<name>/SKILL.md`), enabling their discovery in VS Code chat.
 - Cleaned up redundant `.ai/.github/` directory.
+- Standardised selectable workspace customizations with the `ogcs-` prefix: the `ogcs-release-preparer` agent and `/ogcs-code-review` prompt.
+- Replaced the selectable `sync-dev` agent with always-applied `ogcs-global-guidance` project instructions.
 
 ## Active Task
 - Refining release automation prompts and agent skills.
 - Documented shim discovery findings in `.ai/developer-agent.md`.
+- Added optional `BASE_REF` handling to `/ogcs-code-review`: explicit bases resolve without confirmation, while inferred bases require confirmation or a valid override before review.
+- Updated `/ogcs-code-review` to accept validated named `BRANCH`, `ISSUE`, and `BASE_REF` inputs in any order; its explicit and inferred comparison-base behaviour remains unchanged.
