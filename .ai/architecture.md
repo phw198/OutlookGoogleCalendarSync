@@ -30,3 +30,8 @@ graph TD
 - Interfaces with the Google Calendar API (v3) using OAuth2 credentials.
 - Handles authorization, token refresh, attendee registration, and meet links.
 - Uses `Google.Apis.Calendar.v3` client libraries.
+
+## Data Consistency & Timezones
+- **Timestamp Strategy**: The application prioritizes `DateTimeOffset` for all calendar event timestamps to ensure unambiguous point-in-time representation across different timezones.
+- **Comparison Logic**: To avoid local clock-time bugs, comparisons between local `DateTime` variables and API-sourced `DateTimeOffset` values must explicitly specify whether they are comparing the clock face (`.DateTime`), the calendar date (`.Date`), or the universal instant (`.UtcDateTime`).
+- **Standardized Extensions**: Custom extension methods (e.g., `SafeDateTimeOffset()`) are used to normalize date parsing from various API formats into a consistent internal representation.
