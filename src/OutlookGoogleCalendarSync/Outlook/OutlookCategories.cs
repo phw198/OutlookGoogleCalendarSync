@@ -122,6 +122,29 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
+        public bool IsExcludedByFilter(string itemCategories, IEnumerable<string> selectedCategories,
+            SettingsStore.Calendar.RestrictBy restrictBy, string delimiter) {
+            bool hasNoCategoryAssigned = itemCategories == null;
+            bool hasSelectedCategories = selectedCategories.Any();
+            bool includesNoCategoryAssigned = selectedCategories.Contains(NO_CATEGORY_ASSIGNED.Key);
+            bool hasMatchingCategory = !hasNoCategoryAssigned && itemCategories
+                .Split(new[] { delimiter }, StringSplitOptions.None)
+                .Intersect(selectedCategories)
+                .Any();
+
+            if (restrictBy == SettingsStore.Calendar.RestrictBy.Include) {
+                return !hasSelectedCategories ||
+                    (hasNoCategoryAssigned && !includesNoCategoryAssigned) ||
+                    (!hasNoCategoryAssigned && !hasMatchingCategory);
+
+            } else if (restrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
+                return hasSelectedCategories &&
+                    ((hasNoCategoryAssigned && includesNoCategoryAssigned) ||
+                    (!hasNoCategoryAssigned && hasMatchingCategory));
+            }
+            return false;
+        }
+
         public void Dispose() {
             _categories = (OutlookCOM.Categories)Calendar.ReleaseObject(_categories);
         }

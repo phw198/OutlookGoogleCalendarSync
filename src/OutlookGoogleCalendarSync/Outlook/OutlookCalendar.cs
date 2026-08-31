@@ -227,19 +227,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         try {
                             //Categories
                             try {
-                                if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                                    filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
-
-                                } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                                    filtered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
-                                }
+                                filtered = Categories.IsExcludedByFilter(ai.Categories, profile.Categories,
+                                    profile.CategoriesRestrictBy, Categories.Delimiter);
                             } catch (System.Runtime.InteropServices.COMException ex) {
                                 if (ex.TargetSite.Name == "get_Categories") {
                                     log.Warn("Could not access Categories property for " + GetEventSummary(ai));
-                                    filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
+                                    filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains(Categories.NO_CATEGORY_ASSIGNED.Key)) ||
+                                        (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains(Categories.NO_CATEGORY_ASSIGNED.Key)));
                                 } else throw;
                             }
                             if (filtered) {
@@ -752,6 +746,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     oCategoryName = aiCategories.FirstOrDefault();
                 }
                 String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
+                StringBuilder cachedSb = new(sb.ToString());
                 if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
                     if (profile.SingleCategoryOnly)
                         aiCategories = new List<string>();
@@ -759,8 +754,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         //Only allow one OGCS category at a time (Google Events can only have one colour)
                         aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
                     }
-                    aiCategories.Insert(0, gCategoryName);
+                    if (gCategoryName != Outlook.Calendar.Categories.NO_CATEGORY_ASSIGNED.Key)
+                        aiCategories.Insert(0, gCategoryName);
                     ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
+
+                    //Check if there's been a change (as we only manage OGCS prefixed categories). If not, revert Console output.
+                    if (ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault() == oCategoryName) {
+                        sb = cachedSb;
+                        itemModified--;
+                    }
                 }
             }
 
