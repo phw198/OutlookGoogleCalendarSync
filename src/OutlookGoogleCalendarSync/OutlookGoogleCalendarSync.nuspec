@@ -30,6 +30,7 @@
     - Placeholder [[#xx](https://github.com/phw198/OutlookGoogleCalendarSync/issues/xx)]
 - Sync Engine
     - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
+    - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
