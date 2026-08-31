@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.props" Condition="Exists('..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;DEVELOP_AGAINST_2007</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -86,6 +86,47 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <Choose>
+    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '^(.*;)*DEVELOP_AGAINST_2003(;.*)*$'))">
+      <ItemGroup>
+        <Reference Include="Microsoft.Office.Interop.Outlook, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+          <SpecificVersion>False</SpecificVersion>
+          <EmbedInteropTypes>False</EmbedInteropTypes>
+          <HintPath>..\OutlookGoogleCalendarSync\lib\outlook-interop\v11_2003\Microsoft.Office.Interop.Outlook.DLL</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '^(.*;)*DEVELOP_AGAINST_2007(;.*)*$'))">
+      <ItemGroup>
+        <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+          <SpecificVersion>False</SpecificVersion>
+          <EmbedInteropTypes>False</EmbedInteropTypes>
+          <HintPath>..\OutlookGoogleCalendarSync\lib\outlook-interop\v12_2007\Microsoft.Office.Interop.Outlook.DLL</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '^(.*;)*DEVELOP_AGAINST_2010(;.*)*$'))">
+      <ItemGroup>
+        <Reference Include="Microsoft.Office.Interop.Outlook, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+          <SpecificVersion>False</SpecificVersion>
+          <EmbedInteropTypes>False</EmbedInteropTypes>
+          <HintPath>..\OutlookGoogleCalendarSync\lib\outlook-interop\v14_2010\Microsoft.Office.Interop.Outlook.DLL</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(Configuration)' == 'Release' ">
+      <ItemGroup>
+        <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+          <SpecificVersion>False</SpecificVersion>
+          <EmbedInteropTypes>True</EmbedInteropTypes>
+          <HintPath>..\OutlookGoogleCalendarSync\lib\Microsoft.Office.Interop.Outlook.DLL</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <ItemGroup>
+    <Compile Include="Outlook\CategoriesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DateTime.cs" />
