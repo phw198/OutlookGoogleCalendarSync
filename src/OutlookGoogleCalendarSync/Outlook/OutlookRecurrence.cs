@@ -52,8 +52,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             int gInstance = Convert.ToInt16(ruleBook["BYSETPOS"]);
                             oPattern.Instance = (gInstance == -1) ? 5 : gInstance;
                             oPattern.DayOfWeekMask = getDOWmask(ruleBook);
-                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 &&
-                                ev.Start.SafeDateTime().Day > 28) {
+                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 && ev.Start.SafeDateTime().Day > 28) {
                                 //In Outlook this is simply a monthly recurring
                                 oPattern.RecurrenceType = OlRecurrenceType.olRecursMonthly;
                             }

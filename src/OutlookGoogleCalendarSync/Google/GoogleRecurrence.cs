@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             log.Debug("Found " + googleExceptions.Count + " exceptions.");
             if (log.IsFineEnabled())
-                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{(ge.Start == null ? "null" : ge.Start.SafeDateTimeOffset().ToString())};"));
+                googleExceptions.ForEach(ge => log.Fine($"RecurringEventId:{ge.RecurringEventId}; Start:{(ge.Start == null ? "null" : ge.Start.SafeDateTime().ToString())};"));
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <param name="originalInstanceDate">The date to search for</param>
         /// <returns></returns>
         private static Event getGoogleInstance(String recurringEventId, System.DateTime originalInstanceDate) {
-            return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate);
+            return googleExceptions.FirstOrDefault(g => g.RecurringEventId == recurringEventId && g.OriginalStartTime.SafeDateTime().Date == originalInstanceDate.Date);
         }
 
         /// <summary>
