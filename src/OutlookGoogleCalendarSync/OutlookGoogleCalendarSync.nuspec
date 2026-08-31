@@ -24,20 +24,12 @@
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
 - Application
-    - Option added to manually sync _all_ Profiles [[#1427](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1427)]
-    - Modern Toast notifications for Windows 10 [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
-    - Removed obsolete Google Goals feature
-    - Improved upgrade detection, handling both v2 and v3 installations
+    - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Notifications within Windows Action Center function properly [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
 - Sync Engine
-    - Fixed OutlookGeoCoordinates deserialization (String vs Number) [[#2334](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2334)]
-    - Time zone with ID `tzone://Microsoft/Custom` not found in source [[#2148](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2148)]
-        - New permission required to read time zone from mailbox settings
-    - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
