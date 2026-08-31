@@ -110,7 +110,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public String Delimiter { get; }
-        public readonly KeyValuePair<String, OutlookCOM.OlCategoryColor> NO_CATEGORY_ASSIGNED = new("<No category assigned>", OutlookCOM.OlCategoryColor.olCategoryColorNone);
+        public const String NoCategoryAssignedKey = "<No category assigned>";
+        public readonly KeyValuePair<String, OutlookCOM.OlCategoryColor> NO_CATEGORY_ASSIGNED = new(NoCategoryAssignedKey, OutlookCOM.OlCategoryColor.olCategoryColorNone);
 
         public Categories() {
             try {
@@ -122,13 +123,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
 
-        public bool IsExcludedByFilter(string itemCategories, IEnumerable<string> selectedCategories,
-            SettingsStore.Calendar.RestrictBy restrictBy, string delimiter) {
+        internal bool isExcludedByFilter(string itemCategories, IEnumerable<string> selectedCategories, SettingsStore.Calendar.RestrictBy restrictBy) {
             bool hasNoCategoryAssigned = itemCategories == null;
             bool hasSelectedCategories = selectedCategories.Any();
             bool includesNoCategoryAssigned = selectedCategories.Contains(NO_CATEGORY_ASSIGNED.Key);
             bool hasMatchingCategory = !hasNoCategoryAssigned && itemCategories
-                .Split(new[] { delimiter }, StringSplitOptions.None)
+                .Split(new[] { this.Delimiter }, StringSplitOptions.None)
                 .Intersect(selectedCategories)
                 .Any();
 
