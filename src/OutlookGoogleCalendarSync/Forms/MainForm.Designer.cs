@@ -339,6 +339,7 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cbExcludeOoO = new System.Windows.Forms.CheckBox();
             this.tabApp.SuspendLayout();
             this.tabPage_Sync.SuspendLayout();
             this.consolePanel.SuspendLayout();
@@ -2582,6 +2583,7 @@
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeSubject);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludePrivate);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFree);
+            this.gbSyncOptions_What.Controls.Add(this.cbExcludeOoO);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeTentative);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeFreeAllDays);
             this.gbSyncOptions_What.Controls.Add(this.cbExcludeAllDays);
@@ -2689,11 +2691,23 @@
             this.cbExcludeTentative.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbExcludeTentative.Location = new System.Drawing.Point(103, 185);
             this.cbExcludeTentative.Name = "cbExcludeTentative";
-            this.cbExcludeTentative.Size = new System.Drawing.Size(106, 17);
+            this.cbExcludeTentative.Size = new System.Drawing.Size(73, 17);
             this.cbExcludeTentative.TabIndex = 53;
             this.cbExcludeTentative.Text = "Tentative";
             this.cbExcludeTentative.UseVisualStyleBackColor = true;
             this.cbExcludeTentative.CheckedChanged += new System.EventHandler(this.cbExcludeTentative_CheckedChanged);
+            // 
+            // cbExcludeOoO
+            // 
+            this.cbExcludeOoO.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbExcludeOoO.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.cbExcludeOoO.Location = new System.Drawing.Point(183, 185);
+            this.cbExcludeOoO.Name = "cbExcludeOoO";
+            this.cbExcludeOoO.Size = new System.Drawing.Size(97, 17);
+            this.cbExcludeOoO.TabIndex = 60;
+            this.cbExcludeOoO.Text = "Out Of Office";
+            this.cbExcludeOoO.UseVisualStyleBackColor = true;
+            this.cbExcludeOoO.CheckedChanged += new System.EventHandler(this.cbExcludeOoO_CheckedChanged);
             // 
             // cbExcludeFreeAllDays
             // 
@@ -4670,5 +4684,6 @@
         private System.Windows.Forms.Label label42;
         private System.Windows.Forms.Button btRevokeGCal;
         public System.Windows.Forms.CheckBox cbIgnoreSkipPrefs;
+        private System.Windows.Forms.CheckBox cbExcludeOoO;
     }
 }

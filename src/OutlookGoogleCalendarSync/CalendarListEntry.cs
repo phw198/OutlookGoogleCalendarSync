@@ -34,7 +34,7 @@ namespace OutlookGoogleCalendarSync {
             internal set { colourId = value; }
         }
 
-        private Boolean primary { get; set; }
+        public Boolean Primary { get; protected set; }
         public Boolean Hidden { get; protected set; }
 
         private Boolean readOnly {
@@ -51,7 +51,7 @@ namespace OutlookGoogleCalendarSync {
             AccessRole = init.AccessRole;
             Id = init.Id;
             Name = init.SummaryOverride ?? init.Summary;
-            primary = init.Primary ?? false;
+            Primary = init.Primary ?? false;
             Hidden = init.Hidden ?? false;
             ColourId = init.ColorId;
         }
@@ -73,7 +73,7 @@ namespace OutlookGoogleCalendarSync {
 
         public string Sorted() {
             switch (AccessRole.ToLower()) {
-                case "owner": return (primary ? "0-" : "1-") + Name;
+                case "owner": return (Primary ? "0-" : "1-") + Name;
                 case "writer": return "1-" + Name;
                 case "reader": return "2-" + Name;
                 case "freebusyreader": return "2-" + Name;

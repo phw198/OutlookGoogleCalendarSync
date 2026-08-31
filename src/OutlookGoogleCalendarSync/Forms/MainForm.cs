@@ -610,6 +610,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbExcludeFreeAllDays.Enabled = cbExcludeAllDays.Checked;
                     cbExcludeFree.Checked = profile.ExcludeFree;
                     cbExcludeTentative.Checked = profile.ExcludeTentative;
+                    cbExcludeOoO.Checked = profile.ExcludeOoO;
                     cbExcludePrivate.Checked = profile.ExcludePrivate;
                     cbExcludeSubject.Checked = profile.ExcludeSubject;
                     tbExcludeSubjectText.Text = profile.ExcludeSubjectText;
@@ -1871,6 +1872,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.SelectedIndexChanged += cbGoogleCalendars_SelectedIndexChanged;
             }
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
+            cbExcludeOoO.Visible = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id || ActiveCalendarProfile.UseGoogleCalendar.Primary;
+            if (!cbExcludeOoO.Visible) cbExcludeOoO.Checked = false;
             if (sender != null) {
                 log.Warn("Google calendar selection changed to: " + (ActiveCalendarProfile.UseGoogleCalendar?.ToString(true) ?? "<None>"));
                 ddGoogleColour.Rebuild(true);
@@ -2071,6 +2074,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
                 lWhatExcludeInfo.Left = Convert.ToInt16(230 * Program.Magnification);
                 cbExcludeTentative.Visible = true;
+                cbExcludeOoO.Visible = true;
             } else {
                 cbObfuscateDirection.Enabled = false;
                 cbObfuscateDirection.SelectedIndex = ActiveCalendarProfile.SyncDirection.Id - 1;
@@ -2096,6 +2100,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.Enabled = cbColour.Checked;
                 cbSingleCategoryOnly.Visible = true;
                 cbExcludeTentative.Visible = false;
+                cbExcludeOoO.Visible = ActiveCalendarProfile.UseGoogleCalendar.Primary;
+                if (!cbExcludeOoO.Visible) cbExcludeOoO.Checked = false;
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
@@ -2109,6 +2115,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.Visible = false;
                 cbSingleCategoryOnly.Visible = false;
                 cbExcludeTentative.Visible = true;
+                cbExcludeOoO.Visible = true;
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
@@ -2592,6 +2599,9 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbExcludeTentative_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludeTentative = cbExcludeTentative.Checked;
+        }
+        private void cbExcludeOoO_CheckedChanged(object sender, EventArgs e) {
+            ActiveCalendarProfile.ExcludeOoO = cbExcludeOoO.Checked;
         }
         private void cbExcludePrivate_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ExcludePrivate = cbExcludePrivate.Checked;

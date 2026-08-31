@@ -90,6 +90,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             ColourMaps = new ColourMappingDictionary();
             ExcludeFree = false;
             ExcludeTentative = false;
+            ExcludeOoO = false;
             ExcludePrivate = false;
             ExcludeAllDays = false;
             ExcludeFreeAllDays = false;
@@ -193,6 +194,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         public class ColourMappingDictionary : Dictionary<String, String> { }
         [DataMember] public bool ExcludeFree { get; set; }
         [DataMember] public bool ExcludeTentative { get; set; }
+        [DataMember] public bool ExcludeOoO { get; set; }
         [DataMember] public bool ExcludePrivate { get; set; }        
         [DataMember] public bool ExcludeAllDays { get; set; }
         [DataMember] public bool ExcludeFreeAllDays { get; set; }
@@ -337,6 +339,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 log.Info("    ReminderDND: " + ReminderDND + " (" + ReminderDNDstart.ToString("HH:mm") + "-" + ReminderDNDend.ToString("HH:mm") + ")");
                 log.Info("  ExcludeFree: " + ExcludeFree);
                 log.Info("  ExcludeTentative: " + ExcludeTentative);
+                log.Info("  ExcludeOoO: " + ExcludeOoO);
                 log.Info("  ExcludePrivate: " + ExcludePrivate);
                 log.Info("  ExcludeAllDay: " + ExcludeAllDays + "; that are marked Free: " + ExcludeFreeAllDays);
                 log.Info("  ExcludeSubject: " + ExcludeSubject + (ExcludeSubject ? "; Regex: " + ExcludeSubjectText : ""));
