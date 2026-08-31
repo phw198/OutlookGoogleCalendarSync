@@ -211,7 +211,7 @@ namespace OutlookGoogleCalendarSync {
         [DataMember] public bool? HideSplashScreen {
             get { return hideSplashScreen; }
             set {
-                if (!Loading() && hideSplashScreen != value && hideSplashScreen != null) {
+                if (!Loading() && hideSplashScreen != value && value != null) {
                     XMLManager.ExportElement(this, "HideSplashScreen", value, ConfigFile);
                 }
                 hideSplashScreen = value;
