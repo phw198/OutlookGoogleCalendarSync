@@ -121,23 +121,28 @@ namespace OutlookGoogleCalendarSync.Extensions {
         }
 
         /// <summary>
-        /// Returns the non-null Date or DateTime properties as a DateTime
+        /// Returns the non-null Date or DateTime properties as a DateTime.
+        /// For use with classic Outlook or where the user's Windows clock is relevant.
         /// </summary>
         /// <returns>DateTime</returns>
-        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
         public static System.DateTime SafeDateTime(this EventDateTime evDt) {
-            return SafeDateTimeOffset(evDt).DateTime;
+            if (evDt.DateTimeDateTimeOffset == null)
+                return System.DateTime.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture).Date;
+            else
+                return evDt.DateTimeDateTimeOffset.Value.ToLocalTime().DateTime;
         }
 
         /// <summary>
-        /// Returns the non-null Date or DateTime properties as a DateTimeOffset
+        /// Returns the non-null Date or DateTime properties as a DateTimeOffset.
+        /// Retains cloud-native offset and timezone.
+        /// Use this for Cloud-to-Cloud synchronization (Google <-> Graph) where local system time is irrelevant.
         /// </summary>
         /// <returns>DateTimeOffset</returns>
         public static System.DateTimeOffset SafeDateTimeOffset(this EventDateTime evDt) {
             if (evDt.DateTimeDateTimeOffset == null)
                 return System.DateTimeOffset.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 
-            Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
+            Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone, evDt.DateTimeDateTimeOffset.Value.UtcDateTime);
             System.DateTimeOffset retDto = (DateTimeOffset)evDt.DateTimeDateTimeOffset;
             return retDto.ToOffset(TimeSpan.FromMinutes(offset));
         }
@@ -150,23 +155,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             return new System.DateTime(graphDate.Year, graphDate.Month, graphDate.Day, 0, 0, 0, DateTimeKind.Utc);
         }
 
-        /// <summary>
-        /// Parses the DateTimeTimeZone string to a local DateTime
-        /// </summary>
-        /// <returns>Local DateTime</returns>
-        [Obsolete("[deprecated, use SafeDateTimeOffset()]")]
-        public static System.DateTime SafeDateTime(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt) {
-            System.DateTime safeDate;
-            if (evDt.TimeZone == "UTC") {
-                safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
-            } else {
-                Int16 offset = TimezoneDB.GetUtcOffset(evDt.TimeZone);
-                safeDate = System.DateTime.Parse(evDt.DateTime).AddMinutes(-offset);
-                safeDate = System.DateTime.SpecifyKind(safeDate, DateTimeKind.Utc);
-                safeDate = safeDate.ToLocalTime();
-            }
-            return safeDate;
-        }
+
         public static System.DateTimeOffset SafeDateTimeOffset(this Outlook.Graph.CustomClient.Models.DateTimeTimeZone evDt, Boolean? isAllDay, String timezone) {
             System.DateTimeOffset safeDate = System.DateTime.Parse(evDt.DateTime, null, DateTimeStyles.AssumeUniversal);
             if (isAllDay ?? false) {

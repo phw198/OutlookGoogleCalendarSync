@@ -614,8 +614,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean endChange = false;
             OgcsDateTimeOffset aiStart = new(ai.Start, aiAllDay);
             OgcsDateTimeOffset aiEnd = new(ai.End, aiAllDay);
-            System.DateTimeOffset evStartParsedDate = ev.Start.SafeDateTimeOffset();
-            System.DateTimeOffset evEndParsedDate = ev.End.SafeDateTimeOffset();
+            System.DateTime evStartParsedDate = ev.Start.SafeDateTime();
+            System.DateTime evEndParsedDate = ev.End.SafeDateTime();
             if (ev.AllDayEvent()) {
                 startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, true), aiStart, sb, ref itemModified);
                 endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, true), aiEnd, sb, ref itemModified);
@@ -637,12 +637,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             oPattern = (ai.RecurrenceState == OlRecurrenceState.olApptMaster) ? ai.GetRecurrencePattern() : null;
                             if (startChange) {
-                                oPattern.PatternStartDate = evStartParsedDate.DateTime;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate.DateTime, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                oPattern.PatternStartDate = evStartParsedDate;
+                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
                             }
                             if (endChange) {
-                                oPattern.PatternEndDate = evEndParsedDate.DateTime;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate.DateTime, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                                oPattern.PatternEndDate = evEndParsedDate;
+                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
                             }
                         }
                     } else {
