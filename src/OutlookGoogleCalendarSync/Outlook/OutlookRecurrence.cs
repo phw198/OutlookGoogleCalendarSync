@@ -272,19 +272,18 @@ namespace OutlookGoogleCalendarSync.Outlook {
             int updatesMade = 0;
             if (evExceptions.Count == 0) return updatesMade;
 
-            RecurrencePattern oPattern = null;
-            try {
-                oPattern = ai.GetRecurrencePattern();
-
-                foreach (Event gExcp in evExceptions) {
+            foreach (Event gExcp in evExceptions) {
+                RecurrencePattern oPattern = null;
+                try {
+                    oPattern = ai.GetRecurrencePattern();
                     System.DateTime gExcpOrigDate = gExcp.OriginalStartTime.SafeDateTime();
                     System.DateTime? gExcpCurrDate = gExcp.Start?.SafeDateTime();
-                    String gExcpDetails = "Google exception with original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate?.ToShortDateString() : "");
+                    String gExcpDetails = "Google exception with original date " + gExcpOrigDate.ToString() + (gExcpCurrDate != null ? " now on " + gExcpCurrDate.Value.ToShortDateString() : "");
                     log.Fine("Found " + gExcpDetails);
 
                     AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
+                        getOutlookInstance(oPattern, gExcpOrigDate, gExcpCurrDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
                             if (gExcp.Status != "cancelled") {
                                 log.Warn("Unable to find Outlook exception for " + gExcpDetails);
@@ -331,14 +330,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } finally {
                         newAiExcp = (AppointmentItem)Outlook.Calendar.ReleaseObject(newAiExcp);
                     }
+                } finally {
+                    oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
                 }
-            } finally {
-                oPattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(oPattern);
             }
             return updatesMade;
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
+        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, System.DateTime? instanceCurrDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 
@@ -356,8 +355,26 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             log.Debug("Found Outlook exception for original date " + instanceOrigDate);
 
                             if (isDeleted == DeletionState.Inaccessible) {
+                                //Exceptions[].AppointmentItem can be unreliable for moved occurrences, so fall back to direct date lookups.
+                                if (instanceCurrDate.HasValue) {
+                                    try {
+                                        ai = oPattern.GetOccurrence(instanceCurrDate.Value);
+                                        log.Debug("Successfully resolved occurrence directly via GetOccurrence(" + instanceCurrDate.Value.ToShortDateString() + ") and current date, bypassing Exceptions collection.");
+                                        return;
+                                    } catch {
+                                        log.Warn("GetOccurrence() lookup by current date failed. Suggests the Outlook item change has not been synced yet from Google.");
+                                    }
+                                }
+                                try {
+                                    ai = oPattern.GetOccurrence(instanceOrigDate);
+                                    log.Debug("Successfully resolved occurrence directly via GetOccurrence(" + instanceOrigDate.ToShortDateString() + ") and original date, bypassing Exceptions collection.");
+                                    return;
+                                } catch {
+                                    log.Warn("GetOccurrence() lookup by original date failed too. Suggests it is on some other dates entirely.");
+                                }
                                 log.Warn("This exception is inaccessible.");
                                 return;
+
                             } else if (isDeleted == DeletionState.Deleted) {
                                 if (processingDeletions) {
                                     log.Debug("This exception is deleted.");
@@ -375,9 +392,17 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else if (isDeleted == DeletionState.Inaccessible) {
                             log.Warn($"The exception, originally on {oExcp.OriginalDate.Date}, is inaccessible.");
 
-                        } else if (processingDeletions && isDeleted != DeletionState.Deleted && oExcp.AppointmentItem.Start.Date == instanceOrigDate.Date) {
-                            log.Debug("An Outlook exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
-                            return;
+                        } else if (processingDeletions && isDeleted != DeletionState.Deleted) {
+                            AppointmentItem oExcpAi = null;
+                            try {
+                                oExcpAi = oExcp.AppointmentItem;
+                                if (oExcpAi.Start.Date == instanceOrigDate.Date) {
+                                    log.Debug("An Outlook exception has moved to " + instanceOrigDate.Date.ToShortDateString() + " from " + oExcp.OriginalDate.Date.ToShortDateString() + ". This moved exception won't be deleted.");
+                                    return;
+                                }
+                            } finally {
+                                oExcpAi = (AppointmentItem)Calendar.ReleaseObject(oExcpAi);
+                            }
                         }
                     } finally {
                         oExcp = (Microsoft.Office.Interop.Outlook.Exception)Outlook.Calendar.ReleaseObject(oExcp);

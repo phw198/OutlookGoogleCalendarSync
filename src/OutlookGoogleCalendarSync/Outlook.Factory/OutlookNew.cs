@@ -832,19 +832,34 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public AppointmentItem WindowsTimeZone_set(AppointmentItem ai, Event ev, String attr = "Both", Boolean onlyTZattribute = false) {
+            Microsoft.Office.Interop.Outlook.TimeZone currentTz = null;
+            Microsoft.Office.Interop.Outlook.TimeZone targetTz = null;
+            
             if ("Both,Start".Contains(attr)) {
                 if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
                     log.Fine("Has starting timezone: " + ev.Start.TimeZone);
-                    ai.StartTimeZone = WindowsTimeZone(ev.Start.TimeZone);
+                    try {
+                        currentTz = ai.StartTimeZone;
+                        targetTz = WindowsTimeZone(ev.Start.TimeZone);
+                        if (currentTz.ID != targetTz.ID) ai.StartTimeZone = targetTz;
+                    } finally {
+                        currentTz = (Microsoft.Office.Interop.Outlook.TimeZone)Outlook.Calendar.ReleaseObject(currentTz);
+                    }
                 }
-                if (!onlyTZattribute) ai.Start = ev.Start.SafeDateTime();
+                if (!onlyTZattribute && ai.Start != ev.Start.SafeDateTime()) ai.Start = ev.Start.SafeDateTime();
             }
             if ("Both,End".Contains(attr)) {
                 if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
                     log.Fine("Has ending timezone: " + ev.End.TimeZone);
-                    ai.EndTimeZone = WindowsTimeZone(ev.End.TimeZone);
+                    try {
+                        currentTz = ai.EndTimeZone;
+                        targetTz = WindowsTimeZone(ev.End.TimeZone);
+                        if (currentTz.ID != targetTz.ID) ai.EndTimeZone = targetTz;
+                    } finally {
+                        currentTz = (Microsoft.Office.Interop.Outlook.TimeZone)Outlook.Calendar.ReleaseObject(currentTz);
+                    }
                 }
-                if (!onlyTZattribute) ai.End = ev.End.SafeDateTime();
+                if (!onlyTZattribute && ai.End != ev.End.SafeDateTime()) ai.End = ev.End.SafeDateTime();
             }
             return ai;
         }
