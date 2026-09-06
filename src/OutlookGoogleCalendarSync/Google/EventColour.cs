@@ -298,6 +298,7 @@ namespace OutlookGoogleCalendarSync.Google {
         /// </summary>
         /// <param name="colour">The colour to search with.</param>
         public Palette GetClosestColour(Color baseColour) {
+            if (baseColour == Color.Transparent) return Palette.NullPalette;
             try {
                 var colourDistance = ActivePalette.Select(x => new { Value = x, Diff = GetDiff(x.RgbValue, baseColour) }).ToList();
                 var minDistance = colourDistance.Min(x => x.Diff);

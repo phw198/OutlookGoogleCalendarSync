@@ -1,6 +1,7 @@
 ﻿#region Using directives
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -31,3 +32,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("3.0.3.0")]
 
 [assembly: AssemblyMetadata("SquirrelAwareVersion", "1")]
+
+[assembly: InternalsVisibleTo("OutlookGoogleCalendarSync.Tests")]

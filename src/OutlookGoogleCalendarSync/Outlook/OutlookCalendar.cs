@@ -227,19 +227,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         try {
                             //Categories
                             try {
-                                if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include) {
-                                    filtered = (profile.Categories.Count() == 0 || (ai.Categories == null && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() == 0));
-
-                                } else if (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude) {
-                                    filtered = (profile.Categories.Count() > 0 && ((ai.Categories == null && profile.Categories.Contains("<No category assigned>")) ||
-                                        (ai.Categories != null && ai.Categories.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).Intersect(profile.Categories).Count() > 0)));
-                                }
+                                filtered = Categories.isExcludedByFilter(ai.Categories, profile.Categories, profile.CategoriesRestrictBy);
                             } catch (System.Runtime.InteropServices.COMException ex) {
                                 if (ex.TargetSite.Name == "get_Categories") {
                                     log.Warn("Could not access Categories property for " + GetEventSummary(ai));
-                                    filtered = ((profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include && !profile.Categories.Contains("<No category assigned>")) ||
-                                        (profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Exclude && profile.Categories.Contains("<No category assigned>")));
+                                    filtered = Categories.isExcludedByFilter(null, profile.Categories, profile.CategoriesRestrictBy);
                                 } else throw;
                             }
                             if (filtered) {
@@ -755,15 +747,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     oCategoryName = aiCategories.FirstOrDefault();
                 }
                 String gCategoryName = getColour(ev.ColorId, oCategoryName ?? "");
+                StringBuilder cachedSb = new(sb.ToString());
                 if (Sync.Engine.CompareAttribute("Category/Colour", Sync.Direction.GoogleToOutlook, gCategoryName, oCategoryName, sb, ref itemModified)) {
-                    if (profile.SingleCategoryOnly)
-                        aiCategories = new List<string>();
-                    else {
-                        //Only allow one OGCS category at a time (Google Events can only have one colour)
-                        aiCategories.RemoveAll(x => x.StartsWith("OGCS ") || x == gCategoryName);
-                    }
-                    aiCategories.Insert(0, gCategoryName);
+                    aiCategories = updateCategoriesForGoogleColour(aiCategories, gCategoryName, profile.SingleCategoryOnly);
                     ai.Categories = String.Join(Categories.Delimiter, aiCategories.ToArray());
+
+                    //Check if there's been a change (as we only manage OGCS prefixed categories). If not, revert Console output.
+                    if (ai.Categories?.Split(new[] { Categories.Delimiter }, StringSplitOptions.None).FirstOrDefault() == oCategoryName) {
+                        sb = cachedSb;
+                        itemModified--;
+                    }
                 }
             }
 
@@ -1171,7 +1164,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (!profile.AddColours && !profile.SetEntriesColour) return "";
 
             OlCategoryColor outlookColour = Ogcs.Outlook.Categories.Map.Colours.Where(c => c.Key.ToString() == profile.SetEntriesColourValue).FirstOrDefault().Key;
-            String overrideColour = Categories.FindName(outlookColour, profile.SetEntriesColourName);
+            String overrideColour = getOverrideCategory(outlookColour, profile.SetEntriesColourName);
 
             if (profile.SetEntriesColour) {
                 if (profile.TargetCalendar.Id == Sync.Direction.OutlookToGoogle.Id) { //Colour forced to sync in other direction
@@ -1184,18 +1177,41 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         return oColour;
 
                 } else {
-                    if (!profile.CreatedItemsOnly || (profile.CreatedItemsOnly && oColour == null))
-                        return overrideColour;
-                    else {
-                        if (profile.CreatedItemsOnly) return oColour;
-                        else return overrideColour;
-                    }
+                    return getGoogleToOutlookCategory(GetCategoryColour(gColourId ?? "0"), oColour,
+                        profile.SetEntriesColour, overrideColour, profile.CreatedItemsOnly);
                 }
 
             } else {
                 return GetCategoryColour(gColourId ?? "0");
             }
         }
+
+        internal static String getGoogleToOutlookCategory(String mappedGoogleColour, String existingOutlookCategory,
+            Boolean setEntriesColour, String overrideCategory, Boolean createdItemsOnly) //
+        {
+            if (!setEntriesColour) return mappedGoogleColour;
+            return !createdItemsOnly || existingOutlookCategory == null ? overrideCategory : existingOutlookCategory;
+        }
+
+        internal static String getOverrideCategory(OlCategoryColor outlookColour, String categoryName) {
+            return outlookColour == OlCategoryColor.olCategoryColorNone
+                ? categoryName
+                : Categories.FindName(outlookColour, categoryName);
+        }
+
+        internal static List<String> updateCategoriesForGoogleColour(IEnumerable<String> existingCategories, String googleColour, Boolean singleCategoryOnly) {
+            List<String> categories = existingCategories.ToList();
+            if (singleCategoryOnly)
+                categories = new List<string>();
+            else {
+                //Only allow one OGCS category at a time (Google Events can only have one colour).
+                categories.RemoveAll(category => category.StartsWith("OGCS ") || category == googleColour);
+            }
+            if (googleColour != Outlook.Calendar.Categories.NO_CATEGORY_ASSIGNED.Key)
+                categories.Insert(0, googleColour);
+            return categories;
+        }
+        
         /// <summary>
         /// Get the Outlook category name, mapped from a Google colour ID
         /// </summary>

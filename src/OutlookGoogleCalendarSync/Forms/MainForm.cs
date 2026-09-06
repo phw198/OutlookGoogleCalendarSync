@@ -135,8 +135,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 "Google has been known to send meeting updates to attendees without your consent.\n" +
                 "This option safeguards against that by appending '" + Ogcs.Google.EventAttendee.EmailCloak + "' to their email address.");
             ToolTips.SetToolTip(cbSingleCategoryOnly,
-                "Only allow a single Outlook category - ie 1:1 sync with Google.\n" +
-                "Otherwise, for multiple categories and only one synced with OGCS, manually prefix the category name(s) with \"OGCS \".");
+                "Only allow a single Outlook category - ie 1:1 sync with Google. This may also remove assigned categories not prefixed with \"OGCS\".\n" +
+                "Otherwise, for multiple categories only those prefixed with \"OGCS\" are added or removed.");
             ToolTips.SetToolTip(cbReminderDND,
                 "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
             ToolTips.SetToolTip(cbExcludeSubject,
