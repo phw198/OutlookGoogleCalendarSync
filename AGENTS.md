@@ -16,11 +16,9 @@
 - Replaced the selectable `sync-dev` agent with always-applied `ogcs-global-guidance` project instructions.
 
 ## Active Task
-- Refining release automation prompts and agent skills.
-- Documented shim discovery findings in `.ai/developer-agent.md`.
-- Added optional `BASE_REF` handling to `/ogcs-code-review`: explicit bases resolve without confirmation, while inferred bases require confirmation or a valid override before review.
-- Updated `/ogcs-code-review` to accept validated named `BRANCH`, `ISSUE`, and `BASE_REF` inputs in any order; its explicit and inferred comparison-base behaviour remains unchanged.
-- Testing native VS Code Chat agent execution and memory file syncing.
+- Updated the alpha release metadata for 3.0.4 across the build script, docs, and package metadata while preserving 3.0.3 as the current released baseline and 3.0.2 as the prior release reference.
+- Mined the v3 release branch history to reconcile the 3.0.4 changelog against actual issue branches and add the missing Git-derived entries for the OOO sync enhancement and the SafeDateTime bugfix.
+- Refined release automation to keep the new version bump aligned with the project’s existing alpha packaging and ZIP naming conventions, and to validate the changelog against Git history even when the Nuspec header has already been bumped.
 
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
