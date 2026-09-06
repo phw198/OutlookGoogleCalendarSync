@@ -1,6 +1,22 @@
 | Release Notes |
 |:---|
 
+# v3.0.4.0 - Alpha
+
+**Enhancements**
+- Application
+    - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
+    - Option to exclude out-of-office items from sync [[#1254](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1254)]
+- Sync Engine
+    - Ability to map `<No category assigned>` in Outlook to a Google colour [[#1320](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1320)]
+    - More robust sync of Classic Outlook recurring series
+
+**Bugfix**
+- Application
+    - Properly store splash screen hiding preference [[#2368](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2368)]
+- Sync Engine
+    - Fixed DST time zone drift affecting Classic Outlook [[#2350](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2350)]
+
 # v3.0.3.0 - Alpha
 
 **Enhancements**

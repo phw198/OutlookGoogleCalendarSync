@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OutlookGoogleCalendarSync</id>
-    <version>3.0.3-alpha</version>
+    <version>3.0.4-alpha</version>
     <title>Outlook Google Calendar Sync</title>
     <authors>Paul Woolcock</authors>
     <owners>phw198</owners>
@@ -19,18 +19,23 @@
 * New features will only appear in v3, though you may choose to remain on v2.
 * v2 of OGCS has entered [corrective maintenance](https://www.outlookgooglecalendarsync.com/blog/2026/02/22/v2-into-corrective-maintenance.html) mode.
 
-# What's New In v3.0.3?
+# What's New In v3.0.4?
 
 &lt;i class="em em-high_brightness"&gt;&lt;/i&gt; **Enhancements**  
 
 - Application
     - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
+    - Option to exclude out-of-office items from sync [[#1254](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1254)]
+- Sync Engine
+    - Ability to map `&lt;No category assigned&gt;` in Outlook to a Google colour [[#1320](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1320)]
+    - More robust sync of Classic Outlook recurring series
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
     - Properly store splash screen hiding preference [[#2368](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2368)]
 - Sync Engine
+    - Fixed DST time zone drift affecting Classic Outlook [[#2350](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2350)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
