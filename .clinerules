@@ -7,13 +7,18 @@ Always adhere to the universal AI guidance structure and patterns defined in thi
 - Universal AI guidance resides in `.ai/` in the project root.
   - Architecture overview: `.ai/architecture.md`
   - Coding standards: `.ai/coding-standards.md`
+  - Agnostic agent instructions: `.ai/agents/`
   - Reusable templates: `.ai/templates/`
 - Standard memory log: `AGENTS.md` (the industry-standard universal memory log in the root).
+- **Agnostic Agent Architecture**: Specialized agent logic is stored in `.ai/agents/`. Platform-specific agent files (like `.github/agents/`) must only be thin pointers that redirect agents to read the agnostic instructions in `.ai/agents/`.
 - Always read `AGENTS.md` and the appropriate files in `.ai/` before performing any tasks or edits.
 - Keep `AGENTS.md` updated as milestones are reached or work is completed.
 
 ## Core Directives
 1. **Be Minimalist**: Implement precisely what is requested with the fewest lines of code possible while meeting all requirements.
 2. **Consult Architecture**: Before touching Outlook or Google Calendar sync code, review `.ai/architecture.md`.
-3. **Adhere to Coding Standards**: Refer to `.ai/coding-standards.md` for C# coding style, WinForms/thread safety, and logging standards.
-4. **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
+3. **Adhere to Coding Standards**: Refer to `.ai/coding-standards.md` for C# coding style, WinForms/thread safety, naming conventions, and logging standards.
+4. **Follow Naming and Exception Rules**: Use camelCase for private methods and handlers, and use `Analyse()` with a contextual message for exception handling rather than bare exception logging.
+5. **Prefer Explicit Types**: Avoid `var` for local variables unless the type is obvious; prefer explicit type declarations for clarity.
+6. **Use CRLF Line Endings**: All code and repository text files must be saved with CRLF line endings. Do not introduce files with LF-only endings.
+7. **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
