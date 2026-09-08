@@ -153,6 +153,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             propertyName = up.Name;
                             calendarKeys.Add(up.Name, up.Value.ToString());
                         }
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        //Eg "The object does not support this method." - some legacy/incompatible custom properties can't be read.
+                        log.Warn("Could not access custom property " + (propertyName ?? "#" + p) + " for " + Calendar.GetEventSummary(ai) + " - " + ex.Message);
                     } finally {
                         up = (UserProperty)Calendar.ReleaseObject(up);
                     }
