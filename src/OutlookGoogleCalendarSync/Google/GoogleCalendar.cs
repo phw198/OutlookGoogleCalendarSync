@@ -320,6 +320,41 @@ namespace OutlookGoogleCalendarSync.Google {
             return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd, false, recurringId);
         }
 
+        /// <summary>Get calendar Events that have fallen before the "days in the past" sync window, so are no longer touched by a normal sync</summary>
+        public List<Event> GetPastCalendarEntries() {
+            SettingsStore.Calendar profile = Settings.Profile.InPlay();
+            List<Event> pastEvents = GetCalendarEntriesInRange(new System.DateTime(1970, 1, 1), profile.SyncStart, true);
+            //Recurring masters/exceptions can have a first-occurrence date long in the past, yet still be an active series with future occurrences.
+            List<Event> toRemove = new List<Event>();
+            foreach (Event ev in pastEvents) {
+                if (!String.IsNullOrEmpty(ev.RecurringEventId)) continue; //Exception instance - handled via its own master.
+                if (ev.Recurrence == null) {
+                    //Single event - safe to consider "finished" based on its own date.
+                    toRemove.Add(ev);
+                } else if (recurringSeriesHasEnded(ev, profile.SyncStart)) {
+                    //Series is bounded and has fully finished - safe to remove entirely.
+                    toRemove.Add(ev);
+                }
+                //A still-active series is left alone: purging its past occurrences individually would generate
+                //a potentially huge list of recurrence exceptions and slow down every subsequent sync.
+            }
+            //Only ever purge items OGCS has synced (ie carry OGCS's own IDs). If OGCS has never touched an item, it must not delete it either.
+            return toRemove.Where(ev => CustomProperty.ExistAnyOutlookIDs(ev)).ToList();
+        }
+
+        /// <summary>Whether a recurring series is bounded by a RRULE UNTIL date that has already passed.</summary>
+        private static Boolean recurringSeriesHasEnded(Event ev, System.DateTime syncStart) {
+            Dictionary<String, String> rules = Recurrence.ExplodeRrule(ev.Recurrence);
+            if (rules == null || !rules.ContainsKey("UNTIL")) return false; //Open-ended, or COUNT-bounded - can't safely determine an end date.
+            try {
+                System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
+                return endDate < syncStart;
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed to determine whether recurring series has ended.");
+                return false; //If in doubt, leave it alone.
+            }
+        }
+
         /// <summary>Get calendar Events occurring between the specified dates</summary>
         /// <returns>Single events, recurring master and exceptions</returns>
         public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false, String recurringId = null) {
