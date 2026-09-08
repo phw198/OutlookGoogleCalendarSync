@@ -57,6 +57,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             MergeItems = true;
             DisableDelete = true;
             ConfirmOnDelete = true;
+            RemovePastEvents = false;
             TargetCalendar = Sync.Direction.OutlookToGoogle;
             CreatedItemsOnly = true;
             SetEntriesPrivate = false;
@@ -144,6 +145,8 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool MergeItems { get; set; }
         [DataMember] public bool DisableDelete { get; set; }
         [DataMember] public bool ConfirmOnDelete { get; set; }
+        /// <summary>Remove OGCS-synced events from the destination calendar that have fallen outside the "days in the past" sync window.</summary>
+        [DataMember] public bool RemovePastEvents { get; set; }
         [DataMember] public Obfuscate Obfuscation { get; set; }
         [DataMember] public Sync.Direction TargetCalendar { get; set; }
         [DataMember] public Boolean CreatedItemsOnly { get; set; }
@@ -297,6 +300,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 log.Info("  MergeItems: " + MergeItems);
                 log.Info("  DisableDelete: " + DisableDelete);
                 log.Info("  ConfirmOnDelete: " + ConfirmOnDelete);
+                log.Info("  RemovePastEvents: " + RemovePastEvents);
                 log.Info("  SetEntriesPrivate: " + SetEntriesPrivate + (SetEntriesPrivate ? "; " + PrivacyLevel : ""));
                 log.Info("  SetEntriesAvailable: " + SetEntriesAvailable + (SetEntriesAvailable ? "; " + AvailabilityStatus : ""));
                 log.Info("  SetEntriesColour: " + SetEntriesColour + (SetEntriesColour ? "; " + SetEntriesColourValue + "; \"" + SetEntriesColourName + "\"" : ""));

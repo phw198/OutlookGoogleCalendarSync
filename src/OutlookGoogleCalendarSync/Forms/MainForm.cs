@@ -503,6 +503,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbDisableDeletion.Checked = profile.DisableDelete;
                     cbConfirmOnDelete.Enabled = !profile.DisableDelete;
                     cbConfirmOnDelete.Checked = profile.ConfirmOnDelete;
+                    cbRemovePastEvents.Checked = profile.RemovePastEvents;
+                    setRemovePastEventsAvailability(profile);
                     cbOfuscate.Checked = profile.Obfuscation.Enabled;
                     howObfuscatePanel.Visible = false;
 
@@ -2117,6 +2119,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbExcludeTentative.Visible = true;
                 cbExcludeOoO.Visible = true;
             }
+            setRemovePastEventsAvailability(ActiveCalendarProfile);
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
             cbGoogleCalendars_SelectedIndexChanged(null, null);
@@ -2135,6 +2138,18 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void cbDisableDeletion_CheckedChanged(object sender, System.EventArgs e) {
             ActiveCalendarProfile.DisableDelete = cbDisableDeletion.Checked;
             cbConfirmOnDelete.Enabled = !cbDisableDeletion.Checked;
+            setRemovePastEventsAvailability(ActiveCalendarProfile);
+        }
+
+        private void cbRemovePastEvents_CheckedChanged(object sender, System.EventArgs e) {
+            ActiveCalendarProfile.RemovePastEvents = cbRemovePastEvents.Checked;
+        }
+
+        /// <summary>"Remove past events" only applies to one-way profiles, and is unavailable while deletions are disabled.</summary>
+        private void setRemovePastEventsAvailability(SettingsStore.Calendar profile) {
+            Boolean oneWay = profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            cbRemovePastEvents.Visible = oneWay;
+            cbRemovePastEvents.Enabled = oneWay && !profile.DisableDelete;
         }
 
         private void cbOfuscate_CheckedChanged(object sender, EventArgs e) {

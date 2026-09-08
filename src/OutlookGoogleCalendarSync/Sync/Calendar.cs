@@ -623,6 +623,16 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                 }
 
+                //Only for one-way profiles: in a Bidirectional sync the same "past" removal would be evaluated on both
+                //sides, making the outcome hard to reason about, so the feature is gated to a single sync direction.
+                if (!this.Profile.DisableDelete && this.Profile.RemovePastEvents && this.Profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
+                    List<Event> pastGoogleEntries = Ogcs.Google.Calendar.Instance.GetPastCalendarEntries();
+                    if (pastGoogleEntries.Count > 0) {
+                        console.Update(pastGoogleEntries.Count + " past Google calendar entries also flagged for removal.", Console.Markup.info);
+                        googleEntriesToBeDeleted.AddRange(pastGoogleEntries);
+                    }
+                }
+
                 int entriesUpdated = 0;
                 try {
                     #region Delete Google Entries
@@ -728,6 +738,15 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Calendar.ReleaseObject(outlookEntriesToBeDeleted.Last());
                             outlookEntriesToBeDeleted.Remove(outlookEntriesToBeDeleted.Last());
                         }
+                    }
+                }
+
+                //Only for one-way profiles - see matching note in the Google deletion block above.
+                if (!this.Profile.DisableDelete && this.Profile.RemovePastEvents && this.Profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) {
+                    List<AppointmentItem> pastOutlookEntries = Outlook.Calendar.Instance.GetPastCalendarEntries(this.Profile);
+                    if (pastOutlookEntries.Count > 0) {
+                        console.Update(pastOutlookEntries.Count + " past Outlook calendar entries also flagged for removal.", Console.Markup.info);
+                        outlookEntriesToBeDeleted.AddRange(pastOutlookEntries);
                     }
                 }
 
