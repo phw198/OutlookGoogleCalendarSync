@@ -14,11 +14,17 @@
 - Cleaned up redundant `.ai/.github/` directory.
 - Standardised selectable workspace customizations with the `ogcs-` prefix: the `ogcs-release-preparer` agent and `/ogcs-code-review` prompt.
 - Replaced the selectable `sync-dev` agent with always-applied `ogcs-global-guidance` project instructions.
+- Added a mandatory COM lifetime review to the project guidance: any Outlook client change must check for new COM object leaks, singleton auto-connects, and matching `Disconnect`/`ReleaseObject` cleanup before completion.
 
 ## Active Task
 - Updated the alpha release metadata for 3.0.4 across the build script, docs, and package metadata while preserving 3.0.3 as the current released baseline and 3.0.2 as the prior release reference.
 - Mined the v3 release branch history to reconcile the 3.0.4 changelog against actual issue branches and add the missing Git-derived entries for the OOO sync enhancement and the SafeDateTime bugfix.
 - Refined release automation to keep the new version bump aligned with the project’s existing alpha packaging and ZIP naming conventions, and to validate the changelog against Git history even when the Nuspec header has already been bumped.
+- Diagnosed issue #2233 (`Outlook.Calendar.FilterCalendarEntries`, "An item with the same key has already been added."): Outlook's live `[Start]`-sorted `Items` enumeration can re-deliver the same appointment mid-loop if any item's `Start` changes concurrently (background Exchange sync, another session, etc.) - not a genuine duplicate `EntryID`. Replaced the exception-driven diagnostic (full-folder re-query, CSV export, rethrow that aborted the whole calendar filter) with a simple `ExcludedByCategory.ContainsKey()` guard that skips the redundant re-delivery instead of crashing the sync.
+- Implemented a registry-based `HasOutlookProfile()` check in `OutlookFactory` so OGCS only probes `Outlook.Application` after confirming a valid Outlook MAPI profile exists, preventing COM activation when Outlook is installed but entirely unconfigured.
+
+## Immediate Next Step
+- Validate the targeted fix with the lightest available build or project-level check for the Outlook factory logic, and then confirm whether any broader Outlook profile fallback behavior should be exercised in a Windows-specific environment.
 
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
