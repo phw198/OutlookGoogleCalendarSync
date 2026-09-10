@@ -1694,6 +1694,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             Outlook.Calendar.Instance.IOutlook.RefreshCategories();
             Outlook.Calendar.Categories.BuildPicker(ref clbCategories);
             enableOutlookSettingsUI(true);
+            Outlook.Calendar.Disconnect(true);
         }
 
         private void miCatRefresh_Click(object sender, EventArgs e) {
@@ -2319,6 +2320,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ex.Analyse("ddGoogleColour_SelectedIndexChanged(): Could not update ddOutlookColour.");
             } finally {
                 ddOutlookColour.SelectedIndexChanged += ddOutlookColour_SelectedIndexChanged;
+                Outlook.Calendar.Disconnect(true);
             }
         }
 
@@ -2557,9 +2559,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             tbMaxAttendees.Enabled = cbAddAttendees.Checked;
             cbCloakEmail.Visible = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id;
             cbCloakEmail.Enabled = cbAddAttendees.Checked;
-            if (cbAddAttendees.Checked && ActiveCalendarProfile.OutlookService != Outlook.Calendar.Service.Graph &&
-                string.IsNullOrEmpty(Outlook.Calendar.Instance.IOutlook.CurrentUserSMTP())) {
-                Outlook.Calendar.Instance.IOutlook.GetCurrentUser(null);
+            if (cbAddAttendees.Checked && ActiveCalendarProfile.OutlookService != Outlook.Calendar.Service.Graph) {
+                try {
+                    if (string.IsNullOrEmpty(Outlook.Calendar.Instance.IOutlook.CurrentUserSMTP()))
+                        Outlook.Calendar.Instance.IOutlook.GetCurrentUser(null);
+                } finally {
+                    Outlook.Calendar.Disconnect(true);
+                }
             }
         }
         private void tbMaxAttendees_ValueChanged(object sender, EventArgs e) {

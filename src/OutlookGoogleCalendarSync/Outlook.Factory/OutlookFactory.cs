@@ -245,9 +245,56 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return (requestType != null);
         }
 
-        /// <summary>Checks if Outlook classic client installation is present, but does not connect.</summary>
+        private static Boolean? hasOutlookProfile = null;
+        private static Boolean HasOutlookProfile {
+            get { return hasOutlookProfile ??= checkForOutlookProfile(); }
+        }
+        private static Boolean checkForOutlookProfile() {
+            String[] profileRootPaths = new String[] {
+                @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles",
+                @"Software\Microsoft\Office\Outlook\Profiles"
+            };
+
+            foreach (String profileRootPath in profileRootPaths) {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(profileRootPath)) {
+                    if (key != null && key.SubKeyCount > 0) {
+                        log.Info("Outlook profile detected: " + profileRootPath);
+                        return true;
+                    }
+                }
+            }
+
+            try {
+                using (RegistryKey officeKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Office")) {
+                    if (officeKey != null) {
+                        foreach (String officeVersion in officeKey.GetSubKeyNames()) {
+                            using (RegistryKey officeVersionKey = officeKey.OpenSubKey(officeVersion)) {
+                                if (officeVersionKey == null) continue;
+                                using (RegistryKey outlookKey = officeVersionKey.OpenSubKey("Outlook")) {
+                                    if (outlookKey == null) continue;
+                                    using (RegistryKey profilesKey = outlookKey.OpenSubKey("Profiles")) {
+                                        if (profilesKey != null && profilesKey.SubKeyCount > 0) {
+                                            log.Info("Outlook profile detected: " + profilesKey.Name);
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed checking Outlook profile registry.");
+            }
+
+            log.Info("Outlook is not configured for use: no profile detected.");
+            return false;
+        }
+
+
+        /// <summary>Checks if Outlook classic client installation is present and configured with a mail profile, but does not connect.</summary>
         public static Boolean NoClient() {
-            return testingGraph || !OutlookIsInstalled;
+            return testingGraph || !(OutlookIsInstalled && HasOutlookProfile);
         }
     }
 }
