@@ -7,9 +7,12 @@ using System.Linq;
 namespace OutlookGoogleCalendarSync.Outlook {
     class Factory {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
+        /// <summary>Full Outlook version number, eg: 16.0.0.5562</summary>
         private static String outlookVersionFull;
+        /// <summary>Major Outlook version number, eg: 16</summary>
         private static Int16 outlookVersion;
 
+        /// <summary>Outlook product name, eg: Outlook2016 or ProPlus2019Retail</summary>
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
@@ -92,7 +95,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     } catch (System.Runtime.InteropServices.COMException ex) {
                         Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
                         if (error == Outlook.Errors.ErrorType.PermissionFailure ||
-                            error == Outlook.Errors.ErrorType.RpcRejected || 
+                            error == Outlook.Errors.ErrorType.RpcRejected ||
                             error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                             error == Outlook.Errors.ErrorType.RpcFailed) //
                         {
@@ -114,7 +117,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 #pragma warning disable 162 //Unreachable code
                 if (testing2003) {
                     log.Info("*** 2003 TESTING ***");
-                    outlookVersionFull = "11";
+                    outlookVersionFull = ((Int16)OutlookVersionNames.Outlook2003).ToString();
                 }
 #pragma warning restore 162
                 outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
