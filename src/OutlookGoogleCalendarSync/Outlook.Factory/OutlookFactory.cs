@@ -7,9 +7,12 @@ using System.Linq;
 namespace OutlookGoogleCalendarSync.Outlook {
     class Factory {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
+        /// <summary>Full Outlook version number, eg: 16.0.0.5562</summary>
         private static String outlookVersionFull;
+        /// <summary>Major Outlook version number, eg: 16</summary>
         private static Int16 outlookVersion;
 
+        /// <summary>Outlook product name, eg: Outlook2016 or ProPlus2019Retail</summary>
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
@@ -84,8 +87,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            if (testingGraph || !OutlookIsInstalled) {
-                outlookVersionFull = OutlookVersionNames.None.ToString();
+            if (NoClient()) {
+                outlookVersionFull = ((Int16)OutlookVersionNames.None).ToString();
             } else {
                 Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
                 try {
@@ -128,7 +131,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 #pragma warning disable 162 //Unreachable code
                 if (testing2003) {
                     log.Info("*** 2003 TESTING ***");
-                    outlookVersionFull = "11";
+                    outlookVersionFull = ((Int16)OutlookVersionNames.Outlook2003).ToString();
                 }
 #pragma warning restore 162
             }
