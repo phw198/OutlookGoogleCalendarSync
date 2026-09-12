@@ -128,10 +128,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Outlook\CalendarCategorySyncTests.cs" />
-    <Compile Include="Outlook\CategoriesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="Outlook\CategoryFilteringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
