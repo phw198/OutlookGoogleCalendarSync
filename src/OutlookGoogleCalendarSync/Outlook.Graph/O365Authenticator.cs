@@ -12,6 +12,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
     public class Authenticator {
         private static readonly ILog log = LogManager.GetLogger(typeof(Authenticator));
 
+        public System.Threading.CancellationTokenSource CancelToken;
         public const String TokenFile = "Microsoft.Identity.Client.Extensions.Msal.TokenResponse-user";
         private String tokenFullPath;
         private Boolean tokenFileExists { get { return System.IO.File.Exists(tokenFullPath); } }
@@ -29,7 +30,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
         public Authenticator() {
             Authenticated = false;
-            Sync.Engine.Instance.CancelToken = new();
+            CancelToken = new();
         }
 
         public Boolean AgedAccessToken {
@@ -50,7 +51,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             while (oAuth.IsAlive) {
                 System.Windows.Forms.Application.DoEvents();
                 System.Threading.Thread.Sleep(100);
-                if (Sync.Engine.Instance.CancelToken.IsCancellationRequested) break;
+                if (CancelToken.IsCancellationRequested) break;
             }
         }
 
@@ -62,7 +63,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //Calling an async function from a static constructor needs to be called like this, else it deadlocks:-
                 Task task = Task.Run(async () => { await getAuthenticated(Authenticator.clientId); });
                 try {
-                    task.Wait(Sync.Engine.Instance.CancelToken.Token);
+                    task.Wait(CancelToken.Token);
                 } catch (System.OperationCanceledException) {
                     Forms.Main.Instance.Console.Update("Authorisation to allow OGCS to manage your Google calendar was cancelled.", Console.Markup.warning);
                     if (Forms.Main.Instance.InvokeRequired)
@@ -143,7 +144,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 } catch (MsalException msalInteractiveEx) {
                     log.Fail("Problem acquiring MS Graph token interactively.");
                     if (new String[] { "access_denied", "authentication_canceled" }.Contains(msalInteractiveEx.ErrorCode)) {
-                        Sync.Engine.Instance.CancelToken.Cancel(true);
+                        CancelToken.Cancel(true);
                         return false;
                     } else {
                         log.Fail("msalInteractiveEx.ErrorCode: " + msalInteractiveEx.ErrorCode);

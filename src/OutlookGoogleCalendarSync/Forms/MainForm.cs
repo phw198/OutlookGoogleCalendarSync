@@ -1429,7 +1429,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         private async void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
-                Sync.Engine.Instance.CancelToken.Cancel();
+                if (!Google.Calendar.Instance.Authenticator.Authenticated)
+                    Outlook.Graph.Calendar.Instance.Authenticator.CancelToken.Cancel();
+                else
+                    Sync.Engine.Instance.CancelToken.Cancel();
                 return;
             }
 
@@ -1794,7 +1797,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         private void bGetGoogleCalendars_Click(object sender, EventArgs e) {
             if (bGetGoogleCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Google calendars.");
-                Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                if (!Google.Calendar.Instance.Authenticator.Authenticated)
+                    Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                else
+                    Sync.Engine.Instance.CancelToken.Cancel();
                 return;
             }
 
