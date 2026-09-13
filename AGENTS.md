@@ -26,6 +26,20 @@
 ## Immediate Next Step
 - Validate the targeted fix with the lightest available build or project-level check for the Outlook factory logic, and then confirm whether any broader Outlook profile fallback behavior should be exercised in a Windows-specific environment.
 
+## Progress Update
+- Confirmed the UI freeze was caused by a deadlock in the Graph pagination path: the first page of calendars was awaited correctly, but the second page used a blocking Result call while the WinForms UI thread was still active, which only reproduced for accounts with multiple calendar pages.
+- Reproduced the issue by forcing Graph page size to 1 and observing the freeze on the second-page fetch in [src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs](src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs).
+- Replaced the blocking next-page fetch with an awaited pagination path to keep the UI responsive; the fix matches the observed reproduction and resolves the freeze for multi-page calendar sets.
+- Converted the remaining Graph read/write blockers in [src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs](src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs), [src/OutlookGoogleCalendarSync/Outlook.Graph/O365Recurrence.cs](src/OutlookGoogleCalendarSync/Outlook.Graph/O365Recurrence.cs), and [src/OutlookGoogleCalendarSync/Outlook.Graph/O365CustomProperty.cs](src/OutlookGoogleCalendarSync/Outlook.Graph/O365CustomProperty.cs) to async await-based paths with compatibility wrappers for the existing sync call sites.
+- Restored the worker-thread sync wrapper pattern for the Graph calendar calls: the background sync worker may block on Graph/Outlook calls, but UI-invoked methods must not block; the wrapper approach keeps the async helpers available while preventing UI deadlocks.
+- Added explicit project guidance to distinguish UI-thread safety from background-worker blocking, so future Graph/O365 changes are checked for the correct execution context before converting methods to async or sync.
+- Left the separate MSAL auth bootstrap and Google API blocking paths alone for now because they are provider-specific and outside the Graph calendar deadlock fix; a fuller async cleanup pass should be done in a follow-up if those flows are later moved onto the same await-based pattern.
+- Restored the single blocking `GetCalendarEntry` path in [src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs](src/OutlookGoogleCalendarSync/Outlook.Graph/O365Calendar.cs) and removed the stale duplicate method block that introduced the syntax breakage during the Graph pagination cleanup.
+- Kept the final pattern aligned to the project rule: background sync worker code may block on Graph/Outlook calls, while any method reached directly from the WinForms UI must remain non-blocking.
+
+## Release Build Note
+- Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
+
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
 - Raise any conflict in test logic or ambiguity in the expected behavior before encoding it in a new test.

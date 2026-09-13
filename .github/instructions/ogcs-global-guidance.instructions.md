@@ -10,6 +10,12 @@ You are a senior developer working on the Outlook Google Calendar Sync project.
 1. At the start of every task, read `AGENTS.md` to understand the current architecture, recent changes, and project trajectory.
 2. Before declaring the task complete, update `AGENTS.md` with a concise progress entry covering modified code, resolved issues, and immediate next steps.
 
+## UI vs Worker Thread Blocking Rule
+- The background sync worker may block on Graph or Outlook calls because it does not service WinForms UI interaction.
+- Any method reached directly from a WinForms UI event handler, form callback, or other UI-thread path must not block; it must remain async or must marshal onto a background worker before waiting.
+- Blocking calls such as `Result`, `Wait()`, and `GetAwaiter().GetResult()` are acceptable only when the call is guaranteed to run on the background sync worker rather than on the UI thread.
+- Treat any UI-thread sync wait on Graph/Outlook APIs as a bug unless it is explicitly isolated to a non-UI background worker.
+
 ## Outlook COM Leak Review
 When any code related to the Outlook client is changed, explicitly review it for COM lifecycle leaks before finishing the task.
 
