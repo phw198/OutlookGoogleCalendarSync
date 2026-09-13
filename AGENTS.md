@@ -21,6 +21,7 @@
 - Added optional `BASE_REF` handling to `/ogcs-code-review`: explicit bases resolve without confirmation, while inferred bases require confirmation or a valid override before review.
 - Updated `/ogcs-code-review` to accept validated named `BRANCH`, `ISSUE`, and `BASE_REF` inputs in any order; its explicit and inferred comparison-base behaviour remains unchanged.
 - Testing native VS Code Chat agent execution and memory file syncing.
+- Corrected the Google all-day check to compare the event’s own `DateTimeDateTimeOffset` values instead of converting through `ToLocalTime()`, preventing DST and host-timezone misclassification for midnight-to-midnight events.
 
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.

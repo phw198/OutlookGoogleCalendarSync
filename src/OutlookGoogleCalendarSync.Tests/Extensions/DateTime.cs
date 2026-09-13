@@ -5,7 +5,7 @@ using Google.Apis.Calendar.v3.Data;
 using OutlookGoogleCalendarSync.Extensions;
 using Microsoft.Kiota.Abstractions;
 using OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models;
-using OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
+using Ogcs = OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
 
 
 namespace OutlookGoogleCalendarSync.Tests
@@ -14,6 +14,31 @@ namespace OutlookGoogleCalendarSync.Tests
     public class DateTimeExtensionTests
     {
         // Tests for SafeDateTimeOffset(this EventDateTime evDt)
+        [TestMethod]
+        public void AllDayEvent_GoogleEvent_UsesEventTimezoneForMidnightComparison()
+        {
+            // Arrange: the event is midnight-to-midnight in its own timezone even though the offset changes across the DST boundary.
+            global::Google.Apis.Calendar.v3.Data.Event ev = new global::Google.Apis.Calendar.v3.Data.Event
+            {
+                Start = new global::Google.Apis.Calendar.v3.Data.EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(2026, 3, 8, 0, 0, 0, TimeSpan.FromHours(-8)),
+                    TimeZone = "America/Los_Angeles"
+                },
+                End = new global::Google.Apis.Calendar.v3.Data.EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(2026, 3, 9, 0, 0, 0, TimeSpan.FromHours(-7)),
+                    TimeZone = "America/Los_Angeles"
+                }
+            };
+
+            // Act
+            bool actual = ev.AllDayEvent(true);
+
+            // Assert
+            Assert.IsTrue(actual, "Logical all-day detection should use the event's own timezone/offset values via SafeDateTimeOffset().");
+        }
+
         [TestMethod]
         public void SafeDateTimeOffset_EventDateTime_DateOnly_ReturnsCorrectDateTimeOffset()
         {
