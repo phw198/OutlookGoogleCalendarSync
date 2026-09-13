@@ -7,9 +7,12 @@ using System.Linq;
 namespace OutlookGoogleCalendarSync.Outlook {
     class Factory {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
+        /// <summary>Full Outlook version number, eg: 16.0.0.5562</summary>
         private static String outlookVersionFull;
+        /// <summary>Major Outlook version number, eg: 16</summary>
         private static Int16 outlookVersion;
 
+        /// <summary>Outlook product name, eg: Outlook2016 or ProPlus2019Retail</summary>
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
@@ -84,8 +87,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static void getOutlookVersion() {
             //Attach just to get Outlook version - we don't know whether to provide New or Old interface yet
             Microsoft.Office.Interop.Outlook.Application oApp = null;
-            if (testingGraph || !OutlookIsInstalled) {
-                outlookVersionFull = OutlookVersionNames.None.ToString();
+            if (NoClient()) {
+                outlookVersionFull = ((Int16)OutlookVersionNames.None).ToString();
             } else {
                 Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
                 try {
@@ -128,7 +131,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 #pragma warning disable 162 //Unreachable code
                 if (testing2003) {
                     log.Info("*** 2003 TESTING ***");
-                    outlookVersionFull = "11";
+                    outlookVersionFull = ((Int16)OutlookVersionNames.Outlook2003).ToString();
                 }
 #pragma warning restore 162
             }
@@ -245,9 +248,56 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return (requestType != null);
         }
 
-        /// <summary>Checks if Outlook classic client installation is present, but does not connect.</summary>
+        private static Boolean? hasOutlookProfile = null;
+        private static Boolean HasOutlookProfile {
+            get { return hasOutlookProfile ??= checkForOutlookProfile(); }
+        }
+        private static Boolean checkForOutlookProfile() {
+            String[] profileRootPaths = new String[] {
+                @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles",
+                @"Software\Microsoft\Office\Outlook\Profiles"
+            };
+
+            foreach (String profileRootPath in profileRootPaths) {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(profileRootPath)) {
+                    if (key != null && key.SubKeyCount > 0) {
+                        log.Info("Outlook profile detected: " + profileRootPath);
+                        return true;
+                    }
+                }
+            }
+
+            try {
+                using (RegistryKey officeKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Office")) {
+                    if (officeKey != null) {
+                        foreach (String officeVersion in officeKey.GetSubKeyNames()) {
+                            using (RegistryKey officeVersionKey = officeKey.OpenSubKey(officeVersion)) {
+                                if (officeVersionKey == null) continue;
+                                using (RegistryKey outlookKey = officeVersionKey.OpenSubKey("Outlook")) {
+                                    if (outlookKey == null) continue;
+                                    using (RegistryKey profilesKey = outlookKey.OpenSubKey("Profiles")) {
+                                        if (profilesKey != null && profilesKey.SubKeyCount > 0) {
+                                            log.Info("Outlook profile detected: " + profilesKey.Name);
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (System.Exception ex) {
+                ex.Analyse("Failed checking Outlook profile registry.");
+            }
+
+            log.Info("Outlook is not configured for use: no profile detected.");
+            return false;
+        }
+
+
+        /// <summary>Checks if Outlook classic client installation is present and configured with a mail profile, but does not connect.</summary>
         public static Boolean NoClient() {
-            return testingGraph || !OutlookIsInstalled;
+            return testingGraph || !(OutlookIsInstalled && HasOutlookProfile);
         }
     }
 }

@@ -325,9 +325,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     "Create new Outlook category?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
             }
             if (createMissingCategory) {
-                OutlookCOM.Category newCategory = categories.Add(newCategoryName, olCategory);
-                log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
-                return newCategory.Name;
+                OutlookCOM.Category newCategory = null;
+                try {
+                    newCategory = categories.Add(newCategoryName, olCategory);
+                    log.Info("Added new Outlook category \"" + newCategory.Name + "\" for " + newCategory.Color.ToString());
+                    newCategoryName = newCategory.Name;
+                } finally {
+                    newCategory = (OutlookCOM.Category)Calendar.ReleaseObject(newCategory);
+                }
+                return newCategoryName;
             }
             return "";
         }
