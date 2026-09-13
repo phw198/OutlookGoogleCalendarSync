@@ -1429,7 +1429,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         private async void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
-                Outlook.Graph.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                Sync.Engine.Instance.CancelToken.Cancel();
                 return;
             }
 

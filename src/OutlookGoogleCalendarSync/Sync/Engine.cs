@@ -83,8 +83,12 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         public Engine() {
             this.JobQueue = new Job.Queue();
+            this.CancelToken = new();
         }
         public Job.Queue JobQueue { get; protected set; }
+
+        /// <summary>Used to cancel in-progress API calls</summary>
+        public System.Threading.CancellationTokenSource CancelToken;
 
         private Object activeProfile;
         /// <summary>
@@ -180,7 +184,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
-                    Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                    this.CancelToken.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {
