@@ -1794,7 +1794,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
         }
 
-        private void bGetGoogleCalendars_Click(object sender, EventArgs e) {
+        private async void bGetGoogleCalendars_Click(object sender, EventArgs e) {
             if (bGetGoogleCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Google calendars.");
                 if (!Google.Calendar.Instance.Authenticator.Authenticated)
@@ -1808,7 +1808,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
             Boolean successfulRetrieval = false;
             try {
-                Ogcs.Google.Calendar.Instance.GetCalendars();
+                await Ogcs.Google.Calendar.Instance.GetCalendars();
                 successfulRetrieval = true;
             } catch (AggregateException agex) {
                 agex.Analyse(false);

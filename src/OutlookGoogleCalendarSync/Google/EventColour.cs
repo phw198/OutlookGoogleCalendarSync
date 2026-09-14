@@ -183,7 +183,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (profile.UseGoogleCalendar?.Id == null) return activePalette;
 
                 if (profile.UseGoogleCalendar.ColourId == "0") {
-                    Ogcs.Google.Calendar.Instance.GetCalendars();
+                    Ogcs.Google.Calendar.Instance.GetCalendars().Wait();
                     profile.UseGoogleCalendar.ColourId = Ogcs.Google.Calendar.Instance.CalendarList.Find(c => c.Id == profile.UseGoogleCalendar.Id)?.ColourId ?? "0";
                 }
 
@@ -219,7 +219,8 @@ namespace OutlookGoogleCalendarSync.Google {
             try {
                 while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
                     try {
-                        colours = Ogcs.Google.Calendar.Instance.Service.Colors.Get().Execute();
+                        colours = Ogcs.Google.Calendar.Instance.Service.Colors.Get()
+                            .ExecuteAsync(new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(30)).Token).Result;
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {
