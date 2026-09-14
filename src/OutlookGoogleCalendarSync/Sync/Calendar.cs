@@ -54,7 +54,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         WorkerReportsProgress = false,
                         WorkerSupportsCancellation = true
                     };
-                    Sync.Engine.Instance.CancelToken = new();
+                    Sync.Engine.CancelToken = new();
 
                     if (string.IsNullOrEmpty(this.Profile.UseOutlookCalendar?.Id)) {
                         Ogcs.Extensions.MessageBox.Show("You need to select an Outlook Calendar first on the 'Settings' tab.", "Choose Outlook Calendar", MessageBoxButtons.OK, MessageBoxIcon.Hand);

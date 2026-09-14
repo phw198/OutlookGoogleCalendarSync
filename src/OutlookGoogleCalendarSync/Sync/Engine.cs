@@ -70,11 +70,13 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
 
+        /// <summary>Used to cancel in-progress API calls</summary>
+        public static System.Threading.CancellationTokenSource CancelToken = new();
+
         private static Engine instance;
         public static Engine Instance {
             get {
-                if (instance == null) instance = new Engine();
-                return instance;
+                return instance ??= new Engine();
             }
             set {
                 instance = value;
@@ -83,12 +85,8 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         public Engine() {
             this.JobQueue = new Job.Queue();
-            this.CancelToken = new();
         }
         public Job.Queue JobQueue { get; protected set; }
-
-        /// <summary>Used to cancel in-progress API calls</summary>
-        public System.Threading.CancellationTokenSource CancelToken;
 
         private Object activeProfile;
         /// <summary>
@@ -184,7 +182,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
-                    this.CancelToken.Cancel();
+                    CancelToken.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {

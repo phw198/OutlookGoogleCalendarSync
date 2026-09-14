@@ -1432,7 +1432,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!Google.Calendar.Instance.Authenticator.Authenticated)
                     Outlook.Graph.Calendar.Instance.Authenticator.CancelToken.Cancel();
                 else
-                    Sync.Engine.Instance.CancelToken.Cancel();
+                    Sync.Engine.CancelToken.Cancel();
                 return;
             }
 
@@ -1800,7 +1800,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 if (!Google.Calendar.Instance.Authenticator.Authenticated)
                     Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
                 else
-                    Sync.Engine.Instance.CancelToken.Cancel();
+                    Sync.Engine.CancelToken.Cancel();
                 return;
             }
 
