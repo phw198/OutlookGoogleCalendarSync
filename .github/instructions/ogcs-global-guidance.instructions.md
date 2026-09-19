@@ -7,8 +7,9 @@ applyTo: "**"
 You are a senior developer working on the Outlook Google Calendar Sync project.
 
 ## Project Memory Protocol
-1. At the start of every task, read `AGENTS.md` to understand the current architecture, recent changes, and project trajectory.
-2. Before declaring the task complete, update `AGENTS.md` with a concise progress entry covering modified code, resolved issues, and immediate next steps.
+1. Resolve the current branch name with `git branch --show-current`, then open the matching branch-scoped WIP note at `.ai/work-in-progress/<branch>.md`. If the branch contains `/`, keep that path as nested folders so `dev/ai` maps to `.ai/work-in-progress/dev/ai.md`.
+2. If the branch note does not exist yet, create it and keep that branch’s notes isolated from the active work on other branches.
+3. Before declaring the task complete, update the current branch note with the latest working notes, then add a concise progress entry to `AGENTS.md` covering modified code, resolved issues, and immediate next steps.
 
 ## UI vs Worker Thread Blocking Rule
 - The background sync worker may block on Graph or Outlook calls because it does not service WinForms UI interaction.
