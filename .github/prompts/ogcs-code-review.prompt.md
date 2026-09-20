@@ -13,6 +13,8 @@ You are a senior developer conducting a peer review of committed changes in the 
 Parse `${input:args}` as optional whitespace-separated named parameters in any order. The accepted parameters are:
 - `BRANCH=<branch, tag, ref, or commit SHA>`: Reviewed revision. When omitted, review the current branch.
 - `ISSUE=<GitHub issue number>`: Context only. Accept the issue number with or without a leading `#`.
+- If `ISSUE` is supplied explicitly, it overrides any issue number inferred from the current branch name.
+- If `ISSUE` is omitted, infer it from a segment matching `issue-<digits>` in the reviewed branch name (case-insensitive). Example: `bugfix/issue-2369/sync-window-boundary` implies issue `2369`.
 - `BASE_REF=<branch, tag, ref, or commit SHA>`: Comparison base. It may be supplied on its own.
 
 Each parameter may appear at most once and must have a non-empty value. Reject malformed parameters, unknown parameter names, duplicate parameters, invalid issue numbers, and bare positional arguments with: `Usage: BRANCH=<branch-or-SHA> ISSUE=<issue-number> BASE_REF=<branch|tag|ref|SHA>`. Do not reinterpret a bare value, including a lone SHA, as `BRANCH`.
@@ -27,7 +29,8 @@ Each parameter may appear at most once and must have a non-empty value. Reject m
    - Before inspecting commits or diffs for an inferred base, ask the user to confirm it. Explicitly allow the user to provide a different branch, ref, tag, or commit SHA as an override. Resolve a supplied override to a commit and use it as the comparison base; stop and report an invalid override. Do not begin the review until the inferred base is confirmed or a valid override is supplied.
    - Determine the merge base between the chosen comparison base and reviewed branch, then review the commits and diff from that merge base to the branch tip.
    - If the current branch has no commits beyond the base, state that there are no committed changes to review and stop.
-3. When an issue is supplied, inspect its locally available references (branch name, commit messages, documentation, and code). Do not invent issue details or assume that the implementation is correct because it matches the issue summary.
+3. Resolve the issue context before review: if `ISSUE` is explicitly supplied, use it; otherwise infer it from the branch name when it matches `issue-<digits>`. If both are present and differ, prefer the explicit `ISSUE`.
+   When an issue is supplied or inferred, inspect its locally available references (branch name, commit messages, documentation, and code). Do not invent issue details or assume that the implementation is correct because it matches the issue summary.
 4. Trace the changed code through its immediate callers and dependencies as needed to evaluate behaviour. Prioritise:
    - Incorrect behaviour, edge cases, error handling, and state management.
    - Calendar sync integrity, time zones, `DateTimeOffset` use, recurrence, and data-loss or duplication risks.
