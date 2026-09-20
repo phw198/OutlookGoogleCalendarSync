@@ -168,8 +168,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 MsGraph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder itemInstancesReq = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[seriesId].Instances;
                 Kiota.RequestConfiguration<MsGraph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder.InstancesRequestBuilderGetQueryParameters> reqCfg = new();
-                reqCfg.QueryParameters.StartDateTime = profile.SyncStart.ToString("yyyy-MM-dd");
-                reqCfg.QueryParameters.EndDateTime = profile.SyncEnd.ToString("yyyy-MM-dd");
+                reqCfg.QueryParameters.StartDateTime = profile.SyncStartUtcMidnight.ToString("yyyy-MM-dd");
+                reqCfg.QueryParameters.EndDateTime = profile.SyncEndUtcMidnight.ToString("yyyy-MM-dd");
                 reqCfg.QueryParameters.Top = 250;
                 reqCfg.QueryParameters.Select = new string[] { "*" };
                 reqCfg.QueryParameters.Expand = new string[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
@@ -222,8 +222,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             System.DateTimeOffset min = System.DateTimeOffset.MinValue;
             System.DateTimeOffset max = System.DateTimeOffset.MaxValue;
-            min = profile.SyncStart;
-            max = profile.SyncEnd;
+            min = profile.SyncStartUtcMidnight;
+            max = profile.SyncEndUtcMidnight;
 
             try {
                 // Code snippets are only available for the latest version. Current version is 5.x
@@ -275,7 +275,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             result.Sort((x, y) => x.Start.SafeDateTimeOffset(x.AllDayEvent(), x.OriginalStartTimeZone).CompareTo(y.Start.SafeDateTimeOffset(y.AllDayEvent(), y.OriginalStartTimeZone)));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone) == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
+            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone).UtcDateTime == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();

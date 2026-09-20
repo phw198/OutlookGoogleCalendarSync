@@ -4,8 +4,8 @@ using System.Globalization;
 using Google.Apis.Calendar.v3.Data;
 using OutlookGoogleCalendarSync.Extensions;
 using Microsoft.Kiota.Abstractions;
-using OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models;
-using OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
+using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
+using Ogcs = OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
 
 
 namespace OutlookGoogleCalendarSync.Tests
@@ -14,6 +14,30 @@ namespace OutlookGoogleCalendarSync.Tests
     public class DateTimeExtensionTests
     {
         // Tests for SafeDateTimeOffset(this EventDateTime evDt)
+        [TestMethod]
+        public void SyncWindow_UtcMidnightProperties_ReturnCorrectUtcInstants()
+        {
+            // Arrange
+            Ogcs.SettingsStore.Calendar profile = new Ogcs.SettingsStore.Calendar
+            {
+                DaysInThePast = 1,
+                DaysInTheFuture = 2
+            };
+
+            System.DateTime expectedStart = System.DateTime.SpecifyKind(profile.SyncStart.Date, DateTimeKind.Utc);
+            System.DateTime expectedEnd = System.DateTime.SpecifyKind(profile.SyncEnd.Date, DateTimeKind.Utc);
+
+            // Act
+            System.DateTime actualStart = profile.SyncStartUtcMidnight;
+            System.DateTime actualEnd = profile.SyncEndUtcMidnight;
+
+            // Assert
+            Assert.AreEqual(expectedStart, actualStart, "SyncStartUtcMidnight should be the UTC instant corresponding to local sync start date midnight.");
+            Assert.AreEqual(expectedEnd, actualEnd, "SyncEndUtcMidnight should be the UTC instant corresponding to local sync end date midnight.");
+            Assert.AreEqual(DateTimeKind.Utc, actualStart.Kind, "SyncStartUtcMidnight should have Utc DateTimeKind.");
+            Assert.AreEqual(DateTimeKind.Utc, actualEnd.Kind, "SyncEndUtcMidnight should have Utc DateTimeKind.");
+        }
+
         [TestMethod]
         public void SafeDateTimeOffset_EventDateTime_DateOnly_ReturnsCorrectDateTimeOffset()
         {
@@ -86,7 +110,7 @@ namespace OutlookGoogleCalendarSync.Tests
         public void SafeDateTimeOffset_DateTimeTimeZone_AllDayEvent_ReturnsUtcMidnightDateTimeOffset()
         {
             // Arrange
-            DateTimeTimeZone evDt = new DateTimeTimeZone { DateTime = "2026-07-11T10:00:00", TimeZone = "America/New_York" }; // Timezone will be ignored
+            MsGraph.Models.DateTimeTimeZone evDt = new MsGraph.Models.DateTimeTimeZone { DateTime = "2026-07-11T10:00:00", TimeZone = "America/New_York" }; // Timezone will be ignored
             bool? isAllDay = true;
             string timezone = "America/New_York"; // This should be ignored for all-day
 
@@ -103,7 +127,7 @@ namespace OutlookGoogleCalendarSync.Tests
         public void SafeDateTimeOffset_DateTimeTimeZone_NonAllDayEvent_UtcTimeZone_ReturnsUtcDateTimeOffset()
         {
             // Arrange
-            DateTimeTimeZone evDt = new DateTimeTimeZone { DateTime = "2026-07-11T10:30:00", TimeZone = "UTC" };
+            MsGraph.Models.DateTimeTimeZone evDt = new MsGraph.Models.DateTimeTimeZone { DateTime = "2026-07-11T10:30:00", TimeZone = "UTC" };
             bool? isAllDay = false;
             string timezone = "UTC";
 
@@ -123,7 +147,7 @@ namespace OutlookGoogleCalendarSync.Tests
             // Assuming TimezoneDB.IANAtimezone("America/New_York") returns "America/New_York"
             // And TimezoneDB.GetUtcOffset("America/New_York") returns -240 (for EDT) or -300 (for EST)
             // Let's assume for July 11, 2026 it's EDT, so -240 minutes (-4 hours).
-            DateTimeTimeZone evDt = new DateTimeTimeZone { DateTime = "2026-07-11T10:30:00", TimeZone = "America/New_York" };
+            MsGraph.Models.DateTimeTimeZone evDt = new MsGraph.Models.DateTimeTimeZone { DateTime = "2026-07-11T10:30:00", TimeZone = "America/New_York" };
             bool? isAllDay = false;
             string timezone = "America/New_York"; // Original timezone
 
