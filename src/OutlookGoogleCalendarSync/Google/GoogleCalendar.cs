@@ -952,7 +952,9 @@ namespace OutlookGoogleCalendarSync.Google {
             Recurrence.CompareGooglePattern(oRrules, ev, sb, ref itemModified);
 
             //TimeZone
-            if (ev.Start.DateTimeDateTimeOffset != null) {
+            if (ev.Start.DateTimeDateTimeOffset != null &&
+                !(ev.EventType == "outOfOffice" && ev.AllDayEvent()) //Avoid updating timezone for pseudo-alldays in case Classic Outlook time zone is different
+            ) {
                 String currentStartTZ = ev.Start.TimeZone;
                 String currentEndTZ = ev.End.TimeZone;
                 ev = Outlook.Calendar.Instance.IOutlook.IANAtimezone_set(ev, ai);
@@ -2172,9 +2174,15 @@ namespace OutlookGoogleCalendarSync.Google {
                     signature += ";" + ev.OriginalStartTime.SafeDateTimeOffset().ToPreciseUtcString();
                 } else {
                     signature += ev.Summary;
-                    signature += ";" + ev.Start.SafeDateTimeOffset().ToPreciseUtcString() + ";";
-                    if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
-                        signature += ev.End.SafeDateTimeOffset().ToPreciseUtcString();
+                    EventDateTime evStart = ev.Start;
+                    if (ev.EventType == "outOfOffice" && ev.AllDayEvent()) {
+                        signature += ";" + ev.Start.SafeDateTimeOffset().DateTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                        signature += ";" + ev.End.SafeDateTimeOffset().DateTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                    } else {
+                        signature += ";" + ev.Start.SafeDateTimeOffset().ToPreciseUtcString() + ";";
+                        if (!(ev.EndTimeUnspecified != null && (Boolean)ev.EndTimeUnspecified)) {
+                            signature += ev.End.SafeDateTimeOffset().ToPreciseUtcString();
+                        }
                     }
                 }
             } catch (System.Exception ex) {
@@ -2357,7 +2365,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     System.DateTimeOffset gDate = ev.Start.SafeDateTimeOffset();
                     eventSummary += gDate.Date.ToShortDateString();
-                    if (ev.Start.DateTimeDateTimeOffset != null) {
+                    if (ev.Start.DateTimeDateTimeOffset != null && !ev.AllDayEvent()) {
                         eventSummary += " " + gDate.LocalDateTime.ToShortTimeString();
                     }
                     if (ev.Recurrence != null)

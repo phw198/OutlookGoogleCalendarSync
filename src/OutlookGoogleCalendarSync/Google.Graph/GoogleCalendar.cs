@@ -836,7 +836,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             Google.Recurrence.CompareGooglePattern(oRrules, ev, sb, ref itemModified);
 
             //TimeZone
-            if (string.IsNullOrEmpty(ev.Start.Date)) {
+            if (string.IsNullOrEmpty(ev.Start.Date) &&
+                !(ev.EventType == "outOfOffice" && ev.AllDayEvent()) //Avoid updating timezone for pseudo-alldays in case Outlook time zone is different
+            ) {
                 String startTimeZone = Outlook.Graph.Calendar.NormaliseTimezone(ai.OriginalStartTimeZone, ai.IsOrganizer ?? false);
                 if (Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, ev.Start.TimeZone, startTimeZone, sb, ref itemModified))
                     ev.Start.TimeZone = startTimeZone;

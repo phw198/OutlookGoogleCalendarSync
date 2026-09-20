@@ -186,7 +186,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static Boolean AllDayEvent(this Event ev, Boolean logicallyEquivalent = false) {
             if (ev.Start?.Date != null)
                 return true;
-            if (logicallyEquivalent)
+            if (logicallyEquivalent || ev.EventType == "outOfOffice")
                 return ev.Start.SafeDateTimeOffset().TimeOfDay == TimeSpan.Zero &&
                     ev.End.SafeDateTimeOffset().TimeOfDay == TimeSpan.Zero;
             else
