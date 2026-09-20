@@ -5,6 +5,7 @@ using Microsoft.Office.Interop.Outlook;
 using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -926,21 +927,25 @@ namespace OutlookGoogleCalendarSync.Google {
             OgcsDateTimeOffset evStart = new(ev.Start.SafeDateTimeOffset(), evAllDay);
             OgcsDateTimeOffset evEnd = new(ev.End.SafeDateTimeOffset(), evAllDay); 
             if (ai.AllDayEvent) {
-                ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
-                ev.End.Date = ai.End.ToString("yyyy-MM-dd");
-                ev.Start.DateTimeDateTimeOffset = null;
-                ev.End.DateTimeDateTimeOffset = null;
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start, true), sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End, true), sb, ref itemModified);
+                Boolean dateChanged = Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
+                dateChanged |= Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start, true), sb, ref itemModified);
+                dateChanged |= Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End, true), sb, ref itemModified);
+                if (dateChanged) {
+                    ev.Start.Date = ai.Start.ToString("yyyy-MM-dd");
+                    ev.End.Date = ai.End.ToString("yyyy-MM-dd");
+                    ev.Start.DateTimeDateTimeOffset = null;
+                    ev.End.DateTimeDateTimeOffset = null;
+                }
             } else {
-                ev.Start.Date = null;
-                ev.End.Date = null;
-                ev.Start.DateTimeDateTimeOffset = ai.Start;
-                ev.End.DateTimeDateTimeOffset = ai.End;
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start, false), sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End, false), sb, ref itemModified);
+                Boolean datetimeChanged = Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
+                datetimeChanged |= Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start, false), sb, ref itemModified);
+                datetimeChanged |= Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End, false), sb, ref itemModified);
+                if (datetimeChanged) {
+                    ev.Start.Date = null;
+                    ev.End.Date = null;
+                    ev.Start.DateTimeDateTimeOffset = ai.Start;
+                    ev.End.DateTimeDateTimeOffset = ai.End;
+                }
             }
 
             List<String> oRrules = Recurrence.BuildGooglePattern(ai, ev);
@@ -2172,8 +2177,8 @@ namespace OutlookGoogleCalendarSync.Google {
                         signature += ev.End.SafeDateTimeOffset().ToPreciseUtcString();
                     }
                 }
-            } catch {
-                log.Warn("Failed to create signature: " + signature);
+            } catch (System.Exception ex) {
+                ex.LogAsFail().Analyse("Failed to create signature: " + signature);
                 log.Warn("This Event cannot be synced.");
                 try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
                 try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTimeOffset().ToPreciseUtcString())); } catch { }
@@ -2350,11 +2355,11 @@ namespace OutlookGoogleCalendarSync.Google {
             eventSummaryAnonymised = null;
             if (!onlyIfNotVerbose || onlyIfNotVerbose && !Settings.Instance.VerboseOutput) {
                 try {
+                    System.DateTimeOffset gDate = ev.Start.SafeDateTimeOffset();
+                    eventSummary += gDate.Date.ToShortDateString();
                     if (ev.Start.DateTimeDateTimeOffset != null) {
-                        System.DateTime gDate = ev.Start.SafeDateTime();
-                        eventSummary += gDate.ToShortDateString() + " " + gDate.ToShortTimeString();
-                    } else
-                        eventSummary += System.DateTime.Parse(ev.Start.Date).ToShortDateString();
+                        eventSummary += " " + gDate.LocalDateTime.ToShortTimeString();
+                    }
                     if (ev.Recurrence != null)
                         eventSummary += " (R)";
                     else if (ev.RecurringEventId != null)
@@ -2364,8 +2369,8 @@ namespace OutlookGoogleCalendarSync.Google {
                         eventSummaryAnonymised = eventSummary + " => \"" + Authenticator.GetMd5(ev.Summary, silent: true) + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
                     eventSummary += " => \"" + ev.Summary + "\"" + (onlyIfNotVerbose ? "<br/>" : "");
 
-                } catch {
-                    log.Warn("Failed to create Event summary: " + eventSummary);
+                } catch (System.Exception ex) {
+                    ex.LogAsFail().Analyse("Failed to create Event summary: " + eventSummary);
                     log.Warn("This Event cannot be synced.");
                     try { log.Warn("  ev.Summary: " + ev.Summary); } catch { }
                     try { log.Warn("  ev.Start: " + (ev.Start == null ? "null!" : ev.Start.SafeDateTime().ToString())); } catch { }
