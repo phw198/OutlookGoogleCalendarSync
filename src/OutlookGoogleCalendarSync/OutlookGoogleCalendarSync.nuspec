@@ -27,10 +27,12 @@
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
 - Application
-    - Placeholder [[#xx](https://github.com/phw198/OutlookGoogleCalendarSync/issues/xx)]
+    - Ensure response to hiding splash screen is saved [[#2368](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2368)]
 - Sync Engine
     - Could not map IANA timezone '' to UTC offset [[#2298](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2298)]
     - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
+	- Specify date boundaries in UTC when retrieving calendar entries from Google [[#2369](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2369)]
+	- Calculate the UTC offset at the correct time instant [[#2350](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2350)]
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
     <tags>Outlook Google Calendar Sync 2-way Two-way Bidirection</tags>
