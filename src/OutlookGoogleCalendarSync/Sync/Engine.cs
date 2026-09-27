@@ -271,9 +271,9 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.UltraFine("Outlook attribute: " + outlookAttr);
             if (!googleAttr.Equals(outlookAttr)) {
                 if (fromTo == Direction.GoogleToOutlook) {
-                    sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
+                    sb.AppendLine(attrDesc + ": " + outlookAttr.LocalDateTime + " => " + googleAttr.LocalDateTime);
                 } else {
-                    sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
+                    sb.AppendLine(attrDesc + ": " + googleAttr.LocalDateTime + " => " + outlookAttr.LocalDateTime);
                 }
                 itemModified++;
                 log.Fine("Attributes differ.");
