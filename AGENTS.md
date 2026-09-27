@@ -3,6 +3,10 @@
 ## Architecture Overview
 - C# WinForms background tray application. See [.ai/architecture.md](.ai/architecture.md) for full architectural mapping.
 
+## Local WIP Memory
+- The active work-in-progress note is branch-scoped: resolve the current branch name, then read the matching note under [.ai/work-in-progress](.ai/work-in-progress) using that branch name as the category. For example, `dev/ai` maps to [.ai/work-in-progress/dev/ai.md](.ai/work-in-progress/dev/ai.md).
+- The shared index at [.ai/work-in-progress.md](.ai/work-in-progress.md) helps discover the active branch note, but each branch keeps its own isolated task log so parallel development does not overwrite the same notes.
+
 ## Recent Milestone
 - Established the Universal AI Root (`.ai/`) structure with generic AI agent developer instructions, project architecture overview (using Mermaid diagrams), specific C# and WinForms coding standards (such as OTBS/K&R style brace placement and `Analyse()` logging), and reusable prompt templates.
 - Reverted to a single global NotifyIcon wrapper to handle Windows notification routing cleanly.
@@ -14,13 +18,10 @@
 - Cleaned up redundant `.ai/.github/` directory.
 - Standardised selectable workspace customizations with the `ogcs-` prefix: the `ogcs-release-preparer` agent and `/ogcs-code-review` prompt.
 - Replaced the selectable `sync-dev` agent with always-applied `ogcs-global-guidance` project instructions.
+- Added a mandatory COM lifetime review to the project guidance: any Outlook client change must check for new COM object leaks, singleton auto-connects, and matching `Disconnect`/`ReleaseObject` cleanup before completion.
 
-## Active Task
-- Refining release automation prompts and agent skills.
-- Documented shim discovery findings in `.ai/developer-agent.md`.
-- Added optional `BASE_REF` handling to `/ogcs-code-review`: explicit bases resolve without confirmation, while inferred bases require confirmation or a valid override before review.
-- Updated `/ogcs-code-review` to accept validated named `BRANCH`, `ISSUE`, and `BASE_REF` inputs in any order; its explicit and inferred comparison-base behaviour remains unchanged.
-- Testing native VS Code Chat agent execution and memory file syncing.
+## Release Build Note
+- Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
 
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
