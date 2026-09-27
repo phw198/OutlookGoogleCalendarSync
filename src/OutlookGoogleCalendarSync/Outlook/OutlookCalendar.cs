@@ -1211,7 +1211,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 //Only allow one OGCS category at a time (Google Events can only have one colour).
                 categories.RemoveAll(category => category.StartsWith("OGCS ") || category == googleColour);
             }
-            if (googleColour != Outlook.Calendar.Categories.NO_CATEGORY_ASSIGNED.Key)
+            if (googleColour != Ogcs.Outlook.Categories.NoCategoryAssignedKey)
                 categories.Insert(0, googleColour);
             return categories;
         }
