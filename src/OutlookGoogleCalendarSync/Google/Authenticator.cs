@@ -295,7 +295,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
                         }
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException ?? ex));
+                        Forms.Main.Instance.Console.UpdateWithError("Unable to retrieve the email address associated with your Google account.", (ex.InnerException ?? ex));
                         throw;
                     }
                 }
