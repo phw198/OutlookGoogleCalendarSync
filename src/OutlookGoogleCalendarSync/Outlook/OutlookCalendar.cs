@@ -606,14 +606,14 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean endChange = false;
             OgcsDateTimeOffset aiStart = new(ai.Start, aiAllDay);
             OgcsDateTimeOffset aiEnd = new(ai.End, aiAllDay);
-            System.DateTime evStartParsedDate = ev.Start.SafeDateTime();
-            System.DateTime evEndParsedDate = ev.End.SafeDateTime();
+            System.DateTimeOffset evStartParsedDate = ev.Start.SafeDateTimeOffset();
+            System.DateTimeOffset evEndParsedDate = ev.End.SafeDateTimeOffset();
             if (ev.AllDayEvent()) {
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, true), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, true), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate.Date, true), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate.Date, true), aiEnd, sb, ref itemModified);
             } else {
-                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate, false), aiStart, sb, ref itemModified);
-                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate, false), aiEnd, sb, ref itemModified);
+                startChange = Sync.Engine.CompareAttribute("Start time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evStartParsedDate.LocalDateTime, false), aiStart, sb, ref itemModified);
+                endChange = Sync.Engine.CompareAttribute("End time", Sync.Direction.GoogleToOutlook, new OgcsDateTimeOffset(evEndParsedDate.LocalDateTime, false), aiEnd, sb, ref itemModified);
             }
             RecurrencePattern oPattern = null;
             try {
@@ -629,12 +629,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             oPattern = ai.GetRecurrencePattern();
                             if (startChange) {
-                                oPattern.PatternStartDate = evStartParsedDate;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                oPattern.PatternStartDate = evStartParsedDate.Date;
+                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate.Date, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
                             }
                             if (endChange) {
-                                oPattern.PatternEndDate = evEndParsedDate;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                                oPattern.PatternEndDate = evEndParsedDate.Date;
+                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate.Date, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
                             }
                         }
                     } else {
@@ -1499,7 +1499,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static string signature(AppointmentItem ai) {
-            return (ai.Subject + ";" + ((DateTimeOffset)ai.Start).ToPreciseUtcString() + ";" + ((DateTimeOffset)ai.End).ToPreciseUtcString()).Trim();
+            if (ai.AllDayEvent)
+                return (ai.Subject + ";" + ((DateTimeOffset)ai.Start.ToLocalTime()).ToPreciseUtcString() + ";" + ((DateTimeOffset)ai.End.ToLocalTime()).ToPreciseUtcString()).Trim();
+            else
+                return (ai.Subject + ";" + ((DateTimeOffset)ai.Start).ToPreciseUtcString() + ";" + ((DateTimeOffset)ai.End).ToPreciseUtcString()).Trim();
         }
 
         public static void ExportToCSV(String action, String filename, List<AppointmentItem> ais) {

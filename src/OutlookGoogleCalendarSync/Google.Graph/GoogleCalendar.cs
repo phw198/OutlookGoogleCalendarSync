@@ -815,28 +815,34 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             OgcsDateTimeOffset evStart = new(ev.Start.SafeDateTimeOffset(), evAllDay);
             OgcsDateTimeOffset evEnd = new(ev.End.SafeDateTimeOffset(), evAllDay);
             if (ai.IsAllDay ?? false) {
-                ev.Start.Date = ai.Start.SafeDateTimeOffset(true, ai.OriginalStartTimeZone).ToString("yyyy-MM-dd");
-                ev.End.Date = ai.End.SafeDateTimeOffset(true, ai.OriginalEndTimeZone).ToString("yyyy-MM-dd");
-                ev.Start.DateTimeDateTimeOffset = null;
-                ev.End.DateTimeDateTimeOffset = null;
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(true, ai.OriginalStartTimeZone), true), sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(true, ai.OriginalEndTimeZone), true), sb, ref itemModified);
+                Boolean dateChanged = Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, true, sb, ref itemModified);
+                dateChanged |= Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(true, ai.OriginalStartTimeZone), true), sb, ref itemModified);
+                dateChanged |= Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(true, ai.OriginalEndTimeZone), true), sb, ref itemModified);
+                if (dateChanged) {
+                    ev.Start.Date = ai.Start.SafeDateTimeOffset(true, ai.OriginalStartTimeZone).ToString("yyyy-MM-dd");
+                    ev.End.Date = ai.End.SafeDateTimeOffset(true, ai.OriginalEndTimeZone).ToString("yyyy-MM-dd");
+                    ev.Start.DateTimeDateTimeOffset = null;
+                    ev.End.DateTimeDateTimeOffset = null;
+                }
             } else {
-                ev.Start.Date = null;
-                ev.End.Date = null;
-                ev.Start.DateTimeDateTimeOffset = ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone);
-                ev.End.DateTimeDateTimeOffset = ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone);
-                Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
-                Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone), false), sb, ref itemModified);
-                Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone), false), sb, ref itemModified) ;
+                Boolean datetimeChanged = Sync.Engine.CompareAttribute("All-Day", Sync.Direction.OutlookToGoogle, evAllDay, false, sb, ref itemModified);
+                datetimeChanged |= Sync.Engine.CompareAttribute("Start time", Sync.Direction.OutlookToGoogle, evStart, new OgcsDateTimeOffset(ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone), false), sb, ref itemModified);
+                datetimeChanged |= Sync.Engine.CompareAttribute("End time", Sync.Direction.OutlookToGoogle, evEnd, new OgcsDateTimeOffset(ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone), false), sb, ref itemModified) ;
+                if (datetimeChanged) {
+                    ev.Start.Date = null;
+                    ev.End.Date = null;
+                    ev.Start.DateTimeDateTimeOffset = ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone);
+                    ev.End.DateTimeDateTimeOffset = ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone);
+                }
             }
 
             List<String> oRrules = Recurrence.BuildGooglePattern(ai, ev);
             Google.Recurrence.CompareGooglePattern(oRrules, ev, sb, ref itemModified);
 
             //TimeZone
-            if (string.IsNullOrEmpty(ev.Start.Date)) {
+            if (string.IsNullOrEmpty(ev.Start.Date) &&
+                !(ev.EventType == "outOfOffice" && ev.AllDayEvent()) //Avoid updating timezone for pseudo-alldays in case Outlook time zone is different
+            ) {
                 String startTimeZone = Outlook.Graph.Calendar.NormaliseTimezone(ai.OriginalStartTimeZone, ai.IsOrganizer ?? false);
                 if (Sync.Engine.CompareAttribute("Start Timezone", Sync.Direction.OutlookToGoogle, ev.Start.TimeZone, startTimeZone, sb, ref itemModified))
                     ev.Start.TimeZone = startTimeZone;
@@ -857,7 +863,9 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Summary = subjectObfuscated;
             }
             if (profile.AddDescription) {
-                String outlookBody = ai.Body.BodyInnerHtml();
+                String outlookBody = null;
+                if (!string.IsNullOrEmpty(ai.BodyPreview))
+                    outlookBody = ai.Body.BodyInnerHtml();
                 if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && profile.AddDescription_OnlyToGoogle &&
                     string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {

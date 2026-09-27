@@ -186,9 +186,9 @@ namespace OutlookGoogleCalendarSync.Extensions {
         public static Boolean AllDayEvent(this Event ev, Boolean logicallyEquivalent = false) {
             if (ev.Start?.Date != null)
                 return true;
-            if (logicallyEquivalent)
-                return (ev.Start?.DateTimeDateTimeOffset?.ToLocalTime().TimeOfDay == new TimeSpan(0, 0, 0) && 
-                    ev.Start?.DateTimeDateTimeOffset?.ToLocalTime().TimeOfDay == ev.End?.DateTimeDateTimeOffset?.ToLocalTime().TimeOfDay);
+            if (logicallyEquivalent || ev.EventType == "outOfOffice")
+                return ev.Start.SafeDateTimeOffset().TimeOfDay == TimeSpan.Zero &&
+                    ev.End.SafeDateTimeOffset().TimeOfDay == TimeSpan.Zero;
             else
                 return false;
         }
@@ -203,7 +203,7 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (ai.AllDayEvent)
                 return true;
             if (logicallyEquivalent)
-                return (ai.Start.TimeOfDay == new TimeSpan(0, 0, 0) && ai.Start.TimeOfDay == ai.End.TimeOfDay);
+                return (ai.Start.TimeOfDay == TimeSpan.Zero && ai.End.TimeOfDay == TimeSpan.Zero);
             else
                 return false;
         }
@@ -218,8 +218,8 @@ namespace OutlookGoogleCalendarSync.Extensions {
             if (ai.IsAllDay ?? false)
                 return true;
             if (logicallyEquivalent)
-                return ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone).TimeOfDay == new TimeSpan(0, 0, 0) && 
-                    ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone).TimeOfDay == new TimeSpan(0, 0, 0);
+                return ai.Start.SafeDateTimeOffset(false, ai.OriginalStartTimeZone).TimeOfDay == TimeSpan.Zero && 
+                    ai.End.SafeDateTimeOffset(false, ai.OriginalEndTimeZone).TimeOfDay == TimeSpan.Zero;
             else
                 return false;
         }

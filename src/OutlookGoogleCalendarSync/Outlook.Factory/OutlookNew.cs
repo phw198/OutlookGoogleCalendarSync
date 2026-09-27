@@ -835,8 +835,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Microsoft.Office.Interop.Outlook.TimeZone currentTz = null;
             Microsoft.Office.Interop.Outlook.TimeZone targetTz = null;
             
+            Boolean evAllDay = ev.AllDayEvent();
+
             if ("Both,Start".Contains(attr)) {
-                if (!String.IsNullOrEmpty(ev.Start.TimeZone)) {
+                if (!String.IsNullOrEmpty(ev.Start.TimeZone) && !evAllDay) {
                     log.Fine("Has starting timezone: " + ev.Start.TimeZone);
                     try {
                         currentTz = ai.StartTimeZone;
@@ -846,10 +848,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         currentTz = (Microsoft.Office.Interop.Outlook.TimeZone)Outlook.Calendar.ReleaseObject(currentTz);
                     }
                 }
-                if (!onlyTZattribute && ai.Start != ev.Start.SafeDateTime()) ai.Start = ev.Start.SafeDateTime();
+                System.DateTime start = evAllDay ? ev.Start.SafeDateTimeOffset().Date : ev.Start.SafeDateTimeOffset().LocalDateTime;
+                if (!onlyTZattribute && ai.Start != start) ai.Start = start;
             }
             if ("Both,End".Contains(attr)) {
-                if (!String.IsNullOrEmpty(ev.End.TimeZone)) {
+                if (!String.IsNullOrEmpty(ev.End.TimeZone) && !evAllDay) {
                     log.Fine("Has ending timezone: " + ev.End.TimeZone);
                     try {
                         currentTz = ai.EndTimeZone;
@@ -859,7 +862,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         currentTz = (Microsoft.Office.Interop.Outlook.TimeZone)Outlook.Calendar.ReleaseObject(currentTz);
                     }
                 }
-                if (!onlyTZattribute && ai.End != ev.End.SafeDateTime()) ai.End = ev.End.SafeDateTime();
+                System.DateTime end = evAllDay ? ev.End.SafeDateTimeOffset().Date : ev.End.SafeDateTimeOffset().LocalDateTime;
+                if (!onlyTZattribute && ai.End != end) ai.End = end;
             }
             return ai;
         }

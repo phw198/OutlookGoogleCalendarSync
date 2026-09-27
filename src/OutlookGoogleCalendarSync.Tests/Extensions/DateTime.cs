@@ -3,7 +3,6 @@ using System;
 using System.Globalization;
 using Google.Apis.Calendar.v3.Data;
 using OutlookGoogleCalendarSync.Extensions;
-using Microsoft.Kiota.Abstractions;
 using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Ogcs = OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
 
@@ -36,6 +35,31 @@ namespace OutlookGoogleCalendarSync.Tests
             Assert.AreEqual(expectedEnd, actualEnd, "SyncEndUtcMidnight should be the UTC instant corresponding to local sync end date midnight.");
             Assert.AreEqual(DateTimeKind.Utc, actualStart.Kind, "SyncStartUtcMidnight should have Utc DateTimeKind.");
             Assert.AreEqual(DateTimeKind.Utc, actualEnd.Kind, "SyncEndUtcMidnight should have Utc DateTimeKind.");
+        }
+
+        [TestMethod]
+        public void AllDayEvent_GoogleEvent_UsesEventTimezoneForMidnightComparison()
+        {
+            // Arrange: the event is midnight-to-midnight in its own timezone even though the offset changes across the DST boundary.
+            global::Google.Apis.Calendar.v3.Data.Event ev = new global::Google.Apis.Calendar.v3.Data.Event
+            {
+                Start = new global::Google.Apis.Calendar.v3.Data.EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(2026, 3, 8, 0, 0, 0, TimeSpan.FromHours(-8)),
+                    TimeZone = "America/Los_Angeles"
+                },
+                End = new global::Google.Apis.Calendar.v3.Data.EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(2026, 3, 9, 0, 0, 0, TimeSpan.FromHours(-7)),
+                    TimeZone = "America/Los_Angeles"
+                }
+            };
+
+            // Act
+            bool actual = ev.AllDayEvent(true);
+
+            // Assert
+            Assert.IsTrue(actual, "Logical all-day detection should use the event's own timezone/offset values via SafeDateTimeOffset().");
         }
 
         [TestMethod]

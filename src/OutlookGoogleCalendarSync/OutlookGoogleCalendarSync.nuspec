@@ -26,7 +26,7 @@
 - Application
     - Don't connect to Classic Outlook when no mail profiles are configured [[#2373](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2373)]
 - Sync Engine
-    - 
+    - Treat Google's faux "all-day" out-of-office as bona-fide all-day appointment [[#2366](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2366)] 
 
 &lt;i class="em em-beetle"&gt;&lt;/i&gt; **Bugfix**  
 
