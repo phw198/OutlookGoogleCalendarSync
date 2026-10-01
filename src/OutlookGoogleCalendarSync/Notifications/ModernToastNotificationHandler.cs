@@ -2,8 +2,12 @@ using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
@@ -11,13 +15,111 @@ using Windows.UI.Notifications;
 namespace OutlookGoogleCalendarSync {
     internal class ModernToastNotificationHandler : INotificationHandler {
         private static readonly ILog log = LogManager.GetLogger(typeof(ModernToastNotificationHandler));
+        private static readonly string instanceId = Guid.NewGuid().ToString("N");
+        private static readonly string activationPipeName = "OGCS.Toast." + instanceId;
+        private static bool activationCallbacksRegistered = false;
+        private static Action<string> activationCallback;
+        private static CancellationTokenSource activationPipeCancellation;
         private readonly Action<string> onClick;
         private readonly NotifyIcon ownerIcon;
 
         public ModernToastNotificationHandler(NotifyIcon ownerIcon, Action<string> onClick) {
             this.ownerIcon = ownerIcon;
             this.onClick = onClick;
+            activationCallback = onClick;
+            RegisterActivationHandler();
         }
+
+        private void RegisterActivationHandler() {
+            if (activationCallbacksRegistered) return;
+
+            try {
+                startActivationPipe();
+                ToastNotificationManagerCompat.OnActivated += args => {
+                    Dictionary<string, string> arguments = getTriggerArguments(args.Argument);
+                    if (!arguments.TryGetValue("instance", out string targetInstance) || string.IsNullOrEmpty(targetInstance)) {
+                        log.Warn("ModernToastNotificationHandler: Ignoring toast activation without an instance identifier.");
+                        return;
+                    }
+                    if (targetInstance != instanceId) {
+                        forwardActivation(targetInstance, arguments.TryGetValue("action", out string forwardedAction) ? forwardedAction : string.Empty);
+                        return;
+                    }
+                    string tag = arguments.TryGetValue("action", out string action) ? action : string.Empty;
+                    log.Debug("ModernToastNotificationHandler: Toast activated: " + tag);
+                    activationCallback?.Invoke(tag);
+                };
+                activationCallbacksRegistered = true;
+
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to register toast activation callback for Windows notification center clicks.");
+            }
+        }
+
+        #region Inter-process pipeline communication for toasts clicked from Windows Action Center
+        //If the wrong process is activated, we need to forward the activation to the correct process.
+        //This is done via a named pipe, which is created by the process that created the toast notification.
+        private static void startActivationPipe() {
+            activationPipeCancellation = new CancellationTokenSource();
+            Task.Run(() => listenForActivation(activationPipeCancellation.Token));
+        }
+
+        private static async Task listenForActivation(CancellationToken cancellationToken) {
+            while (!cancellationToken.IsCancellationRequested) {
+                try {
+                    using (NamedPipeServerStream server = new NamedPipeServerStream(
+                        activationPipeName,
+                        PipeDirection.In,
+                        1,
+                        PipeTransmissionMode.Byte,
+                        PipeOptions.Asynchronous)) {
+                        await server.WaitForConnectionAsync(cancellationToken);
+                        using (StreamReader reader = new StreamReader(server)) {
+                            string action = await reader.ReadLineAsync();
+                            if (action != null) activationCallback?.Invoke(action);
+                        }
+                    }
+                } catch (OperationCanceledException) {
+                    return;
+                } catch (System.Exception ex) {
+                    ex.Analyse("Unable to receive toast activation for this OGCS instance.");
+                }
+            }
+        }
+
+        private static void forwardActivation(string targetInstance, string action) {
+            Task.Run(() => {
+                try {
+                    using (NamedPipeClientStream client = new NamedPipeClientStream(
+                        ".",
+                        "OGCS.Toast." + targetInstance,
+                        PipeDirection.Out,
+                        PipeOptions.Asynchronous)) {
+                        client.Connect(500);
+                        using (StreamWriter writer = new StreamWriter(client)) {
+                            writer.AutoFlush = true;
+                            writer.WriteLine(action ?? string.Empty);
+                        }
+                    }
+                } catch (System.Exception ex) {
+                    log.Info("ModernToastNotificationHandler: Target OGCS instance is no longer running.", ex);
+                }
+            });
+        }
+
+        private static Dictionary<string, string> getTriggerArguments(string argument) {
+            Dictionary<string, string> arguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(argument)) return arguments;
+
+            foreach (string part in argument.Split(new[] { '&', ';' }, StringSplitOptions.RemoveEmptyEntries)) {
+                string[] keyValue = part.Trim().Split(new[] { '=' }, 2);
+                if (keyValue.Length == 2 && (new string[] { "action", "instance" }.Contains( keyValue[0]))) {
+                    arguments[keyValue[0]] = keyValue[1];
+                }
+            }
+            return arguments;
+        }
+        #endregion
 
         public void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "") {
             String title = "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : $" - {Program.Title}");
@@ -40,6 +142,7 @@ namespace OutlookGoogleCalendarSync {
                 ToastContent toastContent = new ToastContentBuilder()
                     .AddText(title)
                     .AddText(message)
+                    .AddArgument("instance", instanceId)
                     .AddArgument("action", tagValue)
                     .AddArgument("message", originalMessage)
                     .SetToastScenario(ToastScenario.Default)
@@ -48,10 +151,6 @@ namespace OutlookGoogleCalendarSync {
                 XmlDocument toastXml = toastContent.GetXml();
                 ToastNotifierCompat notifier = ToastNotificationManagerCompat.CreateToastNotifier();
                 ToastNotification toast = new Windows.UI.Notifications.ToastNotification(toastXml);
-                toast.Activated += (sender, args) => {
-                    log.Debug("ModernToastNotificationHandler: Toast activated");
-                    onClick?.Invoke(tagValue);
-                };
                 toast.Dismissed += (sender, args) => {
                     log.Debug("ModernToastNotificationHandler: Toast dismissed");
                 };
