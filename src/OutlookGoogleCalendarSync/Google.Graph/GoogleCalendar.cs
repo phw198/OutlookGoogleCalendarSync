@@ -535,6 +535,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         return;
                     }
                     Forms.Main.Instance.Console.UpdateWithError(Outlook.Graph.Calendar.GetEventSummary("New event failed to save.", ai, out String anonSummary, true), ex, logEntry: anonSummary);
+                    log.Debug(Newtonsoft.Json.JsonConvert.SerializeObject(newEvent));
                     Ogcs.Exception.Analyse(ex, true);
                     if (Ogcs.Extensions.MessageBox.Show("New Google event failed to save. Continue with synchronisation?", "Sync item failed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         continue;
@@ -1370,6 +1371,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 //the "data" section of the byte array, which "ensures uniqueness" and doesn't include ID creation time
 
                 if (oGlobalID == gCompareID ||
+                    string.IsNullOrEmpty(oGlobalID) || //As per Issue #2374, Graph does not guarantee a Global ID
                     ((oGlobalID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                         gCompareID.StartsWith(Outlook.Calendar.GlobalIdPattern) &&
                         gCompareID.Substring(72) == oGlobalID.Substring(72))             //We've got bonafide Global IDs match
