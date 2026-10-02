@@ -18,12 +18,12 @@ namespace OutlookGoogleCalendarSync {
         private static readonly string instanceId = Guid.NewGuid().ToString("N");
         private static readonly string activationPipeName = "OGCS.Toast." + instanceId;
         private static bool activationCallbacksRegistered = false;
-        private static Action<string> activationCallback;
+        private static Action<NotificationActivation> activationCallback;
         private static CancellationTokenSource activationPipeCancellation;
-        private readonly Action<string> onClick;
+        private readonly Action<NotificationActivation> onClick;
         private readonly NotifyIcon ownerIcon;
 
-        public ModernToastNotificationHandler(NotifyIcon ownerIcon, Action<string> onClick) {
+        public ModernToastNotificationHandler(NotifyIcon ownerIcon, Action<NotificationActivation> onClick) {
             this.ownerIcon = ownerIcon;
             this.onClick = onClick;
             activationCallback = onClick;
@@ -48,7 +48,10 @@ namespace OutlookGoogleCalendarSync {
             OnActivated activationHandler = args => {
                 Dictionary<string, string> arguments = getTriggerArguments(args.Argument);
                 if (arguments.TryGetValue("instance", out string targetInstance) && !string.IsNullOrEmpty(targetInstance)) {
-                    forwardActivation(targetInstance, arguments.TryGetValue("action", out string action) ? action : string.Empty);
+                    string action = arguments.TryGetValue("action", out string forwardedAction) ? forwardedAction : string.Empty;
+                    string browserUrl = getBrowserUrl(arguments);
+                    if (!forwardActivation(targetInstance, new NotificationActivation { Action = action, BrowserUrl = browserUrl }) && !string.IsNullOrEmpty(browserUrl))
+                        Helper.OpenBrowser(browserUrl);
                 } else {
                     log.Warn("Ignoring startup toast activation without an instance identifier.");
                 }
@@ -79,12 +82,15 @@ namespace OutlookGoogleCalendarSync {
                         return;
                     }
                     if (targetInstance != instanceId) {
-                        forwardActivation(targetInstance, arguments.TryGetValue("action", out string forwardedAction) ? forwardedAction : string.Empty);
+                        forwardActivation(targetInstance, new NotificationActivation {
+                            Action = arguments.TryGetValue("action", out string forwardedAction) ? forwardedAction : string.Empty,
+                            BrowserUrl = getBrowserUrl(arguments)
+                        });
                         return;
                     }
                     string tag = arguments.TryGetValue("action", out string action) ? action : string.Empty;
                     log.Debug("Toast activated: " + tag);
-                    activationCallback?.Invoke(tag);
+                    activationCallback?.Invoke(new NotificationActivation { Action = tag, BrowserUrl = getBrowserUrl(arguments) });
                 };
                 activationCallbacksRegistered = true;
 
@@ -113,7 +119,8 @@ namespace OutlookGoogleCalendarSync {
                         await server.WaitForConnectionAsync(cancellationToken);
                         using (StreamReader reader = new StreamReader(server)) {
                             string action = await reader.ReadLineAsync();
-                            if (action != null) activationCallback?.Invoke(action);
+                            string browserUrl = await reader.ReadLineAsync();
+                            if (action != null) activationCallback?.Invoke(new NotificationActivation { Action = action, BrowserUrl = browserUrl });
                         }
                     }
                 } catch (OperationCanceledException) {
@@ -124,7 +131,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static void forwardActivation(string targetInstance, string action) {
+        private static bool forwardActivation(string targetInstance, NotificationActivation activation) {
             try {
                 log.Info("Forwarding toast activation to target OGCS instance: " + targetInstance);
                 using (NamedPipeClientStream client = new NamedPipeClientStream(
@@ -135,11 +142,14 @@ namespace OutlookGoogleCalendarSync {
                     client.Connect(500);
                     using (StreamWriter writer = new StreamWriter(client)) {
                         writer.AutoFlush = true;
-                        writer.WriteLine(action ?? string.Empty);
+                        writer.WriteLine(activation?.Action ?? string.Empty);
+                        writer.WriteLine(activation?.BrowserUrl ?? string.Empty);
                     }
                 }
-            } catch (System.Exception ex) {
-                log.Info("Target OGCS instance is no longer running.", ex);
+                return true;
+            } catch {
+                log.Info("Target OGCS instance is no longer running.");
+                return false;
             }
         }
 
@@ -149,15 +159,25 @@ namespace OutlookGoogleCalendarSync {
 
             foreach (string part in argument.Split(new[] { '&', ';' }, StringSplitOptions.RemoveEmptyEntries)) {
                 string[] keyValue = part.Trim().Split(new[] { '=' }, 2);
-                if (keyValue.Length == 2 && (new string[] { "action", "instance" }.Contains( keyValue[0]))) {
+                if (keyValue.Length == 2 && (new string[] { "action", "instance", "url" }.Contains(keyValue[0]))) {
                     arguments[keyValue[0]] = keyValue[1];
                 }
             }
             return arguments;
         }
+
+        private static string getBrowserUrl(Dictionary<string, string> arguments) {
+            if (!arguments.TryGetValue("url", out string encodedUrl) || string.IsNullOrEmpty(encodedUrl)) return string.Empty;
+            try {
+                return System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedUrl));
+            } catch (FormatException) {
+                log.Warn("Ignoring malformed browser URL in toast activation.");
+                return string.Empty;
+            }
+        }
         #endregion
 
-        public void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "") {
+        public void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "", string browserUrl = "") {
             String title = "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : $" - {Program.Title}");
             try {
                 String originalMessage = message;
@@ -180,6 +200,7 @@ namespace OutlookGoogleCalendarSync {
                     .AddText(message)
                     .AddArgument("instance", instanceId)
                     .AddArgument("action", tagValue)
+                    .AddArgument("url", string.IsNullOrEmpty(browserUrl) ? string.Empty : Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(browserUrl)))
                     .AddArgument("message", originalMessage)
                     .SetToastScenario(ToastScenario.Default)
                     .GetToastContent();

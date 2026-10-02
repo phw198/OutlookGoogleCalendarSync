@@ -8,6 +8,7 @@ using System.Windows.Forms;
 namespace OutlookGoogleCalendarSync {
     public class NotificationTray {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
+        public const string OomSecurityUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security";
         private NotifyIcon icon;
         private INotificationHandler notificationHandler;
         
@@ -46,7 +47,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
-                    "Click to view 'Why am I getting Outlook security pop-ups' in the GitHub project wiki.", ToolTipIcon.Warning, "OOMsecurity");
+                    "Click to view 'Why am I getting Outlook security pop-ups' in the GitHub project wiki.", ToolTipIcon.Warning, "", OomSecurityUrl);
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.setting)
                     .AddParameter("oom_security", true)
                     .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
@@ -355,17 +356,18 @@ namespace OutlookGoogleCalendarSync {
 
         private void notifyIcon_BubbleClick(object sender, EventArgs e) {
             NotifyIcon notifyIcon = (sender as NotifyIcon);
-            notificationClicked(notifyIcon?.Tag?.ToString());
+            notificationClicked(notifyIcon?.Tag as NotificationActivation);
         }
 
-        private void notificationClicked(string tag) {
+        private void notificationClicked(NotificationActivation activation) {
             try {
+                string tag = activation?.Action;
                 if (tag == "ShowSystemNotificationWhenMinimising") {
                     Settings.Instance.ShowSystemNotificationWhenMinimising = false;
                     XMLManager.ExportElement(Settings.Instance, "ShowSystemNotificationWhenMinimising", false, Settings.ConfigFile);
 
-                } else if (tag == "OOMsecurity") {
-                    Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security");
+                } else if (!string.IsNullOrEmpty(activation?.BrowserUrl)) {
+                    Helper.OpenBrowser(activation.BrowserUrl);
 
                 } else {
                     Forms.Main.Instance.CallControlMethodThreadSafe(Forms.Main.Instance, "MainFormShow", true);
@@ -389,8 +391,8 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="message">The text to display. The first line will be used as the title in modern toasts.</param>
         /// <param name="iconType">The type of icon to display for pre-Win10.</param>
         /// <param name="tagValue">A code to trigger specific action when clicked.</param>
-        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "") {
-            notificationHandler?.ShowNotification(message, iconType, tagValue);
+        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "", String browserUrl = "") {
+            notificationHandler?.ShowNotification(message, iconType, tagValue, browserUrl);
         }
     }
 }
