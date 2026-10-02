@@ -66,6 +66,8 @@ namespace OutlookGoogleCalendarSync {
 
                 RoamingProfileOGCS = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
                 parseArgumentsAndInitialise(args);
+                
+                if (ModernToastNotificationHandler.HandleStartupActivation()) return;
 
                 Updater.MakeSquirrelAware();
                 getWindowsBuildNumber();

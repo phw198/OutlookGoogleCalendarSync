@@ -30,6 +30,43 @@ namespace OutlookGoogleCalendarSync {
             RegisterActivationHandler();
         }
 
+        /// <summary>
+        /// Handles application startup activation triggered by a toast notification and processes activation arguments.
+        /// </summary>
+        /// <remarks>Subscribes to toast activation events, processes activation arguments, and ensures
+        /// proper event unsubscription after handling. Waits up to two seconds for activation to complete.</remarks>
+        /// <returns>true if the application was activated by a toast notification; otherwise, false.</returns>
+        public static bool HandleStartupActivation() {
+            try {
+                if (!ToastNotificationManagerCompat.WasCurrentProcessToastActivated()) return false;
+            } catch (System.Exception ex) {
+                ex.LogAsFail().Analyse("Unable to determine whether OGCS was started by a toast activation.");
+                return false;
+            }
+
+            ManualResetEventSlim activationReceived = new ManualResetEventSlim(false);
+            OnActivated activationHandler = args => {
+                Dictionary<string, string> arguments = getTriggerArguments(args.Argument);
+                if (arguments.TryGetValue("instance", out string targetInstance) && !string.IsNullOrEmpty(targetInstance)) {
+                    forwardActivation(targetInstance, arguments.TryGetValue("action", out string action) ? action : string.Empty);
+                } else {
+                    log.Warn("Ignoring startup toast activation without an instance identifier.");
+                }
+                activationReceived.Set();
+            };
+
+            try {
+                ToastNotificationManagerCompat.OnActivated += activationHandler;
+                activationReceived.Wait(TimeSpan.FromSeconds(2));
+            } catch (System.Exception ex) {
+                ex.Analyse("Unable to handle toast activation during OGCS startup.");
+            } finally {
+                ToastNotificationManagerCompat.OnActivated -= activationHandler;
+            }
+
+            return true;
+        }
+
         private void RegisterActivationHandler() {
             if (activationCallbacksRegistered) return;
 
@@ -38,7 +75,7 @@ namespace OutlookGoogleCalendarSync {
                 ToastNotificationManagerCompat.OnActivated += args => {
                     Dictionary<string, string> arguments = getTriggerArguments(args.Argument);
                     if (!arguments.TryGetValue("instance", out string targetInstance) || string.IsNullOrEmpty(targetInstance)) {
-                        log.Warn("ModernToastNotificationHandler: Ignoring toast activation without an instance identifier.");
+                        log.Warn("Ignoring toast activation without an instance identifier.");
                         return;
                     }
                     if (targetInstance != instanceId) {
@@ -46,7 +83,7 @@ namespace OutlookGoogleCalendarSync {
                         return;
                     }
                     string tag = arguments.TryGetValue("action", out string action) ? action : string.Empty;
-                    log.Debug("ModernToastNotificationHandler: Toast activated: " + tag);
+                    log.Debug("Toast activated: " + tag);
                     activationCallback?.Invoke(tag);
                 };
                 activationCallbacksRegistered = true;
@@ -57,7 +94,7 @@ namespace OutlookGoogleCalendarSync {
         }
 
         #region Inter-process pipeline communication for toasts clicked from Windows Action Center
-        //If the wrong process is activated, we need to forward the activation to the correct process.
+        //For multi-instance OGCS, if the wrong process is activated, we need to forward the activation to the correct process.
         //This is done via a named pipe, which is created by the process that created the toast notification.
         private static void startActivationPipe() {
             activationPipeCancellation = new CancellationTokenSource();
@@ -88,23 +125,22 @@ namespace OutlookGoogleCalendarSync {
         }
 
         private static void forwardActivation(string targetInstance, string action) {
-            Task.Run(() => {
-                try {
-                    using (NamedPipeClientStream client = new NamedPipeClientStream(
-                        ".",
-                        "OGCS.Toast." + targetInstance,
-                        PipeDirection.Out,
-                        PipeOptions.Asynchronous)) {
-                        client.Connect(500);
-                        using (StreamWriter writer = new StreamWriter(client)) {
-                            writer.AutoFlush = true;
-                            writer.WriteLine(action ?? string.Empty);
-                        }
+            try {
+                log.Info("Forwarding toast activation to target OGCS instance: " + targetInstance);
+                using (NamedPipeClientStream client = new NamedPipeClientStream(
+                    ".",
+                    "OGCS.Toast." + targetInstance,
+                    PipeDirection.Out,
+                    PipeOptions.Asynchronous)) {
+                    client.Connect(500);
+                    using (StreamWriter writer = new StreamWriter(client)) {
+                        writer.AutoFlush = true;
+                        writer.WriteLine(action ?? string.Empty);
                     }
-                } catch (System.Exception ex) {
-                    log.Info("ModernToastNotificationHandler: Target OGCS instance is no longer running.", ex);
                 }
-            });
+            } catch (System.Exception ex) {
+                log.Info("Target OGCS instance is no longer running.", ex);
+            }
         }
 
         private static Dictionary<string, string> getTriggerArguments(string argument) {
@@ -152,7 +188,7 @@ namespace OutlookGoogleCalendarSync {
                 ToastNotifierCompat notifier = ToastNotificationManagerCompat.CreateToastNotifier();
                 ToastNotification toast = new Windows.UI.Notifications.ToastNotification(toastXml);
                 toast.Dismissed += (sender, args) => {
-                    log.Debug("ModernToastNotificationHandler: Toast dismissed");
+                    log.Debug("Toast dismissed");
                 };
                 notifier.Show(toast);
 
