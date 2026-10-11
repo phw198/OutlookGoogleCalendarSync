@@ -140,7 +140,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return returnVal;
             }
 
-            String propertyName = null;
             Dictionary<String, String> calendarKeys = new Dictionary<string, string>();
             UserProperties ups = null;
             try {
@@ -149,21 +148,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     UserProperty up = null;
                     try {
                         up = ups[p];
-                        if (up.Name.StartsWith(calendarKeyName)) {
-                            propertyName = up.Name;
+                        if (up.Name.StartsWith(calendarKeyName))
                             calendarKeys.Add(up.Name, up.Value.ToString());
-                        }
                     } finally {
                         up = (UserProperty)Calendar.ReleaseObject(up);
                     }
                 }
-            } catch (System.ArgumentException ex) {
-                if (ex.Message == "An item with the same key has already been added.") {
-                    log.Fail($"Could not add property '{propertyName}' - already exists.");
-                    LogProperties(ai);
-                    ex.Analyse("Investigating issue #2233 and duplicate calendarKey...", true);
-                }
-                throw;
             } finally {
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }

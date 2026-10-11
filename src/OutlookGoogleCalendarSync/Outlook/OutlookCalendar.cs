@@ -186,6 +186,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Int32 subjectFiltered = 0;
                 Int32 responseFiltered = 0;
 
+                //Outlook's live, [Start]-sorted Items enumeration can re-deliver the same appointment if any
+                //item's Start changes mid-enumeration - not a genuine duplicate. See issue #2233.
+                HashSet<String> processedEntryIDs = new();
+
                 foreach (Object obj in IOutlook.FilterItems(OutlookItems, filter)) {
                     AppointmentItem ai;
                     try {
@@ -197,6 +201,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         else if (obj is ContactItem) log.Debug("It is a contact item.");
                         else if (obj is TaskItem) log.Debug("It is a task item.");
                         else log.Debug("WTF is this item?!");
+                        continue;
+                    }
+                    if (!processedEntryIDs.Add(ai.EntryID)) {
+                        log.Warn("Outlook re-delivered the same item during enumeration - EntryID " + ai.EntryID + " already processed.");
                         continue;
                     }
                     try {
@@ -234,50 +242,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 } else throw;
                             }
                             if (filtered) {
-                                try {
-                                    ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID, profile)); continue;
-                                } catch (System.ArgumentException ex) {
-                                    if (ex.Message == "An item with the same key has already been added.") {
-                                        ex.Analyse("Investigating issue #2233 and duplicate EntryID...", true);
-                                        try {
-                                            log.Debug("Errored item: " + ai.EntryID);
-                                            log.Debug(GetEventSummary(ai));
-                                            log.Debug("ExcludedByCategory.Count: "+ ExcludedByCategory.Count);
-                                            log.Debug("ExcludedByCategory.ContainsKey: " + ExcludedByCategory.ContainsKey(ai.EntryID));
-                                            List<AppointmentItem> ais = new();
-                                            IOutlook.FilterItems(OutlookItems, filter)
-                                                .FindAll(x => (x as AppointmentItem).EntryID == ai.EntryID)
-                                                .ForEach(y => ais.Add(y as AppointmentItem));
-                                            log.Debug("Simple search found: " + ais.Count);
-                                            ais.ForEach(x => {
-                                                log.Debug("   -> " + x.GlobalAppointmentID);
-                                                log.Debug("      " + GetEventSummary(x));
-                                            });
-                                            
-                                            ais = new();
-                                            IOutlook.FilterItems(OutlookItems, filter).ForEach(ai => ais.Add(ai as AppointmentItem));
-                                            ExportToCSV("Appointments containing possible duplicate EntryID", "outlook_appointments_duplicateEntryID.csv", ais);
-
-                                            Dictionary<String, List<AppointmentItem>> duplicates = ais.
-                                                GroupBy(ai => ai.EntryID).
-                                                Where(group => group.Count() > 1).
-                                                ToDictionary(group => group.Key, group => group.ToList());
-                                            log.Warn($"Outlook has {duplicates.Count} duplicate EntryIDs");
-                                            if (duplicates.Count > 0) {
-                                                foreach (KeyValuePair<String, List<AppointmentItem>> duplicate in duplicates) {
-                                                    log.Debug(duplicate.Key);
-                                                    duplicate.Value.ForEach(d => {
-                                                        log.Debug("   -> " + d.GlobalAppointmentID);
-                                                        log.Debug("      " + GetEventSummary(d));
-                                                    });
-                                                }
-                                            }
-                                        } catch (System.Exception ex2) {
-                                            ex2.Analyse("Couldn't export all the Outlook appointments, in search of duplicate EntryIDs");
-                                        }
-                                    }
-                                    throw;
-                                }
+                                ExcludedByCategory.Add(ai.EntryID, CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID, profile));
+                                continue;
                             }
 
                             //Availability, Privacy, Subject
