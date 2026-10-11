@@ -497,8 +497,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!EmailAddress.IsValidEmail(retEmail) && !builtFakeEmail) {
                     retEmail = EmailAddress.BuildFakeEmailAddress(recipient.Name, out builtFakeEmail);
                     if (!EmailAddress.IsValidEmail(retEmail)) {
-                        Forms.Main.Instance.Console.Update("Recipient \"" + recipient.Name + "\" with email address \"" + retEmail + "\" is invalid.<br/>" +
-                            "This must be manually resolved in order to sync this appointment.", Console.Markup.error, notifyBubble: true);
+                        Forms.Main.Instance.Console.UpdateAndNotify("Recipient \"" + recipient.Name + "\" with email address \"" + retEmail + "\" is invalid.<br/>" +
+                            "This must be manually resolved in order to sync this appointment.", "recipient-invalid", Console.Markup.error);
                         throw new ApplicationException("Invalid recipient email for \"" + recipient.Name + "\"");
                     }
                 }

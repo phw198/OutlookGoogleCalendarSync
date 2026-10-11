@@ -47,7 +47,7 @@ namespace OutlookGoogleCalendarSync {
 
             if (Outlook.Calendar.OOMsecurityInfo) {
                 ShowBubbleInfo("Your Outlook security settings may not be optimal.\r\n" +
-                    "Click to view 'Why am I getting Outlook security pop-ups' in the GitHub project wiki.", ToolTipIcon.Warning, "", OomSecurityUrl);
+                    "Click to view 'Why am I getting Outlook security pop-ups' in the GitHub project wiki.", "outlook-oom-security", ToolTipIcon.Warning, OomSecurityUrl);
                 new Telemetry.GA4Event.Event(Telemetry.GA4Event.Event.Name.setting)
                     .AddParameter("oom_security", true)
                     .AddParameter(GA4.General.sync_count, Settings.Instance.CompletedSyncs)
@@ -391,10 +391,10 @@ namespace OutlookGoogleCalendarSync {
         /// This will use the modern toast notification on Windows 10 and above, and fall back to the legacy balloon notification on older versions of Windows.
         /// </summary>
         /// <param name="message">The text to display. The first line will be used as the title in modern toasts.</param>
+        /// <param name="tagValue">A summary slug identifying the notification.</param>
         /// <param name="iconType">The type of icon to display for pre-Win10.</param>
-        /// <param name="tagValue">A code to trigger specific action when clicked.</param>
-        public void ShowBubbleInfo(string message, ToolTipIcon iconType = ToolTipIcon.None, String tagValue = "", String browserUrl = "") {
-            notificationHandler?.ShowNotification(message, iconType, tagValue, browserUrl);
+        public void ShowBubbleInfo(string message, String tagValue, ToolTipIcon iconType = ToolTipIcon.None, String browserUrl = "") {
+            notificationHandler?.ShowNotification(message, tagValue, iconType, browserUrl);
         }
     }
 }

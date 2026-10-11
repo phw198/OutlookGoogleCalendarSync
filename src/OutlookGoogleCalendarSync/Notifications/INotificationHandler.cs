@@ -7,6 +7,6 @@ namespace OutlookGoogleCalendarSync {
     }
 
     internal interface INotificationHandler {
-        void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "", string browserUrl = "");
+        void ShowNotification(string message, string tagValue, ToolTipIcon iconType = ToolTipIcon.None, string browserUrl = "");
     }
 }

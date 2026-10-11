@@ -69,20 +69,20 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     //Check network availability
                     if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) {
-                        mainFrm.Console.Update("There does not appear to be any network available! Sync aborted.", Console.Markup.warning, notifyBubble: true);
+                        mainFrm.Console.UpdateAndNotify("There does not appear to be any network available! Sync aborted.", "network-unavailable", Console.Markup.warning);
                         this.setNextSync(false, updateSyncSchedule);
                         return;
                     }
                     //Check if Outlook is Online
                     try {
                         if (!this.Profile.IsOutlookOnline && Outlook.Calendar.Instance.IOutlook.Offline() && this.Profile.AddAttendees) {
-                            mainFrm.Console.Update("<p>You have selected to sync attendees but Outlook is currently offline.</p>" +
-                                "<p>Either put Outlook online or do not sync attendees.</p>", Console.Markup.error, notifyBubble: true);
+                            mainFrm.Console.UpdateAndNotify("<p>You have selected to sync attendees but Outlook is currently offline.</p>" +
+                                "<p>Either put Outlook online or do not sync attendees.</p>", "outlook-client-offline", Console.Markup.error);
                             this.setNextSync(false, updateSyncSchedule);
                             return;
                         }
                     } catch (System.Exception ex) {
-                        mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
+                        mainFrm.Console.UpdateWithErrorAndNotify(null, ex, "outlook-client-online-status-error");
                         Ogcs.Exception.Analyse(ex, true);
                         return;
                     }
@@ -149,7 +149,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                         mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
-                                        mainFrm.Console.Update(sb, (ex.LoggingAsFail() ? Console.Markup.fail : Console.Markup.error), notifyBubble: true);
+                                        mainFrm.Console.UpdateAndNotify(sb, "sync-error-details", (ex.LoggingAsFail() ? Console.Markup.fail : Console.Markup.error));
                                         if (ex.Data["OGCS"].ToString().Contains("try again")) {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
                                         }
@@ -172,7 +172,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                                         } else {
                                             Ogcs.Exception.Analyse(ex, true);
-                                            mainFrm.Console.UpdateWithError(null, ex, notifyBubble: true);
+                                            mainFrm.Console.UpdateWithErrorAndNotify(null, ex, "sync-error");
                                             syncResult = SyncResult.Fail;
                                         }
                                     }
@@ -197,7 +197,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 try {
                                     Outlook.Calendar.Instance.Reset();
                                 } catch (System.Exception ex) {
-                                    mainFrm.Console.UpdateWithError("A problem was encountered reconnecting to Outlook.<br/>Further syncs aborted.", ex, notifyBubble: true);
+                                    mainFrm.Console.UpdateWithErrorAndNotify("A problem was encountered reconnecting to Outlook.<br/>Further syncs aborted.", ex, "outlook-client-reconnect-error");
                                     syncResult = SyncResult.Abandon;
                                 }
                             }
@@ -231,7 +231,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     } else if (syncResult == SyncResult.AutoRetry) {
                         this.consecutiveSyncFails++;
-                        mainFrm.Console.Update("Sync encountered a problem and did not complete successfully.<br/>" + this.consecutiveSyncFails + " consecutive syncs failed.", Console.Markup.error, notifyBubble: true);
+                        mainFrm.Console.UpdateAndNotify("Sync encountered a problem and did not complete successfully.<br/>" + this.consecutiveSyncFails + " consecutive syncs failed.", "sync-failed-autoretry", Console.Markup.error);
                         if (this.Profile.OgcsTimer.NextSyncDate != null && this.Profile.OgcsTimer.NextSyncDate > DateTime.Now) {
                             log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + this.Profile.OgcsTimer.NextSyncDateText);
                             updateSyncSchedule = false;
@@ -507,7 +507,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
                         String changes = rgx.Replace(string.Join(".", bubbleLines.Skip(1)), "").Trim('0');
                         if (Settings.Instance.ShowSystemNotifications && (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes))) 
-                            Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                            Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText, "sync-summary");
                     }
 
                     return SyncResult.OK;

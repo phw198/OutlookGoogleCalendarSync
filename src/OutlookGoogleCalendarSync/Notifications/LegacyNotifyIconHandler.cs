@@ -11,7 +11,7 @@ namespace OutlookGoogleCalendarSync {
             this.onClick = onClick;
         }
 
-        public void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "", string browserUrl = "") {
+        public void ShowNotification(string message, string tagValue, ToolTipIcon iconType = ToolTipIcon.None, string browserUrl = "") {
             try {
                 ownerIcon.Icon = Properties.Resources.icon; //Set to standard, non-animated icon
                 ownerIcon.Tag = new NotificationActivation { Action = tagValue, BrowserUrl = browserUrl };

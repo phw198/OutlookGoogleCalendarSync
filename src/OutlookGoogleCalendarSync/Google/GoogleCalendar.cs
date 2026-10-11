@@ -439,7 +439,10 @@ namespace OutlookGoogleCalendarSync.Google {
             if (allExcluded.Count > 0) {
                 if (!suppressAdvisories) {
                     String filterWarning = "Due to your OGCS Google settings, " + (result.Count == 0 ? "all" : allExcluded.Count) + " Google items have been filtered out" + (result.Count == 0 ? "!" : ".");
-                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+                    if (result.Count == 0)
+                        Forms.Main.Instance.Console.UpdateAndNotify(filterWarning, "google-filtered-all", Console.Markup.config, newLine: false);
+                    else
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false);
 
                     filterWarning = "";
                     if (profile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id && ExcludedByColour.Count > 0 && profile.DeleteWhenColourExcluded) {

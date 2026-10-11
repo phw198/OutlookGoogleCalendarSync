@@ -212,7 +212,7 @@ namespace OutlookGoogleCalendarSync {
         }
         #endregion
 
-        public void ShowNotification(string message, ToolTipIcon iconType = ToolTipIcon.None, string tagValue = "", string browserUrl = "") {
+        public void ShowNotification(string message, string tagValue, ToolTipIcon iconType = ToolTipIcon.None, string browserUrl = "") {
             String title = "Outlook Google Calendar Sync" + (string.IsNullOrEmpty(Program.Title) ? "" : $" - {Program.Title}");
             try {
                 String originalMessage = message;

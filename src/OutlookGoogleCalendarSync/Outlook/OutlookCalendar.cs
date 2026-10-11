@@ -338,7 +338,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Int32 allExcluded = availabilityFiltered + allDayFiltered + ExcludedByCategory.Count + subjectFiltered + responseFiltered;
                 if (allExcluded > 0 && !suppressAdvisories) {
                     String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : allExcluded) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
-                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+                    if (result.Count == 0)
+                        Forms.Main.Instance.Console.UpdateAndNotify(filterWarning, "outlook-filtered-all", Console.Markup.config, newLine: false);
+                    else
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false);
 
                     filterWarning = "";
                     if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ExcludedByCategory.Count > 0 && profile.DeleteWhenCategoryExcluded) {

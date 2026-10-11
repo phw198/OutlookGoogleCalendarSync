@@ -1057,7 +1057,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.ShowInTaskbar = false;
                 this.Hide();
                 if (Settings.Instance.ShowSystemNotificationWhenMinimising) {
-                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowSystemNotificationWhenMinimising");
+                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", "ShowSystemNotificationWhenMinimising", ToolTipIcon.Info);
                 } else {
                     trayIcon.Tag = "";
                 }

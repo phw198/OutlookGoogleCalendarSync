@@ -112,20 +112,20 @@ namespace OutlookGoogleCalendarSync {
 
             log.Warn("Token response error: " + ex.Message);
             if (ex.Error.Error == "access_denied") {
-                Forms.Main.Instance.Console.Update("Failed to obtain Calendar access from Google - it's possible your access has been revoked.<br/>" + instructions, Console.Markup.fail, notifyBubble: true);
+                Forms.Main.Instance.Console.UpdateAndNotify("Failed to obtain Calendar access from Google - it's possible your access has been revoked.<br/>" + instructions, "google-access-revoked", Console.Markup.fail);
                 LogAsFail(ref ex);
 
             } else if ("invalid_client;unauthorized_client".Contains(ex.Error.Error)) {
-                Forms.Main.Instance.Console.Update("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, Console.Markup.fail, notifyBubble: true);
+                Forms.Main.Instance.Console.UpdateAndNotify("Invalid authentication token. Account requires reauthorising.\r\n" + instructions, "google-auth-invalid", Console.Markup.fail);
                 LogAsFail(ref ex);
 
             } else if (ex.Error.Error == "invalid_grant") {
-                Forms.Main.Instance.Console.Update("Google has revoked your authentication token. Account requires reauthorising.<br/>" + instructions, Console.Markup.fail, notifyBubble: true);
+                Forms.Main.Instance.Console.UpdateAndNotify("Google has revoked your authentication token. Account requires reauthorising.<br/>" + instructions, "google-auth-revoked", Console.Markup.fail);
                 LogAsFail(ref ex);
 
             } else {
                 log.Warn("Unknown web exception.");
-                Forms.Main.Instance.Console.UpdateWithError("Unable to communicate with Google. The following error occurred:", ex, notifyBubble: true);
+                Forms.Main.Instance.Console.UpdateWithErrorAndNotify("Unable to communicate with Google. The following error occurred:", ex, "google-api-error");
             }
             if (throwError) throw ex;
         }

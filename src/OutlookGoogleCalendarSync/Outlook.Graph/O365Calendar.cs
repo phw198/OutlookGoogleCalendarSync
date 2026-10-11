@@ -292,7 +292,10 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             if (allExcluded.Count > 0) {
                 if (!suppressAdvisories) {
                     String filterWarning = "Due to your OGCS Outlook settings, " + (result.Count == 0 ? "all" : allExcluded.Count) + " Outlook items have been filtered out" + (result.Count == 0 ? "!" : ".");
-                    Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false, notifyBubble: (result.Count == 0));
+                    if (result.Count == 0)
+                        Forms.Main.Instance.Console.UpdateAndNotify(filterWarning, "outlook-filtered-all", Console.Markup.config, newLine: false);
+                    else
+                        Forms.Main.Instance.Console.Update(filterWarning, Console.Markup.config, newLine: false);
 
                     filterWarning = "";
                     if (profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id && ExcludedByCategory.Count > 0 && profile.DeleteWhenCategoryExcluded) {
@@ -491,7 +494,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             ai.Subject = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ev.Summary, null, Sync.Direction.GoogleToOutlook);
             if (profile.AddDescription && ev.Description != null) {
-                ai.Body = new MsGraph.Models.ItemBody() { ContentType = MsGraph.Models.BodyType.Html };
+                ai.Body = new MsGraph.Models.ItemBody() { ContentType = MsGraph.Models.BodyType.Text/*.Html */};
                 ai.Body.Content = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ev.Description, null, Sync.Direction.GoogleToOutlook);
             }
             if (profile.AddLocation) ai.Location = new MsGraph.Models.Location { DisplayName = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ev.Location, null, Sync.Direction.GoogleToOutlook) };

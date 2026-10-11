@@ -125,7 +125,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     System.Text.RegularExpressions.Regex rgx = new System.Text.RegularExpressions.Regex(@"\D");
                     String changes = rgx.Replace(string.Join(".", bubbleText.Skip(1)), "").Trim('0');
                     if (Settings.Instance.ShowSystemNotifications && (!Settings.Instance.ShowSystemNotificationsIfChange || !String.IsNullOrEmpty(changes)))
-                        Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText);
+                            Forms.Main.Instance.NotificationTray.ShowBubbleInfo(bubbleText, "sync-summary");
                 }
 
                 return SyncResult.OK;
