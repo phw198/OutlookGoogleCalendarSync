@@ -126,6 +126,7 @@ namespace OutlookGoogleCalendarSync {
 
             } finally {
                 log.Debug("Shutting down application.");
+                Forms.Main.Instance?.NotificationTray?.Dispose();
                 Outlook.Calendar.Disconnect();
                 Forms.Splash.CloseMe();
                 TimezoneDB.SystemEvents_Detach();

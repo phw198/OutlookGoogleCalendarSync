@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace OutlookGoogleCalendarSync {
-    public class NotificationTray {
+    public class NotificationTray : IDisposable {
         private static readonly ILog log = LogManager.GetLogger(typeof(NotificationTray));
         public const string OomSecurityUrl = "https://github.com/phw198/OutlookGoogleCalendarSync/wiki/FAQs---Outlook-Security";
         private NotifyIcon icon;
@@ -380,9 +380,13 @@ namespace OutlookGoogleCalendarSync {
 
         public void ExitItem_Click(object sender, EventArgs e) {
             exitEventFired = true;
+            Dispose();
+            Forms.Main.Instance.Close();
+        }
+
+        public void Dispose() {
             if (notificationHandler is IDisposable disposable)
                 disposable.Dispose();
-            Forms.Main.Instance.Close();
         }
         #endregion
 

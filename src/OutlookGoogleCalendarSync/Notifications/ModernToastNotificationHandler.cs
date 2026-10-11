@@ -128,10 +128,12 @@ namespace OutlookGoogleCalendarSync {
             foreach (string tag in tags) {
                 try {
                     ToastNotificationManagerCompat.History.Remove(tag);
+                    log.Fine(tag + " toast notification removed from Windows Action Center during shutdown.");
                 } catch (System.Exception ex) {
                     ex.LogAsFail().Analyse("Unable to remove toast notification during shutdown; tag=" + tag);
                 }
             }
+            log.Info(tags.Count() + " toast notifications removed from Windows Action Center during shutdown.");
         }
 
         #region Inter-process pipeline communication for toasts clicked from Windows Action Center
@@ -245,7 +247,9 @@ namespace OutlookGoogleCalendarSync {
                 ToastNotification toast = new Windows.UI.Notifications.ToastNotification(toastXml);
                 toast.Tag = createToastTag();
                 toast.Dismissed += (sender, args) => {
-                    log.Debug("Toast dismissed");
+                    Dictionary<string, string> arguments = getTriggerArguments(toast.Content.DocumentElement.GetAttribute("launch"));
+                    string action = arguments.TryGetValue("action", out string actionSlug) ? actionSlug : string.Empty;
+                    log.Debug($"Toast {action} dismissed: {args.Reason}");
                 };
                 notifier.Show(toast);
 
