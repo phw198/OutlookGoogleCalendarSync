@@ -98,10 +98,15 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         "id", "name", "color", "changeKey", "canShare", "canViewPrivateItems", "hexColor", "canEdit", "isDefaultCalendar", "isTallyingResponses", "isRemovable", "owner"
                     };
                 }, Calendar.Instance.Authenticator.CancelTokenSource.Token);
-
+                
+                log.Fine("Retrieved " + calPage.Value?.Count() + " calendars.");
                 cals.AddRange(calPage.Value ?? new());
+
                 while (!String.IsNullOrEmpty(calPage.OdataNextLink)) {
-                    calPage = calendarsRequest.WithUrl(calPage.OdataNextLink).GetAsync(config => { }).Result;
+                    calPage = await calendarsRequest
+                        .WithUrl(calPage.OdataNextLink)
+                        .GetAsync(null, Calendar.Instance.Authenticator.CancelTokenSource.Token);
+                    log.Fine("Retrieved " + calPage.Value?.Count() + " calendars.");
                     cals.AddRange(calPage.Value ?? new());
                 }
             } catch (System.Exception ex) {
@@ -110,6 +115,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                     default: throw ex;
                 }
             }
+            log.Debug("Retrieved " + cals.Count() + " calendars in total.");
 
             foreach (MsGraph.Models.Calendar cal in cals) {
                 if ((bool)cal.IsDefaultCalendar)
