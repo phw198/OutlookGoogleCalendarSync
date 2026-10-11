@@ -432,7 +432,7 @@ namespace OutlookGoogleCalendarSync {
             String tagsStripped = Regex.Replace(htmlOutput, "(</p>|<br/?>)", "\r\n");
             tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat'></span>", "(R)");
             tagsStripped = Regex.Replace(tagsStripped, "<span class='em em-repeat-one'></span>", "(R1)");
-            tagsStripped = Regex.Replace(tagsStripped, "<.*?>", String.Empty);
+            tagsStripped = tagsStripped.RemoveHtmlTags();
             tagsStripped = Regex.Replace(caller, ".*OutlookGoogleCalendarSync\\\\(.*.cs)", "<$1") + "> " + tagsStripped;
             String[] logLines = tagsStripped.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (markupPrefix == Markup.warning)

@@ -873,8 +873,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                     String bodyObfuscated = Obfuscate.ApplyRegex(Obfuscate.Property.Description, outlookBody, ev.Description, Sync.Direction.OutlookToGoogle);
 
                     //Remove HTML markup from Console output
-                    String evTagsStripped = Regex.Replace(ev.Description ?? "", "<.*?>", String.Empty);
-                    String aiTagsStripped = Regex.Replace(bodyObfuscated, "<.*?>", String.Empty);
+                    String evTagsStripped = (ev.Description ?? "").RemoveHtmlTags();
+                    String aiTagsStripped = bodyObfuscated.RemoveHtmlTags();
                     StringBuilder currentSB = new(sb.Capacity);
                     currentSB.Append(sb);
                     
