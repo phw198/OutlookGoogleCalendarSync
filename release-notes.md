@@ -66,7 +66,7 @@ img.emoji {
 
 ## v3.0.5.0 - Alpha
 
-**Enhancements**
+:high_brightness: **Enhancements**
 - Application
     - Don't connect to Classic Outlook when no mail profiles are configured [[#2373](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2373)]
     - Associate notifications in Window's Action Center with OGCS instance that generated them
@@ -75,7 +75,7 @@ img.emoji {
 - Sync Engine
     - Treat Google's faux "all-day" out-of-office as bona-fide all-day appointment [[#2366](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2366)]
 
-**Bugfix**
+:beetle: **Bugfix**
 - Application
     - Notifications in Action Center open web browser when required
 - Sync Engine
@@ -99,7 +99,7 @@ img.emoji {
 
 ## v3.0.4.0 - Alpha
 
-**Enhancements**
+:high_brightness: **Enhancements**
 - Application
     - No longer alter reminders if unchecked in settings [[#1458](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1458)]
     - Option to exclude out-of-office items from sync [[#1254](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1254)]
@@ -107,7 +107,7 @@ img.emoji {
     - Ability to map `<No category assigned>` in Outlook to a Google colour [[#1320](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1320)]
     - More robust sync of Classic Outlook recurring series
 
-**Bugfix**
+:beetle: **Bugfix**
 - Application
     - Properly store splash screen hiding preference [[#2368](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2368)]
 - Sync Engine
@@ -128,14 +128,14 @@ img.emoji {
 
 ## v3.0.3.0 - Alpha
 
-**Enhancements**
+:high_brightness: **Enhancements**
 - Application
     - Option added to manually sync _all_ Profiles [[#1427](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1427)]
     - Modern Toast notifications for Windows 10 [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
     - Removed obsolete Google Goals feature
     - Improved upgrade detection, handling both v2 and v3 installations
 
-**Bugfix**
+:beetle: **Bugfix**
 - Application
     - Notifications within Windows Action Center function properly [[#1870](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1870)]
 - Sync Engine
@@ -159,12 +159,12 @@ img.emoji {
 
 ## v3.0.2.0 - Alpha
 
-**Enhancements**
+:high_brightness: **Enhancements**
 - Application
     - Updated to .NET Framework 4.7.2 (from 4.6.2)
     - Updated all third-party library files (DLLs)
 
-**Bugfix**
+:beetle: **Bugfix**
 - Application
     - Unable to add shared Outlook calendars [[#2286](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2286)]
     - Fixed restriction of sync dates for personal API keys [[#2327](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2327)]
