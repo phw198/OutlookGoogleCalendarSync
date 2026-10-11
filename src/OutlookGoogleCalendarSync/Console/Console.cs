@@ -1,11 +1,12 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using log4net;
+﻿using log4net;
 using Microsoft.Win32;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync {
     public class Console {
@@ -264,9 +265,9 @@ namespace OutlookGoogleCalendarSync {
                 return;
             }
             if (e.Url.Fragment == "#hidenews") {
-                Settings.Instance.HideNews = DateTime.UtcNow;
+                Settings.Instance.HideNews = System.DateTime.UtcNow;
             } else if (e.Url.Fragment == "#shownews") {
-                Settings.Instance.HideNews = new DateTime();
+                Settings.Instance.HideNews = new System.DateTime();
             }
 
             navigationStatus = NavigationStatus.navigating;

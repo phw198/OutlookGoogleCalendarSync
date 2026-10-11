@@ -129,6 +129,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Extensions\ExceptionTests.cs" />
+    <Compile Include="Extensions\MsGraphBodyTests.cs" />
     <Compile Include="Outlook\CalendarCategorySyncTests.cs" />
     <Compile Include="Outlook\RecurrenceTimeZoneTests.cs" />
   </ItemGroup>
