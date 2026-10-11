@@ -19,12 +19,9 @@
 - Standardised selectable workspace customizations with the `ogcs-` prefix: the `ogcs-release-preparer` agent and `/ogcs-code-review` prompt.
 - Replaced the selectable `sync-dev` agent with always-applied `ogcs-global-guidance` project instructions.
 - Added a mandatory COM lifetime review to the project guidance: any Outlook client change must check for new COM object leaks, singleton auto-connects, and matching `Disconnect`/`ReleaseObject` cleanup before completion.
-
-## Release Build Note
-- Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
-
-## Immediate Next Step
-- Validate the targeted fix with the lightest available build or project-level check for the Outlook factory logic, and then confirm whether any broader Outlook profile fallback behavior should be exercised in a Windows-specific environment.
+- Clarified the review prompt’s issue-resolution rule: explicit `ISSUE=` values override any issue number inferred from the branch name, while the branch convention still provides a fallback when no explicit issue is given.
+- Enforced issue isolation in the project guidance: each issue branch must stay scoped to that issue only and must not absorb unrelated work from other sessions or branches unless the user explicitly authorizes it.
+- Confirmed the sync-window semantics are date-only boundaries intended to be treated as UTC midnight, and documented the clearer explicit UTC-midnight pattern to avoid local-time ambiguity.
 
 ## Release Build Note
 - Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
