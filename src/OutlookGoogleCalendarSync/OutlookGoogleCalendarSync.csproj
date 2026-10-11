@@ -949,8 +949,18 @@
     <None Include="Resources\paypalDonate.gif" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Pulls the metadata for the compiler, matching the local 10.0.26100 SDK, but guarantees 0 bytes are added to your output folder -->
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.8249" PrivateAssets="all" ExcludeAssets="runtime" />
+    <Reference Include="Windows.Foundation.FoundationContract">
+      <HintPath>..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.FoundationContract.winmd</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Windows.Foundation.UniversalApiContract">
+      <HintPath>..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Pulls the metadata for the compiler, matching the local 10.0.19041 SDK, but guarantees 0 bytes are added to your output folder -->
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="logger.xml">

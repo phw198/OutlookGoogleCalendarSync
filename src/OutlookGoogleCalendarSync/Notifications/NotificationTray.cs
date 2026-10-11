@@ -380,6 +380,8 @@ namespace OutlookGoogleCalendarSync {
 
         public void ExitItem_Click(object sender, EventArgs e) {
             exitEventFired = true;
+            if (notificationHandler is IDisposable disposable)
+                disposable.Dispose();
             Forms.Main.Instance.Close();
         }
         #endregion
