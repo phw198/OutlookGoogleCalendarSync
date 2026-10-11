@@ -9,6 +9,8 @@ When assisting with code modifications, debugging, or documentation:
 - **Adhere to Coding Standards**: Refer to [.ai/coding-standards.md](coding-standards.md) for C# coding style, WinForms/thread safety, naming conventions, logging standards, and line ending requirements.
 - **Follow Naming and Error Handling Rules**: Use camelCase for private methods and handlers, and use `Analyse()` with a contextual message for exception handling rather than bare exception logging.
 - **Prefer Explicit Types**: Avoid using `var` for local variables unless the type is immediately obvious; prefer explicit type declarations to keep code clear.
+- **Avoid Redundant Locals**: Do not assign a value to a local variable when it is used only once and the variable does not meaningfully improve readability.
+- **Manage Dependencies Deliberately**: Prefer `packages.config` and references under `..\packages\<package>.<version>\...` for standard third-party libraries. Keep `lib` for bespoke, patched, generated, or configuration-specific assemblies, including selected Outlook interop variants. Migrate incrementally, validate restore/build/runtime/package output, and resolve NuGet conflicts rather than hiding them with manually copied DLLs. Keep compile-only `.winmd` metadata references set to `<Private>False</Private>`.
 - **Use CRLF Line Endings**: Save all repository source code and text files with CRLF line endings.
 - **Maintain UI Responsiveness**: Since OGCS is a WinForms tray application, always avoid blocking the UI thread. Use background tasks or async patterns carefully.
 

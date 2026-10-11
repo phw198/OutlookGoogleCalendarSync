@@ -9,6 +9,14 @@ Please adhere to these coding standards when developing or modifying code for OG
   - Prefix private class fields with an underscore (e.g., `_notifyIcon`, `_settings`).
 - **Explicit Types**:
   - Prefer explicit type declarations over `var` for local variables. Only use `var` when the type is obvious from the right-hand side (e.g., `var x = new Exception("...")`) or the type is extremely verbose; explicit types improve readability in this codebase.
+- **Avoid Redundant Locals**:
+  - Avoid assigning a value to a local variable when it is used only once and the variable does not meaningfully improve readability.
+- **Dependency and Assembly References**:
+  - Prefer NuGet-managed references for standard third-party dependencies. Because this is a legacy project, continue using `packages.config` and reference restored assemblies from `..\packages\<package>.<version>\...` instead of manually copying them into `lib`.
+  - Reserve `lib` for bespoke, patched, generated, or configuration-specific assemblies, including explicitly selected Outlook interop variants.
+  - Migrate one dependency at a time and verify restore, clean Debug and Release builds, runtime output, and release packaging before deleting its old `lib` copy.
+  - Resolve NuGet version conflicts explicitly. Do not retain manual DLL copies solely to conceal dependency conflicts.
+  - Keep compile-only Windows SDK `.winmd` metadata references non-copying with `<Private>False</Private>`; never package them as runtime files.
 - **Line Endings**:
   - All repository source code and text files must use CRLF line endings. Ensure `.cs`, `.md`, `.txt`, and other project files are saved with CRLF.
 - **Bracing and Spacing**:
