@@ -34,6 +34,7 @@
     - 
 - Sync Engine
     - Fixed freeze when retrieving large number of Outlook Online calendars [[#2367](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2367)]
+    - Handle Outlook Online items with no `iCalUID` value; caused creation failure in Google [[#2374](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2374)]
     - Improved logical-equivalent check for Google all-day Event
     </releaseNotes>
     <copyright>Copyright 2026</copyright>
