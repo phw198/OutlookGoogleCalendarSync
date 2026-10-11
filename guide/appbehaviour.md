@@ -26,7 +26,7 @@ next-url: help
 <img src="options-appbehaviour-close.png" align="right" width="60%"/>
 **Close button minimises:** Prevent the application from closing when clicking on the standard top right “close” button. Instead it will simply minimise.   
 
-**Show system notifications in tray when syncing:** Get notifications when a sync begins and a summary of the changes on completion. Additionally, only show the notification **if changes are found**.  
+**Show system notifications in tray when syncing:** Get notifications when a sync begins and a summary of the changes on completion. Additionally, only show the notification **if changes are found**. On Windows 10 and later, these notifications can remain in the Windows Action Center. Selecting an Action Center notification returns you to the OGCS instance that created it; notifications are removed when that instance exits, and any notification action that includes a web link opens it in your browser.
 
 **Make application portable:** Only available, but enabled by default, if the portable ZIP application is being used.  
 
