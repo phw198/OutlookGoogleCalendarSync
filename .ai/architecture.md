@@ -31,6 +31,36 @@ graph TD
 - Handles authorization, token refresh, attendee registration, and meet links.
 - Uses `Google.Apis.Calendar.v3` client libraries.
 
+### 5. Windows Toast Notifications
+- `NotificationTray` selects `ModernToastNotificationHandler` on Windows 10 and later, with the legacy `NotifyIcon` balloon handler used on older Windows versions.
+- Modern notifications are created with `ToastNotificationManagerCompat`. Each toast includes the action to perform, an optional base64-encoded browser URL, and a random per-process instance token.
+- A click on a live toast is handled by the process that owns the `ToastNotification` object. An Action Center click is delivered through `ToastNotificationManagerCompat.OnActivated`.
+- Because multiple OGCS configurations can run at the same time, each process listens on a named pipe derived from its instance token. If Windows delivers an Action Center activation to another OGCS process, that process forwards the action to the token owner.
+- The owner handles the action and optional browser URL through the same `NotificationTray.notificationClicked` callback used by legacy notifications, restoring the correct OGCS window, selecting the Sync tab where appropriate, or opening a validated HTTP(S) URL.
+- A process launched by an Action Center activation is detected during startup, before the main form is created. It forwards the activation to a live owner when possible, ignores stale activations when the owner pipe is gone, and exits without leaving an additional OGCS instance running.
+- The activation subscription is registered once per process. The token is regenerated on every process start, so notifications from a previous process lifetime cannot target a restarted instance.
+- Each modern toast receives a unique tag containing the current process token. On graceful tray shutdown, the handler unsubscribes activation, cancels its pipe listener, and removes only its tracked toast tags from notification history; legacy balloon notifications are not involved.
+
+```mermaid
+sequenceDiagram
+    participant OGCS as Creating OGCS process
+    participant Windows as Windows toast / Action Center
+    participant Receiver as Receiving OGCS process
+    participant Pipe as Creator named pipe
+
+    OGCS->>Windows: Show toast(instance token, action, optional URL)
+    Windows->>Receiver: OnActivated(arguments)
+    alt Receiver owns token
+        Receiver->>Receiver: Handle action and restore focus
+    else Another OGCS process receives activation
+        Receiver->>Pipe: Forward action and optional URL
+        Pipe->>OGCS: Deliver activation payload
+        OGCS->>OGCS: Handle action, URL, and restore focus
+    else Creator process has exited
+        Receiver->>Receiver: Open validated URL if present, then exit startup process
+    end
+```
+
 ## Data Consistency & Timezones
 - **Timestamp Strategy**: The application prioritizes `DateTimeOffset` for all calendar event timestamps to ensure unambiguous point-in-time representation across different timezones.
 - **Comparison Logic**: To avoid local clock-time bugs, comparisons between local `DateTime` variables and API-sourced `DateTimeOffset` values must explicitly specify whether they are comparing the clock face (`.DateTime`), the calendar date (`.Date`), or the universal instant (`.UtcDateTime`).
