@@ -23,6 +23,12 @@
 ## Release Build Note
 - Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
 
+## Immediate Next Step
+- Validate the targeted fix with the lightest available build or project-level check for the Outlook factory logic, and then confirm whether any broader Outlook profile fallback behavior should be exercised in a Windows-specific environment.
+
+## Release Build Note
+- Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
+
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
 - Raise any conflict in test logic or ambiguity in the expected behavior before encoding it in a new test.
