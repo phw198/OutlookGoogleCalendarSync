@@ -181,7 +181,9 @@ namespace OutlookGoogleCalendarSync.Google {
                 int backoff = 0;
                 while (backoff < Calendar.BackoffLimit) {
                     try {
-                        Ogcs.Google.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts").Execute();
+                        Ogcs.Google.Calendar.Instance.Service.Settings.Get("useKeyboardShortcuts")
+                            .ExecuteAsync(CancelTokenSource.Token)
+                            .GetAwaiter().GetResult();
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         switch (Calendar.HandleAPIlimits(ref ex, null)) {
@@ -193,7 +195,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                 Ogcs.Exception.LogAsFail(ref aex);
                                 authenticated = false;
                                 return authenticated;
-                        case Calendar.ApiException.backoffThenRetry:
+                            case Calendar.ApiException.backoffThenRetry:
                                 backoff++;
                                 if (backoff == Calendar.BackoffLimit) {
                                     log.Fail("API limit backoff was not successful. Retrieving useKeyboardShortcuts setting failed.");
@@ -293,7 +295,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
                         }
                     } else {
-                        Forms.Main.Instance.Console.UpdateWithError("", (ex.InnerException ?? ex));
+                        Forms.Main.Instance.Console.UpdateWithError("Unable to retrieve the email address associated with your Google account.", (ex.InnerException ?? ex));
                         throw;
                     }
                 }
@@ -379,7 +381,9 @@ namespace OutlookGoogleCalendarSync.Google {
                     lr.SingleEvents = true;
                     lr.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
                     lr.Q = (Settings.Instance.GaccountEmail == null) ? "" : HashedGmailAccount;
-                    request = lr.Execute();
+                    using (var timeoutCts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(15))) {
+                        request = lr.ExecuteAsync(timeoutCts.Token).GetAwaiter().GetResult();
+                    }
                     log.Debug("Page " + pageNum + " received.");
 
                     if (request != null) {
@@ -474,7 +478,9 @@ namespace OutlookGoogleCalendarSync.Google {
                     lr.SingleEvents = true;
                     lr.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
                     lr.Q = (Settings.Instance.GaccountEmail == null) ? "" : HashedGmailAccount;
-                    request = lr.Execute();
+                    using (var timeoutCts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(15))) {
+                        request = lr.ExecuteAsync(timeoutCts.Token).GetAwaiter().GetResult();
+                    }
                     log.Debug("Page " + pageNum + " received.");
 
                     if (request != null) {

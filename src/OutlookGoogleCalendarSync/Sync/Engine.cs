@@ -70,11 +70,13 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(Engine));
 
+        /// <summary>Used to cancel in-progress API calls</summary>
+        public static System.Threading.CancellationTokenSource CancelToken = new();
+
         private static Engine instance;
         public static Engine Instance {
             get {
-                if (instance == null) instance = new Engine();
-                return instance;
+                return instance ??= new Engine();
             }
             set {
                 instance = value;
@@ -180,7 +182,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
 
                 } else if (Forms.Main.Instance.bSyncNow.Text == "Stop Sync") {
-                    Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                    CancelToken.Cancel();
                     if (!SyncingNow) return;
 
                     if (!bwSync.CancellationPending) {
@@ -217,7 +219,7 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (this.ActiveProfile is SettingsStore.Calendar profile) {
                 Forms.Main.Instance.NotificationTray.IconAnimator.Start();
                 if (Settings.Instance.ShowSystemNotifications && !Settings.Instance.ShowSystemNotificationsIfChange) 
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo($"Profile '{profile._ProfileName}'\r\n" + (manualIgnition ? "S" : "Autos") + "yncing calendars: " + profile.SyncDirection.Name + "...");
+                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo($"Profile '{profile._ProfileName}'\r\n" + (manualIgnition ? "S" : "Autos") + "yncing calendars: " + profile.SyncDirection.Name + "...", "sync-started");
                 Sync.Engine.Calendar.Instance.Profile = this.ActiveProfile as SettingsStore.Calendar;
                 Sync.Engine.Calendar.Instance.StartSync(manualIgnition, updateSyncSchedule);
                 Forms.Main.Instance.NotificationTray.IconAnimatorStop();
@@ -269,9 +271,9 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.UltraFine("Outlook attribute: " + outlookAttr);
             if (!googleAttr.Equals(outlookAttr)) {
                 if (fromTo == Direction.GoogleToOutlook) {
-                    sb.AppendLine(attrDesc + ": " + outlookAttr + " => " + googleAttr);
+                    sb.AppendLine(attrDesc + ": " + outlookAttr.LocalDateTime + " => " + googleAttr.LocalDateTime);
                 } else {
-                    sb.AppendLine(attrDesc + ": " + googleAttr + " => " + outlookAttr);
+                    sb.AppendLine(attrDesc + ": " + googleAttr.LocalDateTime + " => " + outlookAttr.LocalDateTime);
                 }
                 itemModified++;
                 log.Fine("Attributes differ.");

@@ -71,6 +71,10 @@ namespace OutlookGoogleCalendarSync.Extensions {
             return false;
         }
 
+        public DateTimeOffset LocalDateTime {
+            get { return this.baseDateTime.LocalDateTime; }
+        }
+
         public override int GetHashCode() {
             return this.baseDateTime.GetHashCode() + this.dateOnly.GetHashCode();
         }

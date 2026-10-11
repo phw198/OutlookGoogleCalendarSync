@@ -230,7 +230,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                 } else
                     Ogcs.Exception.Analyse(ex);
                 if (failures == 10)
-                    Forms.Main.Instance.Console.UpdateWithError("Push Sync is failing.", ex, notifyBubble: true);
+                    Forms.Main.Instance.Console.UpdateWithErrorAndNotify("Push Sync is failing.", ex, "push-sync-failed");
             }
         }
 

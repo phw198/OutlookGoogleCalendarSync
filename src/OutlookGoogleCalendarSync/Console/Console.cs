@@ -334,12 +334,12 @@ namespace OutlookGoogleCalendarSync {
             syncDirection
         }
 
-        public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, bool notifyBubble = false, Boolean logit = false,
+        public void Update(StringBuilder moreOutput, Markup? markupPrefix = null, Boolean verbose = false, Boolean logit = false,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
             [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
         {
-            Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, notifyBubble: notifyBubble, logit: logit, 
+            Update(moreOutput.ToString(), markupPrefix, newLine: false, verbose: verbose, logit: logit,
                 memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
         }
 
@@ -348,15 +348,15 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         /// <param name="moreOutput">Console output</param>
         /// <param name="logEntry">Log output</param>
-        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false,
+        public void Update(String moreOutput, String logEntry, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
             [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
         {
             if (string.IsNullOrEmpty(logEntry))
-                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
+                Update(moreOutput, markupPrefix, newLine, verbose, memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
             else {
-                Update(moreOutput, markupPrefix, newLine, verbose, notifyBubble, logit: false);
+                Update(moreOutput, markupPrefix, newLine, verbose, logit: false);
                 logLinesSansHtml(logEntry, markupPrefix, verbose, $"{sourceFilePath}:{sourceLineNumber}");
             }
         }
@@ -368,9 +368,8 @@ namespace OutlookGoogleCalendarSync {
         /// <param name="markupPrefix">The type of update, may cause emoji prefix</param>
         /// <param name="newLine">Append a new line at the end</param>
         /// <param name="verbose">Only output if verbose is set 'On'</param>
-        /// <param name="notifyBubble">Trigger a system bubble for notification</param>
         /// <param name="logit">Send the text to logfile</param>
-        public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, bool notifyBubble = false, Boolean logit = true,
+        public void Update(String moreOutput, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, Boolean logit = true,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
             [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
@@ -404,18 +403,10 @@ namespace OutlookGoogleCalendarSync {
                 contentInnerHtml += htmlOutput + (newLine ? "<br/>" : "");
                 content = header + contentInnerHtml + footer;
 
-                if (Forms.Main.Instance.NotificationTray != null && notifyBubble) {
-                    String profileTitle = "";
-                    if (Sync.Engine.Instance.ActiveProfile is SettingsStore.Calendar profile) {
-                        profileTitle = $"Profile '{profile._ProfileName}': ";
-                    }
-                    Forms.Main.Instance.NotificationTray.ShowBubbleInfo(profileTitle + "Issue encountered.\r\n" +
-                        "Please review output on the main 'Sync' tab", ToolTipIcon.Warning);
-                }
             }
         }
 
-        public void UpdateWithError(String moreOutput, System.Exception ex, bool notifyBubble = false, String logEntry = null,
+        public void UpdateWithError(String moreOutput, System.Exception ex, String logEntry = null,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
             [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
@@ -423,8 +414,46 @@ namespace OutlookGoogleCalendarSync {
             Markup emoji = Markup.error;
             if (ex.LoggingAsFail())
                 emoji = Markup.fail;
-            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji, notifyBubble: notifyBubble,
+            Update(moreOutput + (!string.IsNullOrEmpty(moreOutput) ? "<br/>" : "") + Ogcs.Exception.FriendlyMessage(ex), logEntry, emoji,
                 memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
+        }
+
+        public void UpdateAndNotify(String moreOutput, String notificationTag, Markup? markupPrefix = null, bool newLine = true, Boolean verbose = false, Boolean logit = true,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
+            Update(moreOutput, markupPrefix, newLine, verbose, logit, memberName, sourceFilePath, sourceLineNumber);
+            showIssueNotification(notificationTag);
+        }
+
+        public void UpdateAndNotify(StringBuilder moreOutput, String notificationTag, Markup? markupPrefix = null, Boolean verbose = false, Boolean logit = false,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
+            UpdateAndNotify(moreOutput.ToString(), notificationTag, markupPrefix, newLine: false, verbose: verbose, logit: logit,
+                memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber);
+        }
+
+        public void UpdateWithErrorAndNotify(String moreOutput, System.Exception ex, String notificationTag, String logEntry = null,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) //
+        {
+            UpdateWithError(moreOutput, ex, logEntry, memberName, sourceFilePath, sourceLineNumber);
+            showIssueNotification(notificationTag);
+        }
+
+        private void showIssueNotification(String notificationTag) {
+            if (Forms.Main.Instance.IsDisposed || Forms.Main.Instance.NotificationTray == null) return;
+
+            String profileTitle = "";
+            if (Sync.Engine.Instance.ActiveProfile is SettingsStore.Calendar profile) {
+                profileTitle = $"Profile '{profile._ProfileName}': ";
+            }
+            Forms.Main.Instance.NotificationTray.ShowBubbleInfo(profileTitle + "Issue encountered.\r\n" +
+                "Please review output on the main 'Sync' tab", notificationTag, ToolTipIcon.Warning);
         }
 
         /// <summary>Log the output sans HTML tags.</summary>

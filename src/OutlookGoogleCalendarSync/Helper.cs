@@ -1,7 +1,7 @@
-﻿using Ogcs = OutlookGoogleCalendarSync;
-using log4net;
+﻿using log4net;
 using Microsoft.Win32;
 using System;
+using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync {
     public class Helper {
@@ -9,6 +9,12 @@ namespace OutlookGoogleCalendarSync {
 
         public static void OpenBrowser(String url) {
             try {
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri parsedUrl) ||
+                    (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps)) //
+                {
+                    log.Error("Browser URL deemed unsafe: " + url);
+                    return;
+                }
                 System.Diagnostics.Process.Start(url);
                 return;
             } catch (System.Exception ex) {

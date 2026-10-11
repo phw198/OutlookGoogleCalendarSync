@@ -1057,7 +1057,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.ShowInTaskbar = false;
                 this.Hide();
                 if (Settings.Instance.ShowSystemNotificationWhenMinimising) {
-                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", ToolTipIcon.Info, "ShowSystemNotificationWhenMinimising");
+                    NotificationTray.ShowBubbleInfo("OGCS is still running.\r\nClick here to disable this notification.", "ShowSystemNotificationWhenMinimising", ToolTipIcon.Info);
                 } else {
                     trayIcon.Tag = "";
                 }
@@ -1429,7 +1429,10 @@ namespace OutlookGoogleCalendarSync.Forms {
         private async void bGetOutlookCalendars_Click(object sender, EventArgs e) {
             if (bGetOutlookCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Outlook calendars.");
-                Outlook.Graph.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                if (!Google.Calendar.Instance.Authenticator.Authenticated)
+                    Outlook.Graph.Calendar.Instance.Authenticator.CancelToken.Cancel();
+                else
+                    Sync.Engine.CancelToken.Cancel();
                 return;
             }
 
@@ -1792,10 +1795,13 @@ namespace OutlookGoogleCalendarSync.Forms {
             Helper.OpenBrowser("https://github.com/phw198/OutlookGoogleCalendarSync/wiki/Running-Multiple-Instances-of-OGCS");
         }
 
-        private void bGetGoogleCalendars_Click(object sender, EventArgs e) {
+        private async void bGetGoogleCalendars_Click(object sender, EventArgs e) {
             if (bGetGoogleCalendars.Text == "Cancel retrieval") {
                 log.Warn("User cancelled retrieval of Google calendars.");
-                Ogcs.Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                if (!Google.Calendar.Instance.Authenticator.Authenticated)
+                    Google.Calendar.Instance.Authenticator.CancelTokenSource.Cancel();
+                else
+                    Sync.Engine.CancelToken.Cancel();
                 return;
             }
 
@@ -1803,7 +1809,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             this.bGetGoogleCalendars.Text = "Cancel retrieval";
             Boolean successfulRetrieval = false;
             try {
-                Ogcs.Google.Calendar.Instance.GetCalendars();
+                await Ogcs.Google.Calendar.Instance.GetCalendars();
                 successfulRetrieval = true;
             } catch (AggregateException agex) {
                 agex.Analyse(false);

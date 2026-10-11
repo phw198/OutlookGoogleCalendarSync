@@ -355,7 +355,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             MsGraph.Models.Extension ogcsExt = ai.OgcsExtension();
             if (ogcsExt == null) return false;
 
-            Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].DeleteAsync().Wait();
+            Calendar.Instance.GraphClient.Me.Events[ai.Id].Extensions[CustomProperty.ExtensionName(true)].DeleteAsync(cancellationToken: Sync.Engine.CancelToken.Token).Wait();
             return true;
         }
 

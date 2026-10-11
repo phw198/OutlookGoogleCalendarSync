@@ -283,7 +283,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                     AppointmentItem newAiExcp = null;
                     try {
-                        getOutlookInstance(oPattern, gExcpOrigDate, gExcpCurrDate, ref newAiExcp, processingDeletions);
+                        getOutlookInstance(oPattern, gExcpOrigDate, ref newAiExcp, processingDeletions);
                         if (newAiExcp == null) {
                             if (gExcp.Status != "cancelled") {
                                 log.Warn("Unable to find Outlook exception for " + gExcpDetails);
@@ -337,7 +337,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return updatesMade;
         }
 
-        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, System.DateTime? instanceCurrDate, ref AppointmentItem ai, Boolean processingDeletions) {
+        private static void getOutlookInstance(RecurrencePattern oPattern, System.DateTime instanceOrigDate, ref AppointmentItem ai, Boolean processingDeletions) {
             //The Outlook API is rubbish: oPattern.GetOccurrence(instanceDate) returns anything currently on that date NOW, regardless of if it was moved there.
             //Even worse, if 2-Feb was deleted then 1-Feb occurrence is moved to 2-Feb, it will return 2-Feb but there is no OriginalStartDate property to know it was moved.
 
@@ -355,26 +355,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             log.Debug("Found Outlook exception for original date " + instanceOrigDate);
 
                             if (isDeleted == DeletionState.Inaccessible) {
-                                //Exceptions[].AppointmentItem can be unreliable for moved occurrences, so fall back to direct date lookups.
-                                if (instanceCurrDate.HasValue) {
-                                    try {
-                                        ai = oPattern.GetOccurrence(instanceCurrDate.Value);
-                                        log.Debug("Successfully resolved occurrence directly via GetOccurrence(" + instanceCurrDate.Value.ToShortDateString() + ") and current date, bypassing Exceptions collection.");
-                                        return;
-                                    } catch {
-                                        log.Warn("GetOccurrence() lookup by current date failed. Suggests the Outlook item change has not been synced yet from Google.");
-                                    }
-                                }
-                                try {
-                                    ai = oPattern.GetOccurrence(instanceOrigDate);
-                                    log.Debug("Successfully resolved occurrence directly via GetOccurrence(" + instanceOrigDate.ToShortDateString() + ") and original date, bypassing Exceptions collection.");
-                                    return;
-                                } catch {
-                                    log.Warn("GetOccurrence() lookup by original date failed too. Suggests it is on some other dates entirely.");
-                                }
                                 log.Warn("This exception is inaccessible.");
                                 return;
-
                             } else if (isDeleted == DeletionState.Deleted) {
                                 if (processingDeletions) {
                                     log.Debug("This exception is deleted.");
