@@ -571,7 +571,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
 
             ev.Summary = Obfuscate.ApplyRegex(Obfuscate.Property.Subject, ai.Subject, null, Sync.Direction.OutlookToGoogle);
             if (profile.AddDescription)
-                ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body.BodyInnerHtml(), null, Sync.Direction.OutlookToGoogle);
+                ev.Description = Obfuscate.ApplyRegex(Obfuscate.Property.Description, ai.Body.BodyContentForSync(), null, Sync.Direction.OutlookToGoogle);
             if (profile.AddLocation)
                 ev.Location = Obfuscate.ApplyRegex(Obfuscate.Property.Location, ai.Location.DisplayName, null, Sync.Direction.OutlookToGoogle);
             ev.Visibility = getPrivacy(ai.Sensitivity, null);
@@ -857,7 +857,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 ev.Summary = subjectObfuscated;
             }
             if (profile.AddDescription) {
-                String outlookBody = ai.Body.BodyInnerHtml();
+                String outlookBody = ai.Body.BodyContentForSync();
                 if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && profile.AddDescription_OnlyToGoogle &&
                     string.IsNullOrEmpty(outlookBody) && !string.IsNullOrEmpty(ev.Description))
                 {

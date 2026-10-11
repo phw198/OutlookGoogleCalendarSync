@@ -3,7 +3,6 @@ using System;
 using System.Globalization;
 using Google.Apis.Calendar.v3.Data;
 using OutlookGoogleCalendarSync.Extensions;
-using Microsoft.Kiota.Abstractions;
 using OutlookGoogleCalendarSync.Outlook.Graph.CustomClient.Models;
 using OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
 

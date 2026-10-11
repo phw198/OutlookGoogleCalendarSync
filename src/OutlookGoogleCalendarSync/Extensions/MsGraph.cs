@@ -37,10 +37,34 @@ namespace OutlookGoogleCalendarSync.GraphExtension {
 
         /// <summary>Just the HTML within the <body> tags</summary>
         public static String BodyInnerHtml(this MsGraph.Models.ItemBody body) {
+            if (body == null || String.IsNullOrEmpty(body.Content)) return "";
+
             Regex htmlBodyTag = new Regex(@"<body>(?<body>.*?)</body>");
             String bodyInnerHtml = htmlBodyTag.Match(body.Content.RemoveLineBreaks()).Groups["body"]?.Value ?? "";
             if (bodyInnerHtml == "<div></div>") return "";
             else return bodyInnerHtml;
+        }
+
+        /// <summary>Get the body content suitable for synchronization, handling both plain text and HTML conversions</summary>
+        public static String BodyContentForSync(this MsGraph.Models.ItemBody body) {
+            //Although there is a body type "Text" - MS Exchange can automatically convert it to HTML!
+            
+            if (body == null || String.IsNullOrEmpty(body.Content)) return "";
+
+            //So first check for evidence of this conversion
+            Boolean convertedFromText = body.ContentType == MsGraph.Models.BodyType.Text ||
+                Regex.IsMatch(body.Content, @"<!--\s*converted from text\s*-->", RegexOptions.IgnoreCase);
+            if (!convertedFromText) return body.BodyInnerHtml();
+
+            //Then look for a <div> class "PlainText" which indicates the original plain text content
+            Match plainTextDiv = Regex.Match(body.Content,
+                @"<div\b[^>]*\bclass\s*=\s*[""']PlainText[""'][^>]*>(?<text>.*?)</div>",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (!plainTextDiv.Success) return body.ContentType == MsGraph.Models.BodyType.Text ? body.Content : body.BodyInnerHtml();
+
+            String text = Regex.Replace(plainTextDiv.Groups["text"].Value, @"<br\s*/?>", "\r\n", RegexOptions.IgnoreCase);
+            text = text.RemoveHtmlTags();
+            return System.Net.WebUtility.HtmlDecode(text).RemoveNBSP();
         }
 
         /// <summary>Add the Authorization header to an HTTP Request Message</summary>
