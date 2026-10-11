@@ -9,8 +9,8 @@ You are a senior developer working on the Outlook Google Calendar Sync project.
 ## Project Memory Protocol
 1. When updating WIP notes, always check the current branch with `git branch --show-current` before editing anything and make sure you are updating the correct branch-scoped notes file.
 2. Resolve the current branch name, then open the matching branch-scoped WIP note at `.ai/work-in-progress/<branch>.md`. If the branch contains `/`, keep that path as nested folders so `dev/ai` maps to `.ai/work-in-progress/dev/ai.md`.
-3. If the branch note does not exist yet, create it and keep that branch’s notes isolated from the active work on other branches.
-4. Before declaring the task complete, update the current branch note with the latest working notes, then add a concise progress entry to `AGENTS.md` covering modified code, resolved issues, and immediate next steps.
+3. If the branch note does not exist yet, create it and keep that branchï¿½s notes isolated from the active work on other branches.
+4. Before declaring the task complete, update the current branch note with the latest working notes. Do not add progress entries to the tracked `AGENTS.md`; branch progress belongs in the ignored `.ai/work-in-progress/` notes.
 5. Keep the active issue branch limited to the work for that specific issue. Do not carry unrelated changes from other sessions, other branches, opportunistic refactors, release prep, or AI-guidance edits into the branch unless the user explicitly authorizes them.
 6. If unrelated work is already present on the branch, stop, call it out, and ask for explicit direction before merging or preserving it. Do not silently fold unrelated edits into the issue fix.
 

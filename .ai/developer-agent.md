@@ -24,7 +24,7 @@ When assisting with code modifications, debugging, or documentation:
 - **UI Discovery**: VS Code requires these shims in the `.github/` hierarchy for UI integration. A "Reload Window" should not be required after adding or modifying these shims.
 
 ## Key Files to Monitor
-- **Memory Log**: Always refer to the root-level [AGENTS.md](../AGENTS.md) to understand current progress, milestones, and active tasks, and keep it updated as changes are completed.
+- **Memory Log**: Use the ignored, branch-scoped `.ai/work-in-progress/<branch>.md` note for current progress, milestones, and active tasks. Do not update the root-level [AGENTS.md](../AGENTS.md) with progress entries.
 - **Rules Config**: Ensure actions adhere to the root-level [.clinerules](../.clinerules).
 
 ## Development Environment Specifics
