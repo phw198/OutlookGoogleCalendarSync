@@ -25,7 +25,7 @@
 
 - Application
     - Don't connect to Classic Outlook when no mail profiles are configured [[#2373](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2373)]
-    - Associated notifications in Window's Action Center with OGCS instance that generated them
+    - Associate notifications in Window's Action Center with OGCS instance that generated them
         - Notifications automatically cleared when application exits
     - Display times as local time in application console, including offset
 - Sync Engine

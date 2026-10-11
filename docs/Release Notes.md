@@ -1,6 +1,26 @@
 | Release Notes |
 |:---|
 
+# v3.0.5.0 - Alpha
+
+**Enhancements**
+- Application
+    - Don't connect to Classic Outlook when no mail profiles are configured [[#2373](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2373)]
+    - Associate notifications in Window's Action Center with OGCS instance that generated them
+        - Notifications automatically cleared when application exits
+    - Display times as local time in application console, including offset
+- Sync Engine
+    - Treat Google's faux "all-day" out-of-office as bona-fide all-day appointment [[#2366](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2366)]
+
+**Bugfix**
+- Application
+    - Notifications in Action Center open web browser when required
+- Sync Engine
+    - Fixed freeze when retrieving large number of Outlook Online calendars [[#2367](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2367)]
+    - Handle Outlook Online items with no `iCalUID` value; caused creation failure in Google [[#2374](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2374)]
+    - Improved logical-equivalent check for Google all-day Event
+    - Better cancellation of background processes
+
 # v3.0.4.0 - Alpha
 
 **Enhancements**
