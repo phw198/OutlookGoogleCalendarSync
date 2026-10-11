@@ -39,3 +39,9 @@ Checklist:
 - Migrate references incrementally. When moving a dependency, verify restore, clean Debug and Release builds, runtime output, and release packaging before removing its old `lib` copy.
 - Treat NuGet version conflicts and restore failures as useful dependency-management feedback to resolve deliberately; do not preserve manual DLL copies merely to hide them.
 - Keep compile-only metadata such as Windows SDK `.winmd` files as explicit non-copying references (`Private=False`); do not ship them as runtime dependencies.
+
+## Release Website Documentation Review
+- Every release-preparation task must compare the release's user-facing changes with the current `gh-pages` User Guide, including settings, workflows, notifications, integrations, and troubleshooting guidance.
+- Every release-preparation task must also update `gh-pages/release-notes.md` by copying the nuspec release notes into a new section above the previous release. Keep the standard advert section between releases, and add `----` immediately below beta release sections.
+- Fast-forward the local `gh-pages` branch before editing it, preserve unrelated existing work, and keep User Guide changes isolated to that branch.
+- If the review finds no required changes, record that conclusion and its rationale in the branch-scoped WIP note and final release summary.
