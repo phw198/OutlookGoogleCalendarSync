@@ -42,7 +42,12 @@ Update version references in the build script so that packages are packaged, zip
    - Replace `<version>{CURRENT_VERSION}-alpha</version>` with `<version>{NEW_VERSION}-alpha</version>`.
 3. Update the release notes header:
    - Locate `# What's New In v{CURRENT_VERSION}?` and rename it to `# What's New In v{NEW_VERSION}?`.
-4. Scan the commit history to pull recent issues and non-issue commits:
+4. Always reconcile the actual `<releaseNotes>` body against the Git history for the release window, even if the version tag is already bumped to `NEW_VERSION` or the header already says `v{NEW_VERSION}`.
+   - Compare the notes currently in the nuspec to the merge commits and issue branches since the last master merge point.
+   - Remove stale entries that no longer belong to the target release.
+   - Add missing entries for feature/issue or bugfix/issue branches that are in Git history but absent from the release notes.
+   - Do not treat a version bump alone as sufficient; the changelog must match the Git history.
+5. Scan the commit history to pull recent issues and non-issue commits:
    - Identify the commit hash when the master branch was last merged/connected (e.g., check `git log --merges --oneline` or locate `Merge branch 'master' into ...`).
    - Run a git query to retrieve all merge commits since that master connection to the current HEAD:
      ```bash

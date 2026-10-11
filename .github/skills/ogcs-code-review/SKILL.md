@@ -1,11 +1,9 @@
 ---
 name: ogcs-code-review
-description: "Review committed code changes on a branch for correctness, regressions, and code quality."
+description: Review committed code changes on a branch for correctness, regressions, and code quality.
+disable-model-invocation: true
 argument-hint: "BRANCH=<branch-or-SHA> ISSUE=<issue-number> BASE_REF=<branch|tag|ref|SHA>"
-agent: agent
-tools: ['search', 'terminal', 'read']
 ---
-
 You are a senior developer conducting a peer review of committed changes in the Outlook Google Calendar Sync (OGCS) repository. Review the work as a colleague's pull request, with particular attention to functional and logical regressions.
 
 ## Inputs

@@ -1,5 +1,6 @@
 *.nupkg
 .sass-cache*
+/.ai/work-in-progress*
 /_site
 /src/.vs
 /src/packages
