@@ -94,6 +94,7 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     Sync.Engine.SyncResult syncResult = Sync.Engine.SyncResult.Fail;
                     int failedAttempts = 0;
+                    const int maxSyncAttempts = 3;
                     Telemetry.NewsStand.Instance.Get();
                     Telemetry.TrackSync();
                     System.Diagnostics.Stopwatch stopwatch = new();
@@ -101,21 +102,19 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                     while ((syncResult == Sync.Engine.SyncResult.Fail || syncResult == Sync.Engine.SyncResult.ReconnectThenRetry) && !Forms.Main.Instance.IsDisposed) {
                         if (failedAttempts > (syncResult == Sync.Engine.SyncResult.ReconnectThenRetry ? 1 : 0)) {
-                            if (Ogcs.Extensions.MessageBox.Show("The synchronisation failed - check the Sync tab for further details.\r\nDo you want to try again?", "Sync Failed",
-                                MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.No) {
-                                log.Info("User opted to abandon further syncs.");
+                            if (failedAttempts >= maxSyncAttempts) {
+                                log.Info("Abandoning further syncs after " + maxSyncAttempts + " failed attempts.");
                                 syncResult = Sync.Engine.SyncResult.Abandon;
                                 break;
-                            } else {
-                                log.Info("User opted to retry sync straight away.");
-                                mainFrm.Console.Clear();
-                                if (Outlook.Calendar.ForceClientReconnect) Outlook.Calendar.Instance.Reset();
-                                Sync.Engine.Instance.bwSync = new AbortableBackgroundWorker() {
-                                    //Don't need thread to report back. The logbox is updated from the thread anyway.
-                                    WorkerReportsProgress = false,
-                                    WorkerSupportsCancellation = true
-                                };
                             }
+                            log.Info("Automatically retrying sync straight away.");
+                            mainFrm.Console.Update("The synchronisation failed - automatically retrying (attempt " + (failedAttempts + 1) + " of " + maxSyncAttempts + ")...", Console.Markup.warning);
+                            if (Outlook.Calendar.ForceClientReconnect) Outlook.Calendar.Instance.Reset();
+                            Sync.Engine.Instance.bwSync = new AbortableBackgroundWorker() {
+                                //Don't need thread to report back. The logbox is updated from the thread anyway.
+                                WorkerReportsProgress = false,
+                                WorkerSupportsCancellation = true
+                            };
                         }
 
                         StringBuilder sb = new StringBuilder();
