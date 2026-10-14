@@ -663,7 +663,7 @@ namespace OutlookGoogleCalendarSync {
         public static Boolean CalledByProcess(String callingProcessNames) {
             String[] processNames = callingProcessNames.Split(',');
             System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
-            foreach (System.Diagnostics.StackFrame frame in stackTrace.GetFrames().Reverse()) {
+            foreach (System.Diagnostics.StackFrame frame in stackTrace.GetFrames().AsEnumerable().Reverse()) {
                 if (processNames.Contains(frame.GetMethod().Name, StringComparer.OrdinalIgnoreCase)) {
                     return true;
                 }
