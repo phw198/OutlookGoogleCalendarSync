@@ -175,7 +175,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             //modal "try again?" prompt for what's likely a temporary connectivity blip (#1150) - just
                                             //log it and let the next scheduled sync retry automatically, same as other known-transient errors.
                                             Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                            mainFrm.Console.Update("A network connectivity problem was encountered.<br/>Will retry at the next scheduled sync.", Console.Markup.fail, notifyBubble: true);
+                                            mainFrm.Console.Update("A network connectivity problem was encountered.<br/>Will retry at the next scheduled sync.", Console.Markup.fail); //AutoRetry result raises its own notification
                                             syncResult = SyncResult.AutoRetry;
 
                                         } else {
