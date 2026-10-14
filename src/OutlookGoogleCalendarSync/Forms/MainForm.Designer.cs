@@ -3497,7 +3497,7 @@
             this.cbSuppressOutlookReminders.Name = "cbSuppressOutlookReminders";
             this.cbSuppressOutlookReminders.Size = new System.Drawing.Size(224, 17);
             this.cbSuppressOutlookReminders.TabIndex = 42;
-            this.cbSuppressOutlookReminders.Text = "Suppress classic Outlook\'s own reminders";
+            this.cbSuppressOutlookReminders.Text = "Hide reminders from background Outlook";
             this.cbSuppressOutlookReminders.UseVisualStyleBackColor = true;
             this.cbSuppressOutlookReminders.CheckedChanged += new System.EventHandler(this.cbSuppressOutlookReminders_CheckedChanged);
             //

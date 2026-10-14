@@ -2720,8 +2720,6 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void cbSuppressOutlookReminders_CheckedChanged(object sender, System.EventArgs e) {
             Settings.Instance.SuppressOutlookReminders = cbSuppressOutlookReminders.Checked;
-            Ogcs.Extensions.MessageBox.Show("This takes effect the next time OGCS connects to Outlook (eg on next sync, or after restarting OGCS).",
-                "Restart required", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
         }
 
         private void cbMinimiseToTrayCheckedChanged(object sender, System.EventArgs e) {
