@@ -152,7 +152,7 @@ namespace OutlookGoogleCalendarSync {
             }
         }
         [DataMember] public Boolean DisconnectOutlookBetweenSync { get; set; }
-        /// <summary>Hide classic Outlook's own native reminder popups, eg when it's only running in the background for OGCS automation while "New Outlook" is used day-to-day.</summary>
+        /// <summary>Hide classic Outlook's own native reminder popups whilst it has no open windows, ie is only running in the background for OGCS automation (eg whilst "New Outlook" is used day-to-day).</summary>
         [DataMember] public Boolean SuppressOutlookReminders { get; set; }
         [DataMember] public TimezoneMappingDictionary TimezoneMaps { get; private set; }
         [CollectionDataContract(

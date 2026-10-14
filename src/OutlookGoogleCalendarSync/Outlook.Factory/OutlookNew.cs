@@ -94,7 +94,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
                 connected = true;
 
-                if (Settings.Instance.SuppressOutlookReminders) reminderWatcher = new ReminderWatcher(oApp);
+                reminderWatcher = new ReminderWatcher(oApp);
 
             } catch (System.Runtime.InteropServices.COMException ex) {
                 if (ex.GetErrorCode(0x0000FFFF) == "0x00000009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
