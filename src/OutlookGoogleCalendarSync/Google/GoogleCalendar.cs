@@ -1170,7 +1170,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                     request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
-                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
