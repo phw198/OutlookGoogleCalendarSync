@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Google.Apis.Calendar.v3.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Globalization;
-using Google.Apis.Calendar.v3.Data;
-using OutlookGoogleCalendarSync.Extensions;
 using MsGraph = OutlookGoogleCalendarSync.Outlook.Graph.CustomClient;
 using Ogcs = OutlookGoogleCalendarSync; // Required for TimezoneDB - if it's in a different namespace, adjust accordingly
 
 
-namespace OutlookGoogleCalendarSync.Tests
+namespace OutlookGoogleCalendarSync.Tests.Extensions
 {
     [TestClass]
-    public class DateTimeExtensionTests
+    public class DateTimeTests
     {
         // Tests for SafeDateTimeOffset(this EventDateTime evDt)
         [TestMethod]

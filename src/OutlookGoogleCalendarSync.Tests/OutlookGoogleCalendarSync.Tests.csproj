@@ -127,10 +127,11 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Compile Include="Extensions\ExceptionTests.cs" />
     <Compile Include="Outlook\CalendarCategorySyncTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\DateTime.cs" />
+    <Compile Include="Extensions\DateTimeTests.cs" />
     <Compile Include="Outlook\CategoryFilteringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

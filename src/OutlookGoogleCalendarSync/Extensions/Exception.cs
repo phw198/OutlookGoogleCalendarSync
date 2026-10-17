@@ -71,9 +71,14 @@ namespace OutlookGoogleCalendarSync {
 
         public static void Analyse(this AggregateException agex, Boolean throwError = true) {
             foreach (System.Exception ex in agex.InnerExceptions) {
+                if (agex.LoggingAsFail()) ex.LogAsFail();
+
                 if (ex is ApplicationException) {
                     if (!String.IsNullOrEmpty(ex.Message)) Forms.Main.Instance.Console.UpdateWithError(null, ex);
-                    else log.Error(agex.Message);
+                    else {
+                        if (ex.LoggingAsFail()) log.Fail(agex.Message);
+                        else log.Error(agex.Message);
+                    }
 
                 } else if (ex is global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException) {
                     AnalyseTokenResponse(ex as global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException, throwError);
@@ -170,6 +175,12 @@ namespace OutlookGoogleCalendarSync {
         /// </summary>
         public static System.Exception LogAsFail(this System.Exception ex) {
             LogAsFail(ref ex);
+            if (ex is System.AggregateException agex) {
+                for (int i = 0; i < agex.InnerExceptions.Count; i++) {
+                    agex.InnerExceptions[i].LogAsFail();
+                }
+                return agex;
+            }
             return ex;
         }
 
