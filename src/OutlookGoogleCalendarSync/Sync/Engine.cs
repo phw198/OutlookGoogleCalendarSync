@@ -2,6 +2,7 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -271,15 +272,21 @@ namespace OutlookGoogleCalendarSync.Sync {
             log.UltraFine("Outlook attribute: " + outlookAttr);
             if (!googleAttr.Equals(outlookAttr)) {
                 if (fromTo == Direction.GoogleToOutlook) {
-                    sb.AppendLine(attrDesc + ": " + outlookAttr.LocalDateTime + " => " + googleAttr.LocalDateTime);
+                    sb.AppendLine(attrDesc + ": " + FormatComparisonDateTime(outlookAttr.LocalDateTime) + " => " + FormatComparisonDateTime(googleAttr.LocalDateTime));
                 } else {
-                    sb.AppendLine(attrDesc + ": " + googleAttr.LocalDateTime + " => " + outlookAttr.LocalDateTime);
+                    sb.AppendLine(attrDesc + ": " + FormatComparisonDateTime(googleAttr.LocalDateTime) + " => " + FormatComparisonDateTime(outlookAttr.LocalDateTime));
                 }
                 itemModified++;
                 log.Fine("Attributes differ.");
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Formats without seconds (subject to localised `g` format) and no zero-left padding for hour offset</summary>
+        private static String FormatComparisonDateTime(DateTimeOffset value) {
+            return String.Format(CultureInfo.CurrentCulture, "{0} {1}:{2:00}", value.ToString("g", CultureInfo.CurrentCulture),
+                value.ToString("z", CultureInfo.CurrentCulture), Math.Abs(value.Offset.Minutes));
         }
 
         #endregion
