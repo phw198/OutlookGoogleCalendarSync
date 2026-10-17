@@ -127,6 +127,7 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Compile Include="Extensions\ExceptionTests.cs" />
     <Compile Include="Outlook\CalendarCategorySyncTests.cs" />
   </ItemGroup>
   <ItemGroup>
