@@ -194,6 +194,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
+                        if (ai == null) throw new System.InvalidCastException("Item is not an AppointmentItem.");
                     } catch {
                         log.Warn("Encountered a non-appointment item in the calendar.");
                         if (obj is MeetingItem) log.Debug("It is a meeting item.");
