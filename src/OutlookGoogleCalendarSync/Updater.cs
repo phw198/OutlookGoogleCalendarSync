@@ -654,6 +654,12 @@ namespace OutlookGoogleCalendarSync {
                     ex.Analyse("Squirrel update manager failed to execute uninstall properly.");
                 }
                 try {
+                    log.Info("Removing OGCS startup registry entries.");
+                    Program.RemoveStartupRegistryEntries();
+                } catch (System.Exception ex) {
+                    ex.LogAsFail().Analyse("Unable to remove OGCS startup registry entries.");
+                }
+                try {
                     log.Info("Deleting directory " + Path.GetDirectoryName(Settings.ConfigFile));
                     log.Logger.Repository.Shutdown();
                     log4net.LogManager.Shutdown();
