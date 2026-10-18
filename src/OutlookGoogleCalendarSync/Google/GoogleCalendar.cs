@@ -788,6 +788,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
             if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
+                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
                 Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 Outlook.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
@@ -1659,7 +1661,8 @@ namespace OutlookGoogleCalendarSync.Google {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (Outlook.CustomProperty.Exists(outlook[o], Outlook.CustomProperty.MetadataId.gEventID))
+                    if (Outlook.CustomProperty.Exists(outlook[o], Outlook.CustomProperty.MetadataId.gEventID) &&
+                        !Outlook.CustomProperty.HasDifferentSourceEntryID(outlook[o], profile))
                         outlook.Remove(outlook[o]);
                 }
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync

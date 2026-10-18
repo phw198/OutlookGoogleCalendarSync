@@ -453,6 +453,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             ai.Save();
 
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                //Now there's an entryID, cache it in the custom property
+                CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                ai.Save();
+            }
+
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
                 Ogcs.Google.CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -863,9 +869,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private void updateCalendarEntry_save(ref AppointmentItem ai) {
-            if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
+                if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile))
+                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
             }
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
             ai.Save();
