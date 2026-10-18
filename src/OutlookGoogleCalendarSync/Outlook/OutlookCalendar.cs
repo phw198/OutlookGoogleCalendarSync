@@ -1860,6 +1860,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             MAPIFolder folder = null;
             Items items = null;
             Int32 stamped = 0;
+            Int32 failedStamps = 0;
             try {
                 folder = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
                 items = folder.Items;
@@ -1877,6 +1878,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         }
                     } catch (System.Exception ex) {
                         ex.LogAsFail().Analyse("Failed to backfill the Outlook source EntryID.");
+                        failedStamps++;
                     } finally {
                         item = ReleaseObject(item);
                         ai = null;
@@ -1884,6 +1886,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 }
                 profile.SourceEntryIDBackfillProfile = backfillProfile;
                 log.Info("Backfilled source EntryIDs for " + stamped + " Outlook appointments.");
+                if (failedStamps > 0)
+                    log.Warn(failedStamps + " items failed to stamp.");
+
             } finally {
                 items = (Items)ReleaseObject(items);
                 folder = (MAPIFolder)ReleaseObject(folder);
