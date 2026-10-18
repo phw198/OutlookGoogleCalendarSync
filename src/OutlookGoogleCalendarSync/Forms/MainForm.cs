@@ -30,6 +30,8 @@ namespace OutlookGoogleCalendarSync.Forms {
         public Main(string startingTab = null) {
             log.Debug("Initialiasing MainForm.");
             InitializeComponent();
+            dtDNDstart.BringToFront();
+            dtDNDend.BringToFront();
             //MinimumSize is set in Designer to stop it keep messing around with the width
             //Then unsetting here, so the scrollbars can reduce width if necessary
             gbOutlook_OAccount.MinimumSize =
@@ -128,7 +130,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbAddDescription_OnlyToGoogle,
                 "Helps avoid data loss due to Google's 8Kb limit.");
             ToolTips.SetToolTip(cbAddAttendees,
-                "BE AWARE: Deleting Google event through mobile/web calendar app will notify all attendees.");
+                "BE AWARE: Unless cloaked, changing Google event through mobile/web calendar app will notify all attendees.");
             ToolTips.SetToolTip(tbMaxAttendees,
                 "Only sync attendees if total fewer than this number. Google allows up to 200 attendees.");
             ToolTips.SetToolTip(cbCloakEmail,
@@ -137,6 +139,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbSingleCategoryOnly,
                 "Only allow a single Outlook category - ie 1:1 sync with Google. This may also remove assigned categories not prefixed with \"OGCS\".\n" +
                 "Otherwise, for multiple categories only those prefixed with \"OGCS\" are added or removed.");
+            updateReminderToolTip();
             updateReminderDndToolTip();
             ToolTips.SetToolTip(cbExcludeSubject,
                 "Supports use of regular expressions.");
@@ -599,6 +602,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         _ => CheckState.Unchecked
                     };
                     cbAddReminders.Text = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders ? "No Reminders" : "Reminders";
+                    updateReminderToolTip();
                     if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
                         profile.ReminderDND = false;
                     cbUseGoogleDefaultReminder.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
@@ -2091,11 +2095,11 @@ namespace OutlookGoogleCalendarSync.Forms {
 
                 tbTargetCalendar.Enabled = true;
                 cbOutlookPush.Enabled = true;
-                cbReminderDND.Visible = true;
+                cbReminderDND.Visible = false;
                 cbReminderDND.Checked = false;
-                dtDNDstart.Visible = true;
-                dtDNDend.Visible = true;
-                lDNDand.Visible = true;
+                dtDNDstart.Visible = false;
+                dtDNDend.Visible = false;
+                lDNDand.Visible = false;
                 cbSingleCategoryOnly.Visible = true;
                 lExcludeItems.Text = "Exclude items. Affects newly synced items:-";
                 lWhatExcludeInfo.Left = Convert.ToInt16(230 * Program.Magnification);
@@ -2117,10 +2121,10 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ActiveCalendarProfile.DeregisterForPushSync();
                 cbOutlookPush.Checked = false;
                 cbOutlookPush.Enabled = false;
-                cbReminderDND.Visible = false;
-                dtDNDstart.Visible = false;
-                dtDNDend.Visible = false;
-                lDNDand.Visible = false;
+                cbReminderDND.Visible = true;
+                dtDNDstart.Visible = true;
+                dtDNDend.Visible = true;
+                lDNDand.Visible = true;
                 ddGoogleColour.Visible = false;
                 ddOutlookColour.Visible = true;
                 ddOutlookColour.Enabled = cbColour.Checked;
@@ -2581,6 +2585,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             Boolean syncReminders = ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
             cbAddReminders.Text = ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders ? "No Reminders" : "Reminders";
+            updateReminderToolTip();
             if (!(cbUseGoogleDefaultReminder.Enabled = syncReminders && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id)) {
                 cbUseGoogleDefaultReminder.Checked = false;
             }
@@ -2600,6 +2605,17 @@ namespace OutlookGoogleCalendarSync.Forms {
                     ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
             if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
             updateReminderDndToolTip();
+        }
+        private void updateReminderToolTip() {
+            SettingsStore.Calendar.AddReminderModes reminderMode = ActiveCalendarProfile?.AddReminders ?? SettingsStore.Calendar.AddReminderModes.Inherit;
+            Boolean bidirectional = ActiveCalendarProfile?.SyncDirection.Id == Sync.Direction.Bidirectional.Id;
+            String currentDescription = reminderMode switch {
+                SettingsStore.Calendar.AddReminderModes.Inherit => "Reminders are left untouched; new events inherit the target calendar's defaults.",
+                SettingsStore.Calendar.AddReminderModes.NoReminders => "Explicit reminders and calendar defaults are removed from target calendar events.",
+                SettingsStore.Calendar.AddReminderModes.Sync => "Reminders are synchronized according to the configured reminder options here.",
+                _ => "Reminders are left untouched; new events inherit the destination calendar's defaults."
+            };
+            ToolTips.SetToolTip(cbAddReminders, currentDescription + (bidirectional ? "\nNo Reminders is unavailable during bidirectional synchronization." : ""));
         }
         private void updateReminderModeAvailability() {
             Boolean allowNoReminders = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
@@ -2627,7 +2643,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ? "Google default reminders are included in the DND calculation."
                 : "Google default reminders are not included in the DND calculation.";
             ToolTips.SetToolTip(cbReminderDND,
-                "Do Not Disturb: Don't sync reminders to " + target + " if they will trigger between these times. " +
+                "Do Not Disturb: Don't sync reminders to " + target + " if they will trigger between these times.\n" +
                 googleDefaults + " Outlook default reminders are not evaluated.");
         }
         private void cbReminderDND_CheckedChanged(object sender, EventArgs e) {
