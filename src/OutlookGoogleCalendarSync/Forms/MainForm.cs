@@ -600,17 +600,22 @@ namespace OutlookGoogleCalendarSync.Forms {
                         _ => CheckState.Unchecked
                     };
                     cbAddReminders.Text = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders ? "No Reminders" : "Reminders";
+                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
+                        profile.ReminderDND = false;
                     cbUseGoogleDefaultReminder.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     cbUseGoogleDefaultReminder.Checked = profile.UseGoogleDefaultReminder;
                     cbUseOutlookDefaultReminder.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     cbUseOutlookDefaultReminder.Checked = profile.UseOutlookDefaultReminder;
                     cbReminderDND.Enabled =
-                        cbReminderDND.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+                        cbReminderDND.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync &&
+                            profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
                     cbReminderDND.Checked = profile.ReminderDND;
                     dtDNDstart.Enabled =
-                        dtDNDstart.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+                        dtDNDstart.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync &&
+                            profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
                     dtDNDend.Enabled =
-                        dtDNDend.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+                        dtDNDend.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync &&
+                            profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
                     dtDNDstart.Value = profile.ReminderDNDstart;
                     dtDNDend.Value = profile.ReminderDNDend;
                     cbAddColours.Checked = profile.AddColours;
@@ -2087,6 +2092,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 tbTargetCalendar.Enabled = true;
                 cbOutlookPush.Enabled = true;
                 cbReminderDND.Visible = true;
+                cbReminderDND.Checked = false;
                 dtDNDstart.Visible = true;
                 dtDNDend.Visible = true;
                 lDNDand.Visible = true;
@@ -2589,7 +2595,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 dtDNDend.Enabled =
                 dtDNDend.Visible =
                 lDNDand.Enabled =
-                lDNDand.Visible = syncReminders;
+                lDNDand.Visible = syncReminders &&
+                    ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
             if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
         }
         private void updateReminderModeAvailability() {

@@ -1580,7 +1580,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         public Boolean IsOKtoSyncReminder(MsGraph.Models.Event ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.ReminderDND) {
+            if (profile.ReminderDNDConfigPermitted) {
                 System.DateTimeOffset alarm;
                 if ((bool)ai.IsReminderOn)
                     alarm = ai.Start.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalStartTimeZone).AddMinutes((int)-ai.ReminderMinutesBeforeStart);

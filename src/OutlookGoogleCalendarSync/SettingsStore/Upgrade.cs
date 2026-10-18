@@ -43,7 +43,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                     settingsVersion = syncNotificationVersion;
                     return true;
                 } else if (settingsVersionNum >= syncNotification && settingsVersionNum < reminderModes) {
-                    settingsFileManager(upgradeToReminderModes, reminderModes);
+                    settingsFileManager(upgradeReminderSettings, reminderModes);
                     settingsVersion = reminderModesVersion;
                     return true;
                 } else
@@ -183,6 +183,12 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             XMLManager.RenameElement("ShowBubbleWhenMinimising", settingsElement, "ShowSystemNotificationWhenMinimising");
         }
 
+        #region v3.0.6 - Reminders
+        private static void upgradeReminderSettings(XDocument xml) {
+            upgradeToReminderModes(xml);
+            upgradeBidirectionalReminderDnd(xml);
+        }
+
         private static void upgradeToReminderModes(XDocument xml) {
             Boolean migrateLegacyNoReminderBehavior = settingsVersionNum > 0 && settingsVersionNum <= Program.VersionToInt(legacyNoReminderVersion);
             XNamespace settingsNamespace = xml.Root.Name.Namespace;
@@ -217,5 +223,19 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 addRemindersElement.Value = reminderMode.ToString();
             }
         }
+
+        internal static void upgradeBidirectionalReminderDnd(XDocument xml) {
+            XNamespace settingsNamespace = xml.Root.Name.Namespace;
+            foreach (XElement calendarElement in xml.Descendants(settingsNamespace + "Calendar")) {
+                Boolean bidirectional = calendarElement.Element(settingsNamespace + "SyncDirection")?.Element(settingsNamespace + "Id")?.Value ==
+                    Sync.Direction.Bidirectional.Id.ToString();
+                XElement reminderDndElement = calendarElement.Element(settingsNamespace + "ReminderDND");
+                if (bidirectional && Boolean.TryParse(reminderDndElement?.Value, out Boolean reminderDND) && reminderDND) {
+                    reminderDndElement.Value = Boolean.FalseString.ToLowerInvariant();
+                    log.Info($"Disabled ReminderDND for bidirectional calendar Profile '{calendarElement.Element(settingsNamespace + "_ProfileName")?.Value}'");
+                }
+            }
+        }
+        #endregion
     }
 }

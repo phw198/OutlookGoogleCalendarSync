@@ -188,11 +188,17 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             Sync            //Sync reminders according to source calendar event and OGCS's settings
         }
         [DataMember] public AddReminderModes AddReminders { get; set; }
-        /// <summary>Not permitted to remove reminders for bidirectional sync</summary>
+        /// <summary>Don't allow removal of reminders for bi-directional sync</summary>
         public Boolean NoRemindersConfigPermitted {
             get {
                 return AddReminders == AddReminderModes.NoReminders &&
                     SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            }
+        }
+        /// <summary>Don't allow Do Not Disturb for bi-directional sync</summary>
+        public Boolean ReminderDNDConfigPermitted {
+            get {
+                return ReminderDND && SyncDirection.Id != Sync.Direction.Bidirectional.Id;
             }
         }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }

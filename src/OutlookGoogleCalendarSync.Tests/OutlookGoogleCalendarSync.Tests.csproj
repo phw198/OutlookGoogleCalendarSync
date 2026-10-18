@@ -72,6 +72,7 @@
       <HintPath>..\OutlookGoogleCalendarSync\lib\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\OutlookGoogleCalendarSync\lib\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -133,6 +134,7 @@
   <ItemGroup>
     <Compile Include="Extensions\DateTimeTests.cs" />
     <Compile Include="Outlook\CategoryFilteringTests.cs" />
+    <Compile Include="SettingsStore\UpgradeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1795,7 +1795,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Boolean IsOKtoSyncReminder(AppointmentItem ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.ReminderDND) {
+            if (profile.ReminderDNDConfigPermitted) {
                 System.DateTime alarm;
                 if (ai.ReminderSet)
                     alarm = ai.Start.AddMinutes(-ai.ReminderMinutesBeforeStart);

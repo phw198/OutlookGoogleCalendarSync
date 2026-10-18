@@ -19,6 +19,13 @@ Existing profiles from v3.0.3 and earlier are migrated to **No Reminders** to
 preserve their previous behavior. New profiles start unchecked so the calendar
 platform defaults apply.
 
+**No Reminders** is available only for one-way synchronization. Bidirectional
+profiles use **Unchecked** to leave reminders untouched.
+
+Do Not Disturb is available only for one-way synchronization. Existing
+bidirectional profiles with Do Not Disturb enabled are normalized to disabled
+when their settings are upgraded.
+
 ## Google To Outlook Category Sync
 
 Category and colour synchronization applies to Outlook events, including recurring events.
