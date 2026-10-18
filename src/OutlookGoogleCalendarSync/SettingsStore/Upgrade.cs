@@ -190,20 +190,27 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 XElement addRemindersElement = calendarElement.Element(settingsNamespace + "AddReminders");
                 if (addRemindersElement == null)
                     continue;
+                Boolean bidirectional = calendarElement.Element(settingsNamespace + "SyncDirection")?.Element(settingsNamespace + "Id")?.Value ==
+                    Sync.Direction.Bidirectional.Id.ToString();
+                Boolean migrateToNoReminders = migrateLegacyNoReminderBehavior && !bidirectional;
 
                 SettingsStore.Calendar.AddReminderModes reminderMode = Calendar.AddReminderModes.Inherit;
                 if (Boolean.TryParse(addRemindersElement.Value, out Boolean addReminders)) {
                     reminderMode = addReminders
                         ? SettingsStore.Calendar.AddReminderModes.Sync
-                        : migrateLegacyNoReminderBehavior
+                        : migrateToNoReminders
                             ? SettingsStore.Calendar.AddReminderModes.NoReminders
                             : SettingsStore.Calendar.AddReminderModes.Inherit;
                 } else if (String.IsNullOrWhiteSpace(addRemindersElement.Value)) {
-                    reminderMode = migrateLegacyNoReminderBehavior
+                    reminderMode = migrateToNoReminders
                         ? SettingsStore.Calendar.AddReminderModes.NoReminders
                         : SettingsStore.Calendar.AddReminderModes.Inherit;
-                } else if (Enum.TryParse(addRemindersElement.Value, out Calendar.AddReminderModes _)) {
-                    log.Debug($"AddReminders value '{addRemindersElement.Value}' is already migrated.");
+                } else if (Enum.TryParse(addRemindersElement.Value, out Calendar.AddReminderModes migratedReminderMode)) {
+                    if (bidirectional && migratedReminderMode == Calendar.AddReminderModes.NoReminders) {
+                        addRemindersElement.Value = Calendar.AddReminderModes.Inherit.ToString();
+                        log.Info($"Changed bidirectional AddReminders value from '{migratedReminderMode}' to '{Calendar.AddReminderModes.Inherit}' for calendar Profile '{calendarElement.Element(settingsNamespace + "_ProfileName")?.Value}'");
+                    } else
+                        log.Debug($"AddReminders value '{addRemindersElement.Value}' is already migrated.");
                     continue;
                 }
                 log.Info($"Migrated AddReminders value from '{addRemindersElement.Value}' to '{reminderMode.ToString()}' for calendar Profile '{calendarElement.Element(settingsNamespace + "_ProfileName")?.Value}'");

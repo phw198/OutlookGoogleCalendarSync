@@ -616,7 +616,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 } else {
                     ev.Reminders.UseDefault = false;
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders)
+            } else if (profile.NoRemindersConfigPermitted)
                 ev.Reminders.UseDefault = false;
 
             //Add the Outlook appointment ID into Google event
@@ -1014,7 +1014,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         }
                     }
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders &&
+            } else if (profile.NoRemindersConfigPermitted &&
                 (ev.Reminders == null || (bool)ev.Reminders.UseDefault || ev.Reminders.Overrides?.Count > 0)) {
                 Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? true;
                 ev.Reminders ??= new Event.RemindersData();

@@ -498,6 +498,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         }
                     }
                     if (syncDirection.SelectedIndex == -1) syncDirection.SelectedIndex = 0;
+                    updateReminderModeAvailability();
                     this.gbSyncOptions_How.SuspendLayout();
                     cbMergeItems.Checked = profile.MergeItems;
                     cbDisableDeletion.Checked = profile.DisableDelete;
@@ -2077,6 +2078,7 @@ namespace OutlookGoogleCalendarSync.Forms {
         #region How
         private void syncDirection_SelectedIndexChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.SyncDirection = (Sync.Direction)syncDirection.SelectedItem;
+            updateReminderModeAvailability();
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 ActiveCalendarProfile.RegisterForPushSync();
                 cbObfuscateDirection.Enabled = true;
@@ -2536,13 +2538,19 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
 
         private void cbAddReminders_Click(object sender, EventArgs e) {
-            //Forcing a custom cycle through the check states (Unchecked -> Indeterminate -> Checked -> Unchecked)
-            cbAddReminders.CheckState = cbAddReminders.CheckState switch {
-                CheckState.Unchecked => CheckState.Indeterminate,
-                CheckState.Indeterminate => CheckState.Checked,
-                CheckState.Checked => CheckState.Unchecked,
-                _ => CheckState.Unchecked
-            };
+            if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                cbAddReminders.CheckState = cbAddReminders.CheckState == CheckState.Checked
+                    ? CheckState.Unchecked
+                    : CheckState.Checked;
+            } else {
+                //Forcing a custom cycle through the check states (Unchecked -> Indeterminate -> Checked -> Unchecked)
+                cbAddReminders.CheckState = cbAddReminders.CheckState switch {
+                    CheckState.Unchecked => CheckState.Indeterminate,
+                    CheckState.Indeterminate => CheckState.Checked,
+                    CheckState.Checked => CheckState.Unchecked,
+                    _ => CheckState.Unchecked
+                };
+            }
         }
         private void cbAddReminders_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
@@ -2552,6 +2560,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
         }
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
+            if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id && cbAddReminders.CheckState == CheckState.Indeterminate) {
+                cbAddReminders.CheckState = CheckState.Unchecked;
+                return;
+            }
             if (!this.LoadingProfileConfig && sender != null) {
                 ActiveCalendarProfile.AddReminders = cbAddReminders.CheckState switch {
                     CheckState.Unchecked => SettingsStore.Calendar.AddReminderModes.Inherit,
@@ -2579,6 +2591,14 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDNDand.Enabled =
                 lDNDand.Visible = syncReminders;
             if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
+        }
+        private void updateReminderModeAvailability() {
+            Boolean allowNoReminders = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            cbAddReminders.ThreeState = allowNoReminders;
+            if (!allowNoReminders && ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders) {
+                ActiveCalendarProfile.AddReminders = SettingsStore.Calendar.AddReminderModes.Inherit;
+                cbAddReminders.CheckState = CheckState.Unchecked;
+            }
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;

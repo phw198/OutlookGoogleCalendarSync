@@ -732,7 +732,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 } else {
                     ev.Reminders.UseDefault = false; // No reminder to be set in Google due to DND
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders) {
+            } else if (profile.NoRemindersConfigPermitted) {
                 ev.Reminders.UseDefault = false;
             }
 
@@ -1144,7 +1144,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         }
                     }
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders &&
+            } else if (profile.NoRemindersConfigPermitted &&
                 (ev.Reminders == null || (bool)ev.Reminders.UseDefault || ev.Reminders.Overrides?.Count > 0)) {
                 Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? true;
                 ev.Reminders ??= new Event.RemindersData();

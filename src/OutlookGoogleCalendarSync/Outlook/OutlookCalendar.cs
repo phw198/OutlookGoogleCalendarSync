@@ -434,7 +434,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 } else {
                     ai.ReminderSet = profile.UseOutlookDefaultReminder;
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders) {
+            } else if (profile.NoRemindersConfigPermitted) {
                 ai.ReminderSet = false;
             }
 
@@ -853,7 +853,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     ai.ReminderSet = false;
                     itemModified++;
                 }
-            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders && ai.ReminderSet) {
+            } else if (profile.NoRemindersConfigPermitted && ai.ReminderSet) {
                 sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
                 ai.ReminderSet = false;
                 itemModified++;
