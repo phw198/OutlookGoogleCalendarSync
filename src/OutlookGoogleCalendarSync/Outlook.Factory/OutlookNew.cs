@@ -13,7 +13,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookNew));
 
         private Microsoft.Office.Interop.Outlook.Application oApp;
-        private ExplorerWatcher explorerWatcher;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
@@ -90,9 +89,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Outlook.Calendar.Categories = new Outlook.Categories();
                 Calendar.Categories.Get(oApp, profile.UseOutlookCalendar);
 
-                //Set up event handlers
-                explorerWatcher = new ExplorerWatcher(oApp);
-
             } catch (System.Runtime.InteropServices.COMException ex) {
                 if (ex.GetErrorCode(0x0000FFFF) == "0x00000009") { //Cannot complete the operation. You are not connected. [Issue #514, occurs on GetNamespace("mapi")]
                     log.Warn(ex.Message);
@@ -119,7 +115,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                     calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
                     Calendar.Categories?.Dispose();
-                    explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                 }

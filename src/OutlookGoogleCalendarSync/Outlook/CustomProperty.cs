@@ -99,7 +99,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
             ogcsModifiedText,   //Associated with olText type - format of yyyyMMddHHmmss
             forceSave,
             gMeetUrl,
-            locallyCopied,
             originalStartDate,
             oEntryID
         }
@@ -224,7 +223,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 prop = ups.Find(searchKey);
                 if (searchId == MetadataId.gCalendarId)
                     return (prop != null && prop.Value.ToString() == profile.UseGoogleCalendar.Id);
-                else if (searchId == MetadataId.locallyCopied || searchId == MetadataId.oEntryID)
+                else if (searchId == MetadataId.oEntryID)
                     return (prop != null);
                 else {
                     return (prop != null && Get(ai, MetadataId.gCalendarId, profile) == profile.UseGoogleCalendar.Id);
@@ -415,7 +414,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Remove(ref ai, MetadataId.gEventID);
             Remove(ref ai, MetadataId.gCalendarId);
             Remove(ref ai, MetadataId.forceSave);
-            Remove(ref ai, MetadataId.locallyCopied);
             Remove(ref ai, MetadataId.oEntryID);
             Remove(ref ai, MetadataId.ogcsModified);
             Remove(ref ai, MetadataId.ogcsModifiedText);
@@ -447,7 +445,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 metadataIdKeyName(MetadataId.gCalendarId),
                 metadataIdKeyName(MetadataId.gEventID),
                 metadataIdKeyName(MetadataId.gMeetUrl),
-                metadataIdKeyName(MetadataId.locallyCopied),
                 metadataIdKeyName(MetadataId.oEntryID),
                 metadataIdKeyName(MetadataId.ogcsModified),
                 metadataIdKeyName(MetadataId.ogcsModifiedText),

@@ -973,8 +973,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
-                        //Find entries with no Google ID (that haven't been locally copied)
-                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID) && !CustomProperty.Exists(ai, CustomProperty.MetadataId.locallyCopied)) {
+                        //Find entries with no Google ID
+                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
                             String sigAi = signature(ai);
                             unclaimedAi.Add(ai);
 
@@ -1515,7 +1515,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                     CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
                     CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
-                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Copied";
+                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Original EntryID";
                     tw.WriteLine(CSVheader);
                     foreach (AppointmentItem ai in ais) {
                         try {
@@ -1564,7 +1564,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
             csv.Append(CustomProperty.GetOGCSlastModified(ai).ToPreciseUtcString() + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.forceSave) ?? "") + ",");
-            csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.locallyCopied) ?? "");
+            csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.oEntryID) ?? "");
 
             return csv.ToString();
         }
