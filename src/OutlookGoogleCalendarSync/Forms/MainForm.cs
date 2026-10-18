@@ -137,8 +137,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             ToolTips.SetToolTip(cbSingleCategoryOnly,
                 "Only allow a single Outlook category - ie 1:1 sync with Google. This may also remove assigned categories not prefixed with \"OGCS\".\n" +
                 "Otherwise, for multiple categories only those prefixed with \"OGCS\" are added or removed.");
-            ToolTips.SetToolTip(cbReminderDND,
-                "Do Not Disturb: Don't sync reminders to Google if they will trigger between these times.");
+            updateReminderDndToolTip();
             ToolTips.SetToolTip(cbExcludeSubject,
                 "Supports use of regular expressions.");
 
@@ -618,6 +617,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                             profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
                     dtDNDstart.Value = profile.ReminderDNDstart;
                     dtDNDend.Value = profile.ReminderDNDend;
+                    updateReminderDndToolTip();
                     cbAddColours.Checked = profile.AddColours;
                     btColourMap.Enabled = profile.AddColours;
                     cbSingleCategoryOnly.Checked = profile.SingleCategoryOnly;
@@ -2145,6 +2145,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             }
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
+            updateReminderDndToolTip();
             cbGoogleCalendars_SelectedIndexChanged(null, null);
             buildAvailabilityDropdown();
             showWhatPostit("Description");
@@ -2587,8 +2588,8 @@ namespace OutlookGoogleCalendarSync.Forms {
                 cbUseOutlookDefaultReminder.Checked = false;
             }
             cbUseGoogleDefaultReminder.Visible =
-                cbUseOutlookDefaultReminder.Visible =
-                cbReminderDND.Enabled =
+                cbUseOutlookDefaultReminder.Visible = ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+            cbReminderDND.Enabled =
                 cbReminderDND.Visible =
                 dtDNDstart.Enabled =
                 dtDNDstart.Visible =
@@ -2598,6 +2599,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 lDNDand.Visible = syncReminders &&
                     ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
             if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
+            updateReminderDndToolTip();
         }
         private void updateReminderModeAvailability() {
             Boolean allowNoReminders = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.Bidirectional.Id;
@@ -2609,9 +2611,24 @@ namespace OutlookGoogleCalendarSync.Forms {
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.UseGoogleDefaultReminder = cbUseGoogleDefaultReminder.Checked;
+            updateReminderDndToolTip();
         }
         private void cbUseOutlookDefaultReminder_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.UseOutlookDefaultReminder = cbUseOutlookDefaultReminder.Checked;
+        }
+
+        private void updateReminderDndToolTip() {
+            Boolean googleDefaultsEvaluated = ActiveCalendarProfile != null &&
+                (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id ||
+                ActiveCalendarProfile.UseGoogleDefaultReminder);
+            String target = ActiveCalendarProfile != null &&
+                ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id ? "Outlook" : "Google";
+            String googleDefaults = googleDefaultsEvaluated
+                ? "Google default reminders are included in the DND calculation."
+                : "Google default reminders are not included in the DND calculation.";
+            ToolTips.SetToolTip(cbReminderDND,
+                "Do Not Disturb: Don't sync reminders to " + target + " if they will trigger between these times. " +
+                googleDefaults + " Outlook default reminders are not evaluated.");
         }
         private void cbReminderDND_CheckedChanged(object sender, EventArgs e) {
             ActiveCalendarProfile.ReminderDND = cbReminderDND.Checked;

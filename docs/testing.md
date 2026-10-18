@@ -24,7 +24,13 @@ profiles use **Unchecked** to leave reminders untouched.
 
 Do Not Disturb is available only for one-way synchronization. Existing
 bidirectional profiles with Do Not Disturb enabled are normalized to disabled
-when their settings are upgraded.
+when their settings are upgraded. For Outlook-to-Google synchronization, the
+setting evaluates explicit Outlook reminders and, when configured, the Google
+calendar default reminder. For Google-to-Outlook synchronization, explicit
+Google popup reminders and the Google calendar default reminder are evaluated.
+If the effective Google reminder falls inside the DND window, the Outlook
+reminder is removed or not created. The configured Outlook default reminder
+duration is not evaluated.
 
 ## Google To Outlook Category Sync
 

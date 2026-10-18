@@ -201,6 +201,26 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 return ReminderDND && SyncDirection.Id != Sync.Direction.Bidirectional.Id;
             }
         }
+        public Boolean IsReminderDNDActive(DateTime alarm) {
+            if (!ReminderDNDConfigPermitted)
+                return false;
+
+            if (ReminderDNDstart.TimeOfDay > ReminderDNDend.TimeOfDay) {
+                //eg 22:00 to 06:00
+                //Make sure end time is the day following the start time
+                int shiftDay = 0;
+                DateTime dndStart;
+                DateTime dndEnd;
+                if (alarm.TimeOfDay < ReminderDNDstart.TimeOfDay) shiftDay = -1;
+                dndStart = alarm.Date.AddDays(shiftDay).Add(ReminderDNDstart.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(ReminderDNDend.TimeOfDay);
+                return alarm >= dndStart && alarm <= dndEnd;
+            }
+
+            //eg 01:00 to 06:00
+            return alarm.TimeOfDay >= ReminderDNDstart.TimeOfDay &&
+                alarm.TimeOfDay <= ReminderDNDend.TimeOfDay;
+        }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
         [DataMember] public bool UseOutlookDefaultReminder { get; set; }
         [DataMember] public bool ReminderDND { get; set; }

@@ -135,6 +135,7 @@
     <Compile Include="Extensions\DateTimeTests.cs" />
     <Compile Include="Outlook\CategoryFilteringTests.cs" />
     <Compile Include="SettingsStore\UpgradeTests.cs" />
+    <Compile Include="SettingsStore\ReminderDndTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

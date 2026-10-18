@@ -420,17 +420,25 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             //Reminder alert
             if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
+                int googleReminderMinutes = int.MinValue;
                 if (ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false) {
-                    ai.ReminderSet = true;
                     try {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
-                        ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                        googleReminderMinutes = (int)reminder.Minutes;
                     } catch (System.Exception ex) {
                         ex.Analyse("Failed setting Outlook reminder for final popup Google notification.");
                     }
                 } else if ((ev.Reminders?.UseDefault ?? false) && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
+                    googleReminderMinutes = Ogcs.Google.Calendar.Instance.MinDefaultReminder;
+                }
+
+                Boolean googleReminderBlockedByDnd = googleReminderMinutes != int.MinValue &&
+                    profile.IsReminderDNDActive(ev.Start.SafeDateTimeOffset().AddMinutes(-googleReminderMinutes).LocalDateTime);
+                if (googleReminderBlockedByDnd) {
+                    ai.ReminderSet = false;
+                } else if (googleReminderMinutes != int.MinValue) {
                     ai.ReminderSet = true;
-                    ai.ReminderMinutesBeforeStart = Ogcs.Google.Calendar.Instance.MinDefaultReminder;
+                    ai.ReminderMinutesBeforeStart = googleReminderMinutes;
                 } else {
                     ai.ReminderSet = profile.UseOutlookDefaultReminder;
                 }
@@ -827,6 +835,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     shouldOutlookReminderBeSet = profile.UseOutlookDefaultReminder;
                 }
 
+                if (googleProvidedReminderMinutes != int.MinValue &&
+                    profile.IsReminderDNDActive(ev.Start.SafeDateTimeOffset().AddMinutes(-googleProvidedReminderMinutes).LocalDateTime)) {
+                    shouldOutlookReminderBeSet = false;
+                }
+
                 if (shouldOutlookReminderBeSet) {
                     if (googleProvidedReminderMinutes != int.MinValue) {
                         try {
@@ -848,7 +861,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         ai.ReminderSet = true;
                         itemModified++;
                     }
-                } else if (ai.ReminderSet) { // No Google reminder and UseOutlookDefaultReminder is false, but Outlook has a reminder set
+                } else if (ai.ReminderSet) { // No effective Google reminder (or DND is active) and Outlook has a reminder set
                     sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
                     ai.ReminderSet = false;
                     itemModified++;
@@ -1813,31 +1826,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Boolean IsOKtoSyncReminder(System.DateTime alarm) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.ReminderDNDstart.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {
-                //eg 22:00 to 06:00
-                //Make sure end time is the day following the start time
-                int shiftDay = 0;
-                System.DateTime dndStart;
-                System.DateTime dndEnd;
-                if (alarm.TimeOfDay < profile.ReminderDNDstart.TimeOfDay) shiftDay = -1;
-                dndStart = alarm.Date.AddDays(shiftDay).Add(profile.ReminderDNDstart.TimeOfDay);
-                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(profile.ReminderDNDend.TimeOfDay);
-                if (alarm > dndStart && alarm < dndEnd) {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                } else
-                    return true;
-
-            } else {
-                //eg 01:00 to 06:00
-                if (alarm.TimeOfDay < profile.ReminderDNDstart.TimeOfDay ||
-                    alarm.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {
-                    return true;
-                } else {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                }
+            if (profile.IsReminderDNDActive(alarm)) {
+                log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
+                return false;
             }
+            return true;
         }
         #endregion
     }
