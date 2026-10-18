@@ -1843,5 +1843,51 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
         }
         #endregion
+
+        /// <summary>
+        /// Supports migration off of ExplorerWatcher for copy and pasted items; introduced v3.0.6
+        /// This can probably be removed in a future release, but is harmless to leave in.
+        /// </summary>
+        public void BackfillSourceEntryIDs(SettingsStore.Calendar profile) {
+            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) return;
+
+            String backfillProfile = (profile.UseOutlookCalendar?.Id ?? "") + "|" + (profile.UseGoogleCalendar?.Id ?? "");
+            if (profile.SourceEntryIDBackfillProfile == backfillProfile) return;
+
+            log.Info("One-time backfilling of source EntryIDs for Outlook appointments that have been synced to Google, " +
+                "but don't have the Outlook EntryID stored as a custom property.");
+
+            MAPIFolder folder = null;
+            Items items = null;
+            Int32 stamped = 0;
+            try {
+                folder = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
+                items = folder.Items;
+                for (Int32 index = 1; index <= items.Count; index++) {
+                    Object item = null;
+                    AppointmentItem ai = null;
+                    try {
+                        item = items[index];
+                        ai = item as AppointmentItem;
+                        if (ai != null && CustomProperty.ExistAnyGoogleIDs(ai, profile) &&
+                            !CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile)) {
+                            CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                            ai.Save();
+                            stamped++;
+                        }
+                    } catch (System.Exception ex) {
+                        ex.LogAsFail().Analyse("Failed to backfill the Outlook source EntryID.");
+                    } finally {
+                        item = ReleaseObject(item);
+                        ai = null;
+                    }
+                }
+                profile.SourceEntryIDBackfillProfile = backfillProfile;
+                log.Info("Backfilled source EntryIDs for " + stamped + " Outlook appointments.");
+            } finally {
+                items = (Items)ReleaseObject(items);
+                folder = (MAPIFolder)ReleaseObject(folder);
+            }
+        }
     }
 }

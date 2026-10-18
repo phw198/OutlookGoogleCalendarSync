@@ -15,6 +15,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         //Settings saved immediately
         private DateTime lastSyncDate;
+        private String sourceEntryIDBackfillProfile;
 
         public Calendar() {
             setDefaults();
@@ -99,6 +100,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
             ExtirpateOgcsMetadata = false;
             lastSyncDate = new DateTime(0);
+            sourceEntryIDBackfillProfile = "";
         }
 
         [DataMember] public string _ProfileName { get; set; }
@@ -229,6 +231,15 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         public String LastSyncDateText {
             get { return lastSyncDate.ToLongDateString() + " @ " + lastSyncDate.ToLongTimeString(); }
+        }
+
+        [DataMember] public String SourceEntryIDBackfillProfile {
+            get { return sourceEntryIDBackfillProfile; }
+            set {
+                sourceEntryIDBackfillProfile = value;
+                if (!Settings.Instance.Loading())
+                    XMLManager.ExportElement(this, "SourceEntryIDBackfillProfile", value ?? "", Settings.ConfigFile);
+            }
         }
 
         /// <summary>
