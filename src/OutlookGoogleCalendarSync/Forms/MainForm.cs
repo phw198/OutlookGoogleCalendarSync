@@ -592,13 +592,24 @@ namespace OutlookGoogleCalendarSync.Forms {
                     tbMaxAttendees.Value = profile.MaxAttendees;
                     cbCloakEmail.Checked = profile.CloakEmail;
                     cbCloakEmail.Visible = cbAddAttendees.Checked && profile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id;
-                    cbAddReminders.Checked = profile.AddReminders;
+                    cbAddReminders.CheckState = profile.AddReminders switch {
+                        SettingsStore.Calendar.AddReminderModes.Inherit => CheckState.Unchecked,
+                        SettingsStore.Calendar.AddReminderModes.NoReminders => CheckState.Indeterminate,
+                        SettingsStore.Calendar.AddReminderModes.Sync => CheckState.Checked,
+                        _ => CheckState.Unchecked
+                    };
+                    cbAddReminders.Text = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders ? "No Reminders" : "Reminders";
+                    cbUseGoogleDefaultReminder.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     cbUseGoogleDefaultReminder.Checked = profile.UseGoogleDefaultReminder;
+                    cbUseOutlookDefaultReminder.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     cbUseOutlookDefaultReminder.Checked = profile.UseOutlookDefaultReminder;
-                    cbReminderDND.Enabled = profile.AddReminders;
+                    cbReminderDND.Enabled =
+                        cbReminderDND.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     cbReminderDND.Checked = profile.ReminderDND;
-                    dtDNDstart.Enabled = profile.AddReminders;
-                    dtDNDend.Enabled = profile.AddReminders;
+                    dtDNDstart.Enabled =
+                        dtDNDstart.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+                    dtDNDend.Enabled =
+                        dtDNDend.Visible = profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
                     dtDNDstart.Value = profile.ReminderDNDstart;
                     dtDNDend.Value = profile.ReminderDNDend;
                     cbAddColours.Checked = profile.AddColours;
@@ -2524,18 +2535,49 @@ namespace OutlookGoogleCalendarSync.Forms {
             showWhatPostit("Description");
         }
 
+        private void cbAddReminders_Click(object sender, EventArgs e) {
+            //Forcing a custom cycle through the check states (Unchecked -> Indeterminate -> Checked -> Unchecked)
+            cbAddReminders.CheckState = cbAddReminders.CheckState switch {
+                CheckState.Unchecked => CheckState.Indeterminate,
+                CheckState.Indeterminate => CheckState.Checked,
+                CheckState.Checked => CheckState.Unchecked,
+                _ => CheckState.Unchecked
+            };
+        }
+        private void cbAddReminders_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                cbAddReminders_Click(sender, e);
+            }
+        }
         private void cbAddReminders_CheckedChanged(object sender, EventArgs e) {
-            if (!this.LoadingProfileConfig && sender != null) ActiveCalendarProfile.AddReminders = cbAddReminders.Checked;
-            if (!(cbUseGoogleDefaultReminder.Enabled = cbAddReminders.Checked && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id)) {
+            if (!this.LoadingProfileConfig && sender != null) {
+                ActiveCalendarProfile.AddReminders = cbAddReminders.CheckState switch {
+                    CheckState.Unchecked => SettingsStore.Calendar.AddReminderModes.Inherit,
+                    CheckState.Indeterminate => SettingsStore.Calendar.AddReminderModes.NoReminders,
+                    CheckState.Checked => SettingsStore.Calendar.AddReminderModes.Sync,
+                    _ => SettingsStore.Calendar.AddReminderModes.Inherit
+                };
+            }
+            Boolean syncReminders = ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync;
+            cbAddReminders.Text = ActiveCalendarProfile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders ? "No Reminders" : "Reminders";
+            if (!(cbUseGoogleDefaultReminder.Enabled = syncReminders && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id)) {
                 cbUseGoogleDefaultReminder.Checked = false;
             }
-            if (!(cbUseOutlookDefaultReminder.Enabled = cbAddReminders.Checked && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id)) {
+            if (!(cbUseOutlookDefaultReminder.Enabled = syncReminders && ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id)) {
                 cbUseOutlookDefaultReminder.Checked = false;
             }
-            cbReminderDND.Enabled =
-            dtDNDstart.Enabled =
-            dtDNDend.Enabled =
-            lDNDand.Enabled = cbAddReminders.Checked;
+            cbUseGoogleDefaultReminder.Visible =
+                cbUseOutlookDefaultReminder.Visible =
+                cbReminderDND.Enabled =
+                cbReminderDND.Visible =
+                dtDNDstart.Enabled =
+                dtDNDstart.Visible =
+                dtDNDend.Enabled =
+                dtDNDend.Visible =
+                lDNDand.Enabled =
+                lDNDand.Visible = syncReminders;
             if (!cbReminderDND.Enabled) cbReminderDND.Checked = false;
         }
         private void cbUseGoogleDefaultReminder_CheckedChanged(object sender, EventArgs e) {

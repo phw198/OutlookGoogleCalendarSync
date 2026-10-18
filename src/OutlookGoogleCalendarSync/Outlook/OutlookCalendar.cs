@@ -419,7 +419,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
 
             //Reminder alert
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 if (ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false) {
                     ai.ReminderSet = true;
                     try {
@@ -434,6 +434,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 } else {
                     ai.ReminderSet = profile.UseOutlookDefaultReminder;
                 }
+            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders) {
+                ai.ReminderSet = false;
             }
 
             if (profile.AddGMeet && !String.IsNullOrEmpty(ev.HangoutLink)) {
@@ -805,7 +807,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #endregion
 
             #region Reminders
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 Boolean googleHasExplicitPopupReminder = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
                 Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? false;
 
@@ -851,6 +853,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     ai.ReminderSet = false;
                     itemModified++;
                 }
+            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders && ai.ReminderSet) {
+                sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                ai.ReminderSet = false;
+                itemModified++;
             }
             #endregion
 

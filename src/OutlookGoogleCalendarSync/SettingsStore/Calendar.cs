@@ -78,7 +78,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             AddLocation = true;
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
-            AddReminders = false;
+            AddReminders = AddReminderModes.Inherit;
             UseGoogleDefaultReminder = false;
             UseOutlookDefaultReminder = false;
             ReminderDND = false;
@@ -182,7 +182,12 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
-        [DataMember] public bool AddReminders { get; set; }
+        public enum AddReminderModes {
+            Inherit,        //From the calendar's default reminder settings
+            NoReminders,    //Remove any existing reminders, including defaults
+            Sync            //Sync reminders according to source calendar event and OGCS's settings
+        }
+        [DataMember] public AddReminderModes AddReminders { get; set; }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
         [DataMember] public bool UseOutlookDefaultReminder { get; set; }
         [DataMember] public bool ReminderDND { get; set; }

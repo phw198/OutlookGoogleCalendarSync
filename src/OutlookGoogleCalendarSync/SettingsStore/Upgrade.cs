@@ -12,8 +12,12 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         //OGCS releases that require the settings XML to be upgraded
         private const String multipleCalendarsVersion = "2.9.3.0";
         private const String syncNotificationVersion = "2.10.5.0";
+        private const String legacyNoReminderVersion = "3.0.3.0";
+        private const String reminderModesVersion = "3.0.6.0";
+
         private static Int32 multipleCalendars = Program.VersionToInt(multipleCalendarsVersion);
         private static Int32 syncNotification = Program.VersionToInt(syncNotificationVersion);
+        private static Int32 reminderModes = Program.VersionToInt(reminderModesVersion);
 
         private static String settingsVersion;
         private static Int32 settingsVersionNum;
@@ -34,9 +38,13 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                     settingsFileManager(upgradeToMultiCalendar, multipleCalendars);
                     settingsVersion = multipleCalendarsVersion;
                     return true;
-                } else if (settingsVersionNum > multipleCalendars && settingsVersionNum < syncNotification) {
+                } else if (settingsVersionNum >= multipleCalendars && settingsVersionNum < syncNotification) {
                     settingsFileManager(upgradeToSyncNotification, syncNotification);
                     settingsVersion = syncNotificationVersion;
+                    return true;
+                } else if (settingsVersionNum >= syncNotification && settingsVersionNum < reminderModes) {
+                    settingsFileManager(upgradeToReminderModes, reminderModes);
+                    settingsVersion = reminderModesVersion;
                     return true;
                 } else
                     return false;
@@ -173,6 +181,34 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             XElement settingsElement = XMLManager.GetElement("Settings", xml);
             XMLManager.RenameElement("ShowBubbleTooltipWhenSyncing", settingsElement, "ShowSystemNotifications");
             XMLManager.RenameElement("ShowBubbleWhenMinimising", settingsElement, "ShowSystemNotificationWhenMinimising");
+        }
+
+        private static void upgradeToReminderModes(XDocument xml) {
+            Boolean migrateLegacyNoReminderBehavior = settingsVersionNum > 0 && settingsVersionNum <= Program.VersionToInt(legacyNoReminderVersion);
+            XNamespace settingsNamespace = xml.Root.Name.Namespace;
+            foreach (XElement calendarElement in xml.Descendants(settingsNamespace + "Calendar")) {
+                XElement addRemindersElement = calendarElement.Element(settingsNamespace + "AddReminders");
+                if (addRemindersElement == null)
+                    continue;
+
+                SettingsStore.Calendar.AddReminderModes reminderMode = Calendar.AddReminderModes.Inherit;
+                if (Boolean.TryParse(addRemindersElement.Value, out Boolean addReminders)) {
+                    reminderMode = addReminders
+                        ? SettingsStore.Calendar.AddReminderModes.Sync
+                        : migrateLegacyNoReminderBehavior
+                            ? SettingsStore.Calendar.AddReminderModes.NoReminders
+                            : SettingsStore.Calendar.AddReminderModes.Inherit;
+                } else if (String.IsNullOrWhiteSpace(addRemindersElement.Value)) {
+                    reminderMode = migrateLegacyNoReminderBehavior
+                        ? SettingsStore.Calendar.AddReminderModes.NoReminders
+                        : SettingsStore.Calendar.AddReminderModes.Inherit;
+                } else if (Enum.TryParse(addRemindersElement.Value, out Calendar.AddReminderModes _)) {
+                    log.Debug($"AddReminders value '{addRemindersElement.Value}' is already migrated.");
+                    continue;
+                }
+                log.Info($"Migrated AddReminders value from '{addRemindersElement.Value}' to '{reminderMode.ToString()}' for calendar Profile '{calendarElement.Element(settingsNamespace + "_ProfileName")?.Value}'");
+                addRemindersElement.Value = reminderMode.ToString();
+            }
         }
     }
 }

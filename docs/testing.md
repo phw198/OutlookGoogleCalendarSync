@@ -2,6 +2,23 @@
 
 This document records the calendar-sync behaviour users can expect.
 
+## Reminder Sync
+
+The Reminders option has three states:
+
+- Clicking or activating the option from the keyboard cycles through
+  **Unchecked**, **No Reminders**, and **Reminders** in that order.
+- **Reminders** syncs reminder times according to the selected Google and
+  Outlook default-reminder and do-not-disturb settings.
+- **Unchecked** leaves reminder settings untouched during synchronization. New
+  events inherit the default configured by the destination calendar.
+- **No Reminders** prevents reminders from being synchronized and removes
+  explicit reminders and calendar defaults from synchronized events.
+
+Existing profiles from v3.0.3 and earlier are migrated to **No Reminders** to
+preserve their previous behavior. New profiles start unchecked so the calendar
+platform defaults apply.
+
 ## Google To Outlook Category Sync
 
 Category and colour synchronization applies to Outlook events, including recurring events.

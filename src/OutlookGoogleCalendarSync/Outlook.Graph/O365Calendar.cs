@@ -517,7 +517,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             }
 
             //Reminder alert
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 if (ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false) {
                     ai.IsReminderOn = true;
                     try {
@@ -532,7 +532,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 } else {
                     ai.IsReminderOn = profile.UseOutlookDefaultReminder;
                 }
-            } else ai.IsReminderOn = profile.UseOutlookDefaultReminder;
+            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders)
+                ai.IsReminderOn = false;
 
             /*
             if (profile.AddGMeet && !String.IsNullOrEmpty(ev.HangoutLink)) {
@@ -945,7 +946,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             #region Reminders
             Boolean googleReminders = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
             int reminderMins = int.MinValue;
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 if (googleReminders) {
                     //Find the last popup reminder in Google
                     GcalData.EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(r => r.Minutes).First();
@@ -970,18 +971,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         ex.Analyse("Failed setting Outlook reminder for final popup Google notification.");
                     }
                 }
-
-            }
-            if (!googleReminders && (!(ev.Reminders?.UseDefault ?? false) || reminderMins == int.MinValue)) {
-                if ((bool)ai.IsReminderOn && !profile.UseOutlookDefaultReminder) {
-                    sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
-                    aiPatch.IsReminderOn = false;
-                    itemModified++;
-                } else if (!(bool)ai.IsReminderOn && profile.UseOutlookDefaultReminder) {
-                    sb.AppendLine("Reminder: nothing => default");
-                    aiPatch.IsReminderOn = true;
-                    itemModified++;
+                if (!googleReminders && (!(ev.Reminders?.UseDefault ?? false) || reminderMins == int.MinValue)) {
+                    if ((bool)ai.IsReminderOn && !profile.UseOutlookDefaultReminder) {
+                        sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                        aiPatch.IsReminderOn = false;
+                        itemModified++;
+                    } else if (!(bool)ai.IsReminderOn && profile.UseOutlookDefaultReminder) {
+                        sb.AppendLine("Reminder: nothing => default");
+                        aiPatch.IsReminderOn = true;
+                        itemModified++;
+                    }
                 }
+            } else if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.NoReminders && (ai.IsReminderOn ?? false)) {
+                sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                aiPatch.IsReminderOn = false;
+                itemModified++;
             }
             #endregion
 
