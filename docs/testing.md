@@ -19,3 +19,9 @@ The `<No category assigned>` category can be used in either category filter mode
 
 - In exclude mode, events with no category are excluded and events with categories are retained.
 - In include mode, events with no category are retained and events with categories are excluded.
+
+## Exception Failure Logging
+
+When an error is explicitly marked to log as a failure, the failure status is
+applied to the aggregate exception and all of its inner exceptions, including
+nested aggregate exceptions.

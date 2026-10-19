@@ -220,7 +220,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 while (backoff < Ogcs.Google.Calendar.BackoffLimit) {
                     try {
                         colours = Ogcs.Google.Calendar.Instance.Service.Colors.Get()
-                            .ExecuteAsync(new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(30)).Token).Result;
+                            .ExecuteAsync(new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(30)).Token)
+                            .GetAwaiter().GetResult();
                         break;
                     } catch (global::Google.GoogleApiException ex) {
                         switch (Ogcs.Google.Calendar.HandleAPIlimits(ref ex, null)) {

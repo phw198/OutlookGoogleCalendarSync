@@ -208,7 +208,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     int backoff = 0;
                     while (backoff < BackoffLimit) {
                         try {
-                            request = ir.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                            request = ir.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                             log.Fine("Page " + pageNum + " received.");
                             break;
                         } catch (global::Google.GoogleApiException ex) {
@@ -263,7 +263,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
                     try {
-                        request = gr.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                        request = gr.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                         EventsResource.ListRequest.EventTypesEnum eventType;
                         if (Enum.TryParse(request.EventType.Replace("default", "Default__"), true, out eventType)) {
                             if (!permittedEventTypes.Contains(eventType)) {
@@ -350,7 +350,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 int backoff = 0;
                 while (backoff < BackoffLimit) {
                     try {
-                        request = lr.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                        request = lr.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                         log.Fine("Page " + pageNum + " received.");
                         break;
                     } catch (global::Google.GoogleApiException ex) {
@@ -578,7 +578,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         log.Debug("Updating conference data.");
                         pr.ConferenceDataVersion = 1;
                     }
-                    return pr.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    return pr.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
 
                 } catch (global::Google.GoogleApiException ex) {
                     switch (HandleAPIlimits(ref ex, ev)) {
@@ -755,7 +755,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     EventsResource.InsertRequest request = Service.Events.Insert(ev, profile.UseGoogleCalendar.Id);
                     request.SendUpdates = EventsResource.InsertRequest.SendUpdatesEnum.None;
-                    createdEvent = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    createdEvent = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
@@ -1170,7 +1170,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     EventsResource.UpdateRequest request = Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                     request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
-                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     if (profile.AddAttendees && Settings.Instance.APIlimit_inEffect) {
                         log.Info("API limit for attendee sync lifted :-)");
                         Settings.Instance.APIlimit_inEffect = false;
@@ -1311,7 +1311,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 try {
                     EventsResource.DeleteRequest request = Service.Events.Delete(Sync.Engine.Calendar.Instance.Profile.UseGoogleCalendar.Id, ev.Id);
                     request.SendUpdates = EventsResource.DeleteRequest.SendUpdatesEnum.None;
-                    string result = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    string result = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     break;
                 } catch (global::Google.GoogleApiException ex) {
                     switch (HandleAPIlimits(ref ex, ev)) {
@@ -1904,7 +1904,7 @@ namespace OutlookGoogleCalendarSync.Google {
             while (backoff < BackoffLimit) {
                 try {
                     log.Fine("Get the timezone offset - convert from IANA string to UTC offset integer.");
-                    Setting setting = Service.Settings.Get("timezone").ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    Setting setting = Service.Settings.Get("timezone").ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     this.UTCoffset = TimezoneDB.GetUtcOffset(setting.Value);
                     log.Info($"Google account timezone: {setting.Value} with minute offset {this.UTCoffset}.");
                     stage = "retrieve settings for synced Google calendar";
@@ -1944,7 +1944,7 @@ namespace OutlookGoogleCalendarSync.Google {
             CalendarListResource.GetRequest request = Service.CalendarList.Get(profile.UseGoogleCalendar.Id);
             CalendarListEntry cal;
             try {
-                cal = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                cal = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
             } catch (global::Google.GoogleApiException ex) {
                 if (ex.InnerException is Newtonsoft.Json.JsonReaderException && ex.InnerException.Message.Contains("Unexpected character encountered while parsing value: <") && Settings.Instance.Proxy.Type != "None") {
                     log.Warn("Call to CalendarList API endpoint failed. Retrying with trailing '/' in case of poorly configured proxy.");
@@ -1952,7 +1952,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     try {
                         System.Net.Http.HttpRequestMessage hrm = request.CreateRequest();
                         hrm.RequestUri = new System.Uri(hrm.RequestUri + "/");
-                        System.Net.Http.HttpResponseMessage response = Service.HttpClient.SendAsync(hrm, System.Net.Http.HttpCompletionOption.ResponseContentRead, Sync.Engine.CancelToken.Token).Result;
+                        System.Net.Http.HttpResponseMessage response = Service.HttpClient.SendAsync(hrm, System.Net.Http.HttpCompletionOption.ResponseContentRead, Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                         String responseBody = response.Content.ReadAsStringAsync().Result;
                         cal = Newtonsoft.Json.JsonConvert.DeserializeObject<CalendarListEntry>(responseBody);
                     } catch (System.Exception ex2) {
@@ -2521,7 +2521,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     request = Ogcs.Google.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                     request.ETagAction = global::Google.Apis.ETagAction.Ignore;
                     request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
-                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                    ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                     log.Debug("Successfully forced save by ignoring eTag values.");
                 } catch (System.Exception ex2) {
                     try {
@@ -2539,7 +2539,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         ev.Sequence = remoteEv.Sequence;
                         request = Ogcs.Google.Calendar.Instance.Service.Events.Update(ev, profile.UseGoogleCalendar.Id, ev.Id);
                         request.SendUpdates = EventsResource.UpdateRequest.SendUpdatesEnum.None;
-                        ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).Result;
+                        ev = request.ExecuteAsync(Sync.Engine.CancelToken.Token).GetAwaiter().GetResult();
                         log.Debug("Successful!");
                     } catch {
                         return ApiException.throwException;
