@@ -78,7 +78,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             AddLocation = true;
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
-            AddReminders = false;
+            AddReminders = AddReminderModes.Inherit;
             UseGoogleDefaultReminder = false;
             UseOutlookDefaultReminder = false;
             ReminderDND = false;
@@ -182,7 +182,45 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
-        [DataMember] public bool AddReminders { get; set; }
+        public enum AddReminderModes {
+            Inherit,        //From the calendar's default reminder settings
+            NoReminders,    //Remove any existing reminders, including defaults
+            Sync            //Sync reminders according to source calendar event and OGCS's settings
+        }
+        [DataMember] public AddReminderModes AddReminders { get; set; }
+        /// <summary>Don't allow removal of reminders for bi-directional sync</summary>
+        public Boolean NoRemindersConfigPermitted {
+            get {
+                return AddReminders == AddReminderModes.NoReminders &&
+                    SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            }
+        }
+        /// <summary>Don't allow Do Not Disturb for bi-directional sync</summary>
+        public Boolean ReminderDNDConfigPermitted {
+            get {
+                return ReminderDND && SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            }
+        }
+        public Boolean IsReminderDNDActive(DateTime alarm) {
+            if (!ReminderDNDConfigPermitted)
+                return false;
+
+            if (ReminderDNDstart.TimeOfDay > ReminderDNDend.TimeOfDay) {
+                //eg 22:00 to 06:00
+                //Make sure end time is the day following the start time
+                int shiftDay = 0;
+                DateTime dndStart;
+                DateTime dndEnd;
+                if (alarm.TimeOfDay < ReminderDNDstart.TimeOfDay) shiftDay = -1;
+                dndStart = alarm.Date.AddDays(shiftDay).Add(ReminderDNDstart.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(ReminderDNDend.TimeOfDay);
+                return alarm >= dndStart && alarm <= dndEnd;
+            }
+
+            //eg 01:00 to 06:00
+            return alarm.TimeOfDay >= ReminderDNDstart.TimeOfDay &&
+                alarm.TimeOfDay <= ReminderDNDend.TimeOfDay;
+        }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
         [DataMember] public bool UseOutlookDefaultReminder { get; set; }
         [DataMember] public bool ReminderDND { get; set; }

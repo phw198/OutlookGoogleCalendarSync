@@ -2595,12 +2595,12 @@
             this.gbSyncOptions_What.Controls.Add(this.dtDNDend);
             this.gbSyncOptions_What.Controls.Add(this.dtDNDstart);
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription_OnlyToGoogle);
+            this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
             this.gbSyncOptions_What.Controls.Add(this.cbAddReminders);
             this.gbSyncOptions_What.Controls.Add(this.lAttributes);
             this.gbSyncOptions_What.Controls.Add(this.cbAddAttendees);
             this.gbSyncOptions_What.Controls.Add(this.cbAddDescription);
             this.gbSyncOptions_What.Controls.Add(this.cbReminderDND);
-            this.gbSyncOptions_What.Controls.Add(this.cbUseGoogleDefaultReminder);
             this.gbSyncOptions_What.Controls.Add(this.cbLocation);
             this.gbSyncOptions_What.Controls.Add(this.cbAddColours);
             this.gbSyncOptions_What.Controls.Add(this.cbUseOutlookDefaultReminder);
@@ -2860,11 +2860,15 @@
             this.cbAddReminders.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAddReminders.Location = new System.Drawing.Point(22, 114);
             this.cbAddReminders.Name = "cbAddReminders";
-            this.cbAddReminders.Size = new System.Drawing.Size(80, 17);
+            this.cbAddReminders.Size = new System.Drawing.Size(93, 17);
             this.cbAddReminders.TabIndex = 32;
+            this.cbAddReminders.AutoCheck = false;
+            this.cbAddReminders.ThreeState = true;
             this.cbAddReminders.Text = "Reminders";
             this.cbAddReminders.UseVisualStyleBackColor = true;
-            this.cbAddReminders.CheckedChanged += new System.EventHandler(this.cbAddReminders_CheckedChanged);
+            this.cbAddReminders.Click += new System.EventHandler(this.cbAddReminders_Click);
+            this.cbAddReminders.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cbAddReminders_KeyDown);
+            this.cbAddReminders.CheckStateChanged += new System.EventHandler(this.cbAddReminders_CheckedChanged);
             // 
             // lAttributes
             // 
