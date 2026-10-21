@@ -792,12 +792,10 @@ namespace OutlookGoogleCalendarSync.Google {
 
             if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
+                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
+                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
                 Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 Outlook.CustomProperty.SetOGCSlastModified(ref ai);
-                ai.Save();
-            }
-            if (Outlook.CustomProperty.Exists(ai, Outlook.CustomProperty.MetadataId.locallyCopied)) {
-                Outlook.CustomProperty.Remove(ref ai, Outlook.CustomProperty.MetadataId.locallyCopied);
                 ai.Save();
             }
 
@@ -1675,7 +1673,8 @@ namespace OutlookGoogleCalendarSync.Google {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Don't recreate any items that have been deleted in Google
                 for (int o = outlook.Count - 1; o >= 0; o--) {
-                    if (Outlook.CustomProperty.Exists(outlook[o], Outlook.CustomProperty.MetadataId.gEventID))
+                    if (Outlook.CustomProperty.Exists(outlook[o], Outlook.CustomProperty.MetadataId.gEventID) &&
+                        !Outlook.CustomProperty.HasDifferentSourceEntryID(outlook[o], profile))
                         outlook.Remove(outlook[o]);
                 }
                 //Don't delete any items that aren't yet in Outlook or just created in Outlook during this sync
@@ -1744,38 +1743,31 @@ namespace OutlookGoogleCalendarSync.Google {
                         } else if (!string.IsNullOrEmpty(gCompareID) &&
                             gCompareID.Remove(gCompareID.Length - 16) == ai.EntryID.Remove(ai.EntryID.Length - 16))
                         {
-                            //Worse still, both a locally copied item AND a rescheduled appointment by someone else 
+                            //Worse still, both a copied item AND a rescheduled appointment by someone else
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
-                            //The former is identified by ExplorerWatcher adding a special flag
-                            if (Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.locallyCopied) == true.ToString()) {
-                                log.Fine("This appointment was copied by the user. Incorrect match avoided.");
-                                return false;
-                            } else {
-                                String aiOrganiser = "";
-                                if (!profile.OutlookGalBlocked) {
-                                    try {
-                                        aiOrganiser = ai.Organizer;
-                                    } catch (System.Runtime.InteropServices.COMException ex) {
-                                        if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
-                                            log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                                        } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                        profile.OutlookGalBlocked = true;
-                                    }
-                                }
-                                if (profile.OutlookGalBlocked || aiOrganiser != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
-                                    if (profile.OutlookGalBlocked)
-                                        log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
-                                    else
-                                        log.Fine("Organiser changed time of appointment.");
-                                    CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
-                                    CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
-                                    return true;
-                                } else {
-                                    log.Warn("Organiser changed time of appointment...but the organiser is you! (Shouldn't have ended up here)");
-                                    return false;
+                            String aiOrganiser = "";
+                            if (!profile.OutlookGalBlocked) {
+                                try {
+                                    aiOrganiser = ai.Organizer;
+                                } catch (System.Runtime.InteropServices.COMException ex) {
+                                    if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
+                                        log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
+                                    } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                                    profile.OutlookGalBlocked = true;
                                 }
                             }
-
+                            if (profile.OutlookGalBlocked || aiOrganiser != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
+                                if (profile.OutlookGalBlocked)
+                                    log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
+                                else
+                                    log.Fine("Organiser changed time of appointment.");
+                                CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
+                                CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
+                                return true;
+                            } else {
+                                log.Warn("Organiser changed time of appointment...but the organiser is you! (Shouldn't have ended up here)");
+                                return false;
+                            }
                         } else {
                             log.Warn("EntryID has changed - invite accepted?");
                             if (SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) {

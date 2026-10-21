@@ -99,8 +99,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             ogcsModifiedText,   //Associated with olText type - format of yyyyMMddHHmmss
             forceSave,
             gMeetUrl,
-            locallyCopied,
-            originalStartDate
+            originalStartDate,
+            oEntryID
         }
 
         /// <summary>
@@ -115,6 +115,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 case MetadataId.ogcsModified: return "OGCSmodified";
                 case MetadataId.ogcsModifiedText: return "OGCSmodifiedText";
                 case MetadataId.forceSave: return "forceSave";
+                case MetadataId.oEntryID: return "outlookEntryID";
                 default: return Id.ToString();
             }
         }
@@ -222,7 +223,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 prop = ups.Find(searchKey);
                 if (searchId == MetadataId.gCalendarId)
                     return (prop != null && prop.Value.ToString() == profile.UseGoogleCalendar.Id);
-                else if (searchId == MetadataId.locallyCopied)
+                else if (searchId == MetadataId.oEntryID)
                     return (prop != null);
                 else {
                     return (prop != null && Get(ai, MetadataId.gCalendarId, profile) == profile.UseGoogleCalendar.Id);
@@ -239,6 +240,13 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (Exists(ai, MetadataId.gEventID, profile)) return true;
             if (Exists(ai, MetadataId.gCalendarId, profile)) return true;
             return false;
+        }
+
+        /// <summary>Protects against copied and pasted items that have already been synced.</summary>
+        /// <returns>True: proven by copied items having different entry IDs</returns>
+        public static Boolean HasDifferentSourceEntryID(AppointmentItem ai, SettingsStore.Calendar profile = null) {
+            String oEntryID = Get(ai, MetadataId.oEntryID, profile);
+            return !String.IsNullOrEmpty(oEntryID) && oEntryID != ai.EntryID;
         }
 
         /// <summary>
@@ -406,7 +414,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Remove(ref ai, MetadataId.gEventID);
             Remove(ref ai, MetadataId.gCalendarId);
             Remove(ref ai, MetadataId.forceSave);
-            Remove(ref ai, MetadataId.locallyCopied);
+            Remove(ref ai, MetadataId.oEntryID);
             Remove(ref ai, MetadataId.ogcsModified);
             Remove(ref ai, MetadataId.ogcsModifiedText);
         }
@@ -437,7 +445,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 metadataIdKeyName(MetadataId.gCalendarId),
                 metadataIdKeyName(MetadataId.gEventID),
                 metadataIdKeyName(MetadataId.gMeetUrl),
-                metadataIdKeyName(MetadataId.locallyCopied),
+                metadataIdKeyName(MetadataId.oEntryID),
                 metadataIdKeyName(MetadataId.ogcsModified),
                 metadataIdKeyName(MetadataId.ogcsModifiedText),
                 metadataIdKeyName(MetadataId.originalStartDate)

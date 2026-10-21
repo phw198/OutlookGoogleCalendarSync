@@ -14,7 +14,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookGraph));
 
         private Microsoft.Office.Interop.Outlook.Application oApp;
-        //private ExplorerWatcher explorerWatcher;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
@@ -80,8 +79,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Outlook.Calendar.Categories = new OutlookOgcs.Categories();
                 Calendar.Categories.Get(oApp, useOutlookCalendar);
 
-                //Set up event handlers
-                explorerWatcher = new ExplorerWatcher(oApp);*/
+                */
 
             } catch (System.Exception ex) {
                 throw;

@@ -464,6 +464,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             ai.Save();
 
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                //Now there's an entryID, cache it in the custom property
+                CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                ai.Save();
+            }
+
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
                 Ogcs.Google.CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -883,9 +889,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         private void updateCalendarEntry_save(ref AppointmentItem ai) {
-            if (Sync.Engine.Calendar.Instance.Profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+            SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
+                if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile))
+                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
             }
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
             ai.Save();
@@ -984,8 +993,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     try {
                         CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
-                        //Find entries with no Google ID (that haven't been locally copied)
-                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID) && !CustomProperty.Exists(ai, CustomProperty.MetadataId.locallyCopied)) {
+                        //Find entries with no Google ID
+                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
                             String sigAi = signature(ai);
                             unclaimedAi.Add(ai);
 
@@ -1526,7 +1535,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     String CSVheader = "Start Time,Finish Time,Subject,Location,Description,Privacy,FreeBusy,";
                     CSVheader += "Required Attendees,Optional Attendees,Reminder Set,Reminder Minutes,";
                     CSVheader += "Outlook GlobalID,Outlook EntryID,Outlook CalendarID,";
-                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Copied";
+                    CSVheader += "Google EventID,Google CalendarID,OGCS Modified,Force Save,Original EntryID";
                     tw.WriteLine(CSVheader);
                     foreach (AppointmentItem ai in ais) {
                         try {
@@ -1575,7 +1584,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) ?? "") + ",");
             csv.Append(CustomProperty.GetOGCSlastModified(ai).ToPreciseUtcString() + ",");
             csv.Append((CustomProperty.Get(ai, CustomProperty.MetadataId.forceSave) ?? "") + ",");
-            csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.locallyCopied) ?? "");
+            csv.Append(CustomProperty.Get(ai, CustomProperty.MetadataId.oEntryID) ?? "");
 
             return csv.ToString();
         }
@@ -1834,5 +1843,56 @@ namespace OutlookGoogleCalendarSync.Outlook {
             return true;
         }
         #endregion
+
+        /// <summary>
+        /// Supports migration off of ExplorerWatcher for copy and pasted items; introduced v3.0.6
+        /// This can probably be removed in a future release, but is harmless to leave in.
+        /// </summary>
+        public void BackfillSourceEntryIDs(SettingsStore.Calendar profile) {
+            if (profile.SyncDirection.Id != Sync.Direction.Bidirectional.Id) return;
+
+            String backfillProfile = (profile.UseOutlookCalendar?.Id ?? "") + "|" + (profile.UseGoogleCalendar?.Id ?? "");
+            if (profile.SourceEntryIDBackfillProfile == backfillProfile) return;
+
+            log.Info("One-time backfilling of source EntryIDs for Outlook appointments that have been synced to Google, " +
+                "but don't have the Outlook EntryID stored as a custom property.");
+
+            MAPIFolder folder = null;
+            Items items = null;
+            Int32 stamped = 0;
+            Int32 failedStamps = 0;
+            try {
+                folder = IOutlook.GetFolderByID(profile.UseOutlookCalendar.Id);
+                items = folder.Items;
+                for (Int32 index = 1; index <= items.Count; index++) {
+                    Object item = null;
+                    AppointmentItem ai = null;
+                    try {
+                        item = items[index];
+                        ai = item as AppointmentItem;
+                        if (ai != null && CustomProperty.ExistAnyGoogleIDs(ai, profile) &&
+                            !CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile)) {
+                            CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                            ai.Save();
+                            stamped++;
+                        }
+                    } catch (System.Exception ex) {
+                        ex.LogAsFail().Analyse("Failed to backfill the Outlook source EntryID.");
+                        failedStamps++;
+                    } finally {
+                        item = ReleaseObject(item);
+                        ai = null;
+                    }
+                }
+                profile.SourceEntryIDBackfillProfile = backfillProfile;
+                log.Info("Backfilled source EntryIDs for " + stamped + " Outlook appointments.");
+                if (failedStamps > 0)
+                    log.Warn(failedStamps + " items failed to stamp.");
+
+            } finally {
+                items = (Items)ReleaseObject(items);
+                folder = (MAPIFolder)ReleaseObject(folder);
+            }
+        }
     }
 }
