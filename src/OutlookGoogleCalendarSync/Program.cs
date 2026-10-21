@@ -198,7 +198,7 @@ namespace OutlookGoogleCalendarSync {
                 try {
                     String delay = args[Array.IndexOf(args, "--delay") + 1];
                     log.Debug("Delay of " + delay + "s being migrated.");
-                    addRegKey(Microsoft.Win32.Registry.CurrentUser, delay);
+                    startupRegKey_add(Microsoft.Win32.Registry.CurrentUser, delay);
                     delayStartup(delay);
                 } catch (System.Exception ex) {
                     log.Error(ex.Message);
@@ -292,7 +292,7 @@ namespace OutlookGoogleCalendarSync {
 
         #region Application Behaviour
         #region Startup Registry Key
-        private static Microsoft.Win32.RegistryKey openStartupRegKey(Microsoft.Win32.RegistryKey hive, Boolean forWriting = false) {
+        private static Microsoft.Win32.RegistryKey startupRegKey_open(Microsoft.Win32.RegistryKey hive, Boolean forWriting = false) {
             String path = null;
             if (hive == Microsoft.Win32.Registry.CurrentUser) path = @"Software\Microsoft\Windows\CurrentVersion\Run";
             else if (hive == Microsoft.Win32.Registry.LocalMachine) path = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
@@ -314,31 +314,44 @@ namespace OutlookGoogleCalendarSync {
             if (startupConfigExists)
                 Program.RemoveShortcut(Environment.SpecialFolder.Startup);
 
-            Boolean startupConfigExistsHKCU = checkRegKey(Microsoft.Win32.Registry.CurrentUser);
-            Boolean startupConfigExistsHKLM = checkRegKey(Microsoft.Win32.Registry.LocalMachine);
+            Boolean startupConfigExistsHKCU = startupRegKey_exists(Microsoft.Win32.Registry.CurrentUser);
+            Boolean startupConfigExistsHKLM = startupRegKey_exists(Microsoft.Win32.Registry.LocalMachine);
 
             if (Settings.Instance.StartOnStartup) {
                 if (startupConfigExistsHKCU) log.Debug("Forcing update of HKCU startup registry key.");
-                addRegKey(Microsoft.Win32.Registry.CurrentUser);
+                startupRegKey_add(Microsoft.Win32.Registry.CurrentUser);
                 if (Settings.Instance.StartOnStartupAllUsers) {
                     if (startupConfigExistsHKLM) log.Debug("Forcing update of HKLM startup registry key.");
-                    addRegKey(Microsoft.Win32.Registry.LocalMachine);
+                    startupRegKey_add(Microsoft.Win32.Registry.LocalMachine);
                 } else {
-                    if (startupConfigExistsHKLM) removeRegKey(Microsoft.Win32.Registry.LocalMachine);
+                    if (startupConfigExistsHKLM) startupRegKey_remove(Microsoft.Win32.Registry.LocalMachine);
                     else log.Debug("No HKLM startup registry key to remove.");
                 }
             } else {
-                if (startupConfigExistsHKCU) removeRegKey(Microsoft.Win32.Registry.CurrentUser);
+                if (startupConfigExistsHKCU) startupRegKey_remove(Microsoft.Win32.Registry.CurrentUser);
                 else log.Debug("No HKCU startup registry key to remove.");
-                if (startupConfigExistsHKLM) removeRegKey(Microsoft.Win32.Registry.LocalMachine);
+                if (startupConfigExistsHKLM) startupRegKey_remove(Microsoft.Win32.Registry.LocalMachine);
                 else log.Debug("No HKLM startup registry key to remove.");
             }
         }
 
-        private static Boolean checkRegKey(Microsoft.Win32.RegistryKey hive) {
+        public static void RemoveStartupRegistryEntries() {
+            foreach (Microsoft.Win32.RegistryKey hive in new[] { Microsoft.Win32.Registry.CurrentUser, Microsoft.Win32.Registry.LocalMachine }) {
+                try {
+                    if (startupRegKey_exists(hive))
+                        startupRegKey_remove(hive);
+                    else
+                        log.Debug("No " + hive.ToString() + " startup registry key to remove.");
+                } catch (System.Exception ex) {
+                    ex.LogAsFail().Analyse("Failed removing " + hive.ToString() + " startup registry key.");
+                }
+            }
+        }
+
+        private static Boolean startupRegKey_exists(Microsoft.Win32.RegistryKey hive) {
             Microsoft.Win32.RegistryKey startupKey = null;
             try {
-                startupKey = openStartupRegKey(hive);
+                startupKey = startupRegKey_open(hive);
                 String[] regKeys = startupKey?.GetValueNames();
                 return regKeys?.Contains(Application.ProductName) ?? false;
             } finally {
@@ -346,8 +359,8 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static void addRegKey(Microsoft.Win32.RegistryKey hive, String startupDelay = null) {
-            Microsoft.Win32.RegistryKey startupKey = openStartupRegKey(hive, true);
+        private static void startupRegKey_add(Microsoft.Win32.RegistryKey hive, String startupDelay = null) {
+            Microsoft.Win32.RegistryKey startupKey = startupRegKey_open(hive, true);
             String keyValue = startupKey.GetValue(Application.ProductName, "").ToString();
             String delayedStartup = "";
             if (Convert.ToInt16(startupDelay ?? Settings.Instance.StartupDelay.ToString()) > 0)
@@ -374,11 +387,11 @@ namespace OutlookGoogleCalendarSync {
             startupKey.Close();
         }
 
-        private static void removeRegKey(Microsoft.Win32.RegistryKey hive) {
+        private static void startupRegKey_remove(Microsoft.Win32.RegistryKey hive) {
             log.Debug("Startup registry key being removed from " + hive.ToString());
             Microsoft.Win32.RegistryKey startupKey = null;
             try {
-                startupKey = openStartupRegKey(hive, true);
+                startupKey = startupRegKey_open(hive, true);
                 startupKey.DeleteValue(Application.ProductName, false);
             } finally {
                 startupKey?.Close();

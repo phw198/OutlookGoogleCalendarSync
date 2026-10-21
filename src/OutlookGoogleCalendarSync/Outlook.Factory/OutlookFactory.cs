@@ -68,7 +68,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             ProPlus2024Volume = 40,
             ProfessionalRetail = 41,
             ProPlusVolume = 42,
-            Standard2024Volume = 43
+            Standard2024Volume = 43,
+            HomeBusiness2024Retail = 44
         }
 
         private const Boolean testing2003 = false;
