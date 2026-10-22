@@ -285,8 +285,13 @@ namespace OutlookGoogleCalendarSync.Sync {
 
         /// <summary>Formats without seconds (subject to localised `g` format) and no zero-left padding for hour offset</summary>
         private static String FormatComparisonDateTime(DateTimeOffset value) {
-            return String.Format(CultureInfo.CurrentCulture, "{0} {1}:{2:00}", value.ToString("g", CultureInfo.CurrentCulture),
-                value.ToString("z", CultureInfo.CurrentCulture), Math.Abs(value.Offset.Minutes));
+            try {
+                return String.Format(CultureInfo.CurrentCulture, "{0} {1}:{2:00}", value.ToString("g", CultureInfo.CurrentCulture),
+                value.ToString("%z", CultureInfo.CurrentCulture), Math.Abs(value.Offset.Minutes));
+            } catch (System.Exception ex) {
+                ex.Analyse("Error formatting DateTimeOffset for comparison");
+                return value.ToString();
+            }
         }
 
         #endregion
