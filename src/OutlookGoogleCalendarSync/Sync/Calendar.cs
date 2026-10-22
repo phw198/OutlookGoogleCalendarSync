@@ -149,9 +149,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
                                         mainFrm.Console.BuildOutput(ex.Data["OGCS"].ToString(), ref sb);
-                                        mainFrm.Console.UpdateAndNotify(sb, "sync-error-details", (ex.LoggingAsFail() ? Console.Markup.fail : Console.Markup.error));
-                                        if (ex.Data["OGCS"].ToString().Contains("try again")) {
+                                        if (ex.Data["OGCS"].ToString().Contains("try again") || ex.IsTransientNetworkError()) {
                                             syncResult = Sync.Engine.SyncResult.AutoRetry;
+                                            mainFrm.Console.Update(sb, Console.Markup.fail);
+                                        } else {
+                                            mainFrm.Console.UpdateAndNotify(sb, "sync-error-details", Console.Markup.fail);
                                         }
 
                                     } else {
@@ -171,11 +173,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = SyncResult.ReconnectThenRetry;
 
                                         } else if (ex.IsTransientNetworkError()) {
-                                            //Eg no internet, DNS failure, connection reset, timeout - don't interrupt the user with a
-                                            //modal "try again?" prompt for what's likely a temporary connectivity blip (#1150) - just
-                                            //log it and let the next scheduled sync retry automatically, same as other known-transient errors.
-                                            Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                            mainFrm.Console.Update("A network connectivity problem was encountered.<br/>Will retry at the next scheduled sync.", Console.Markup.fail); //AutoRetry result raises its own notification
+                                            mainFrm.Console.Update("A network connectivity problem was encountered.<br/>Will retry at the next scheduled sync.", Console.Markup.fail);
                                             syncResult = SyncResult.AutoRetry;
 
                                         } else {
@@ -542,10 +540,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                     ex.AnalyseTokenResponse(false);
                     return SyncResult.Fail;
                 } catch (System.Net.Http.HttpRequestException ex) {
-                    if (ex.InnerException != null && ex.InnerException is System.Net.WebException && ex.InnerException.GetErrorCode() == "0x80131509") {
-                        ex = Ogcs.Exception.LogAsFail(ex) as System.Net.Http.HttpRequestException;
-                    }
-                    Ogcs.Exception.Analyse(ex);
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
                     throw;
                 } catch (System.ApplicationException ex) {
@@ -567,10 +561,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                     throw;
                 } catch (System.Exception ex) {
-                    Ogcs.Exception.Analyse(ex);
+                    ex.Analyse();
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
-                    if (ex.GetErrorCode() == "0x8013153B") //ex.Message == "A task was canceled." - likely timed out.
-                        ex.Data["OGCS"] += " Please try again.";
                     throw;
                 }
                 String consoleOutput = googleEntries.Count + " Google calendar entries found.";

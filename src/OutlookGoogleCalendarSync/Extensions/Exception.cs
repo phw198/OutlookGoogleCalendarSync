@@ -146,8 +146,11 @@ namespace OutlookGoogleCalendarSync {
             if (ex is System.Net.Sockets.SocketException ||
                 ex is System.Net.WebException ||
                 ex is System.Net.Http.HttpRequestException ||
-                ex is System.Threading.Tasks.TaskCanceledException) //Typically a network timeout, not user cancellation - that's handled separately via CancellationPending.
+                ex is System.Threading.Tasks.TaskCanceledException //Typically a network timeout, not user cancellation - that's handled separately via CancellationPending.
+            ) {
+                ex.LogAsFail().Analyse("Network connectivity problem encountered.");
                 return true;
+            }
             if (ex.InnerException != null)
                 return IsTransientNetworkError(ex.InnerException);
             return false;
