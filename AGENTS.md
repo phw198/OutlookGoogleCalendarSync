@@ -39,6 +39,7 @@
 - Documented the modern toast lifecycle, per-process routing, and orphaned activation handling in [.ai/architecture.md](.ai/architecture.md).
 - Corrected the toast manager event hookup to the installed toolkit contract (`OnActivated` takes a single `ToastNotificationActivatedEventArgsCompat` parameter), matching the actual 7.1.3 delegate shape and clearing the compile-time mismatch. Immediate next step: validate this on a Windows/ .NET Framework 4.7.2 environment because the Linux build here cannot restore the required targeting pack.
 - Added graceful modern-toast shutdown cleanup: modern notifications now use process-specific tags, and tray exit unsubscribes activation, cancels the named-pipe listener, and removes only that process's tracked toast history. Legacy notification bubbles remain unchanged. Diagnostics pass on Linux; Windows/.NET Framework validation is still required.
+- Updated [src/OutlookGoogleCalendarSync/Sync/Calendar.cs](src/OutlookGoogleCalendarSync/Sync/Calendar.cs) so only user-cancelled `TaskCanceledException` paths produce `SyncResult.UserCancelled`, while preserving OGCS error context output. Added focused exception-helper and transient-network coverage; the test project builds successfully, but the legacy `dotnet test` invocation emits no test execution summary.
 
 ## Testing Guidance
 - Before creating or amending tests, inspect nearby and related existing tests for conflicting expectations or duplicate coverage.
