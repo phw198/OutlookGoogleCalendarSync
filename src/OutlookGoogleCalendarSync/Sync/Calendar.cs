@@ -182,6 +182,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = SyncResult.Fail;
                                         }
                                     }
+                                    if ((Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested) && ex.IsTaskCancellation())
+                                        syncResult = SyncResult.UserCancelled;
                                 }
                             }
                         );

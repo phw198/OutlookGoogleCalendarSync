@@ -141,12 +141,16 @@ namespace OutlookGoogleCalendarSync {
         /// to a genuine application/configuration error that a user needs to look at.
         /// </summary>
         public static Boolean IsTransientNetworkError(this System.Exception ex) {
+            if (ex.IsTaskCancellation() && (Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested))
+                return false; //User cancelled, not a network problem.
+
             if (ex is AggregateException aex && aex.InnerException != null)
                 return IsTransientNetworkError(aex.InnerException);
+
             if (ex is System.Net.Sockets.SocketException ||
                 ex is System.Net.WebException ||
                 ex is System.Net.Http.HttpRequestException ||
-                ex is System.Threading.Tasks.TaskCanceledException //Typically a network timeout, not user cancellation - that's handled separately via CancellationPending.
+                ex is System.Threading.Tasks.TaskCanceledException
             ) {
                 ex.LogAsFail().Analyse("Network connectivity problem encountered.");
                 return true;
@@ -154,6 +158,14 @@ namespace OutlookGoogleCalendarSync {
             if (ex.InnerException != null)
                 return IsTransientNetworkError(ex.InnerException);
             return false;
+        }
+
+        public static Boolean IsTaskCancellation(this System.Exception ex) {
+            if (ex is System.Threading.Tasks.TaskCanceledException)
+                return true;
+            if (ex is AggregateException aex)
+                return aex.InnerExceptions.Any(IsTaskCancellation);
+            return ex.InnerException != null && IsTaskCancellation(ex.InnerException);
         }
 
         public static String FriendlyMessage(this System.Exception ex) {
