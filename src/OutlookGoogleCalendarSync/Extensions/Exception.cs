@@ -135,6 +135,39 @@ namespace OutlookGoogleCalendarSync {
             if (throwError) throw ex;
         }
 
+        /// <summary>
+        /// Whether this exception (or any exception in its chain) represents a transient network
+        /// connectivity problem - eg no internet, DNS failure, connection reset, timeout - as opposed
+        /// to a genuine application/configuration error that a user needs to look at.
+        /// </summary>
+        public static Boolean IsTransientNetworkError(this System.Exception ex) {
+            if (ex.IsTaskCancellation() && (Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested))
+                return false; //User cancelled, not a network problem.
+
+            if (ex is AggregateException aex && aex.InnerException != null)
+                return IsTransientNetworkError(aex.InnerException);
+
+            if (ex is System.Net.Sockets.SocketException ||
+                ex is System.Net.WebException ||
+                ex is System.Net.Http.HttpRequestException ||
+                ex is System.Threading.Tasks.TaskCanceledException
+            ) {
+                ex.LogAsFail().Analyse("Network connectivity problem encountered.");
+                return true;
+            }
+            if (ex.InnerException != null)
+                return IsTransientNetworkError(ex.InnerException);
+            return false;
+        }
+
+        public static Boolean IsTaskCancellation(this System.Exception ex) {
+            if (ex is System.Threading.Tasks.TaskCanceledException)
+                return true;
+            if (ex is AggregateException aex)
+                return aex.InnerExceptions.Any(IsTaskCancellation);
+            return ex.InnerException != null && IsTaskCancellation(ex.InnerException);
+        }
+
         public static String FriendlyMessage(this System.Exception ex) {
             if (ex is global::Google.GoogleApiException gaex) {
                 if (gaex.Error != null)
