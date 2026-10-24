@@ -41,9 +41,62 @@ This project is developed under a specific cross-platform setup that requires ca
   - *Rationale*: The Language Server itself is a .NET Core/.NET application and needs a compatible runtime to execute. It then uses .NET Framework reference assemblies (if configured via `Microsoft.NETFramework.ReferenceAssemblies` NuGet package) to provide correct IntelliSense for .NET Framework projects.
 - **`dotnet` executable**: Ensure the `dotnet` executable is in the system's PATH or explicitly configured in VS Code settings (`dotnet.dotnetPath`).
 
+### **Linux Compile-Only Validation**
+
+The .NET 8 SDK can be used on Linux to compile-check this .NET Framework 4.7.2 solution when the targeting references and resource-generation dependency are supplied temporarily. This does not make the application or its full test suite runnable on Linux.
+
+With the repository's NuGet dependencies already restored, prepare temporary references outside the repository:
+
+```bash
+mkdir -p /tmp/ogcs-net472-ref /tmp/ogcs-resources-ref
+curl -fLsS -o /tmp/ogcs-net472.nupkg \
+  https://api.nuget.org/v3-flatcontainer/microsoft.netframework.referenceassemblies.net472/1.0.3/microsoft.netframework.referenceassemblies.net472.1.0.3.nupkg
+unzip -q -o /tmp/ogcs-net472.nupkg 'build/.NETFramework/*' -d /tmp/ogcs-net472-ref
+curl -fLsS -o /tmp/ogcs-resources.nupkg \
+  https://api.nuget.org/v3-flatcontainer/system.resources.extensions/4.7.1/system.resources.extensions.4.7.1.nupkg
+unzip -q -o /tmp/ogcs-resources.nupkg 'lib/net461/System.Resources.Extensions.dll' -d /tmp/ogcs-resources-ref
+```
+
+Create `/tmp/ogcs-build-targets.targets` with the resource assembly reference:
+
+```xml
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="System.Resources.Extensions">
+      <HintPath>/tmp/ogcs-resources-ref/lib/net461/System.Resources.Extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
+```
+
+Build the test project and its app project reference:
+
+```bash
+dotnet build src/OutlookGoogleCalendarSync.Tests/OutlookGoogleCalendarSync.Tests.csproj --no-restore -v:q \
+  -p:DefineConstants=DEVELOP_AGAINST_2007 \
+  -p:TargetFrameworkRootPath=/tmp/ogcs-net472-ref/build/ \
+  -p:GenerateResourceUsePreserializedResources=true \
+  -p:CustomAfterMicrosoftCommonTargets=/tmp/ogcs-build-targets.targets \
+  -p:GenerateClickOnceManifests=false -p:PostBuildEvent=
+```
+
+The C# compile can complete before the build fails in the app's Windows-only PowerShell post-build script (for example, `fixValueTuple.ps1`). Treat compiler diagnostics such as `error CS...` as compile failures; a PowerShell/post-build failure still means the overall build did not succeed. Once the app assembly has been produced, compile-check the test assembly separately:
+
+```bash
+dotnet build src/OutlookGoogleCalendarSync.Tests/OutlookGoogleCalendarSync.Tests.csproj --no-restore -v:q \
+  -p:BuildProjectReferences=false \
+  -p:DefineConstants=DEVELOP_AGAINST_2007 \
+  -p:TargetFrameworkRootPath=/tmp/ogcs-net472-ref/build/ \
+  -p:GenerateResourceUsePreserializedResources=true \
+  -p:CustomAfterMicrosoftCommonTargets=/tmp/ogcs-build-targets.targets \
+  -p:GenerateClickOnceManifests=false -p:PostBuildEvent=
+```
+
+Do not use this workflow to claim that tests passed. The Linux `dotnet vstest` installation may also lack `testhost.net472.exe`; the full .NET Framework test runner is not available there. There is no value in repeatedly attempting to run the full .NET Framework test suite on Linux: execute it on Windows with the .NET Framework 4.7.2 Developer Pack and a compatible test host. Outlook COM integration and UI behavior must be validated on Windows with classic Outlook installed.
+
 ### **Visual Studio (Windows VM) Workflow**
 
-- **Building and Testing**: All actual compilation, execution, and test running must be performed within Visual Studio Community 2019 on the Windows 10 VirtualBox guest.
+- **Full Builds and Testing**: Full builds, application execution, and test running must be performed within Visual Studio Community 2019 on the Windows 10 VirtualBox guest. The Linux procedure above is supplementary compile-only validation.
 - **MSTest Framework**: Use the "Unit Test Project (.Net Framework)" template when creating new test projects, as this aligns with the existing project's target framework and leverages built-in Visual Studio features.
 - **Assembly Reference Management**:
     - **Project References**: For custom code within the solution (e.g., `OutlookGoogleCalendarSync` project), add a direct Project Reference from the test project.
