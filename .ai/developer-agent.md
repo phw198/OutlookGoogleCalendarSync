@@ -25,6 +25,7 @@ When assisting with code modifications, debugging, or documentation:
 
 ## Key Files to Monitor
 - **Memory Log**: Always refer to the branch-scoped WIP note for current progress and active tasks. Use the root-level [AGENTS.md](../AGENTS.md) for significant project-level milestones and durable guidance, and update it only when such a milestone is established.
+- **Knowledge Base**: Consult [.ai/knowledge/index.md](knowledge/index.md) when an issue may match stored domain knowledge. Add concise, source-linked case notes there when an investigation establishes durable context that is not specific to one branch's current progress.
 - **Rules Config**: Ensure actions adhere to the root-level [.clinerules](../.clinerules).
 
 ## Development Environment Specifics
