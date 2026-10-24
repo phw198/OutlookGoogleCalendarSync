@@ -73,19 +73,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                         this.setNextSync(false, updateSyncSchedule);
                         return;
                     }
-                    //Check if Outlook is Online
-                    try {
-                        if (!this.Profile.IsOutlookOnline && Outlook.Calendar.Instance.IOutlook.Offline() && this.Profile.AddAttendees) {
-                            mainFrm.Console.UpdateAndNotify("<p>You have selected to sync attendees but Outlook is currently offline.</p>" +
-                                "<p>Either put Outlook online or do not sync attendees.</p>", "outlook-client-offline", Console.Markup.error);
-                            this.setNextSync(false, updateSyncSchedule);
-                            return;
-                        }
-                    } catch (System.Exception ex) {
-                        mainFrm.Console.UpdateWithErrorAndNotify(null, ex, "outlook-client-online-status-error");
-                        Ogcs.Exception.Analyse(ex, true);
-                        return;
-                    }
                     Ogcs.Google.Calendar.APIlimitReached_attendee = false;
 
                     this.Profile.OgcsTimer.NextSyncDateText = "In progress...";
@@ -140,6 +127,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                             delegate (object o, DoWorkEventArgs args) {
                                 BackgroundWorker b = o as BackgroundWorker;
                                 try {
+                                    if (!this.Profile.IsOutlookOnline && Outlook.Calendar.Instance.IOutlook.Offline() && this.Profile.AddAttendees) {
+                                        mainFrm.Console.Update("You have selected to sync attendees but Outlook is currently offline.<br/>" +
+                                            "Either put Outlook online or do not sync attendees.", Console.Markup.fail);
+                                        syncResult = SyncResult.AutoRetry;
+                                        return;
+                                    }
                                     if (this.Profile.IsOutlookOnline)
                                         syncResult = manualIgnition ? CloudCalendar.Instance.ManualSynchronize() : CloudCalendar.Instance.Synchronize();
                                     else
@@ -158,7 +151,15 @@ namespace OutlookGoogleCalendarSync.Sync {
 
                                     } else {
                                         Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                                        if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
+                                        if (!this.Profile.IsOutlookOnline &&
+                                            (error == Outlook.Errors.ErrorType.ExchangeUnavailable || Outlook.Errors.IsExchangeUnavailable(ex))) //
+                                        {
+                                            Outlook.Calendar.ExchangeUnavailable = true;
+                                            Ogcs.Exception.LogAsFail(ex);
+                                            mainFrm.Console.Update("Outlook cannot connect to Exchange.<br/>Will retry at the next scheduled sync.", Console.Markup.fail);
+                                            syncResult = SyncResult.AutoRetry;
+
+                                        } else if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                                             error == Outlook.Errors.ErrorType.RpcFailed ||
                                             error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients) //
                                         {
@@ -216,6 +217,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     stopwatch.Stop();
 
                     if (syncResult == SyncResult.OK) {
+                        if (!this.Profile.IsOutlookOnline)
+                            Outlook.Calendar.ExchangeUnavailable = false;
                         Settings.Instance.CompletedSyncs++;
                         this.consecutiveSyncFails = 0;
                         mainFrm.Console.Update("Sync finished!", Console.Markup.checkered_flag);
@@ -377,6 +380,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 continue;
                             }
                         } catch (System.Exception ex) {
+                            if (Outlook.Errors.HandleComError(ex) == Outlook.Errors.ErrorType.ExchangeUnavailable || Outlook.Errors.IsExchangeUnavailable(ex))
+                                throw;
                             ex.Analyse("Encountered error casting calendar object to AppointmentItem - cannot sync it. ExchangeMode=" +
                                 Outlook.Calendar.Instance.IOutlook.ExchangeConnectionMode().ToString());
                             skipCorruptedItem(ref outlookEntries, outlookEntries[o], ex.Message);
@@ -393,9 +398,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                             checkStartDate = ai.Start;
                             checkEndDate = ai.End;
                         } catch (System.Runtime.InteropServices.COMException ex) {
+                            Boolean exchangeIsUnavailable = false;
                             if (ex.GetErrorCode() == "0x80040305" || //Your server administrator has limited the number of items you can open simultaneously.
-                                Ogcs.Exception.GetErrorCode(ex, 0x000FFFFF) == "0x00040115") //Network problems are preventing connection to Microsoft Exchange.
+                                (exchangeIsUnavailable = Outlook.Errors.HandleComError(ex) == Outlook.Errors.ErrorType.ExchangeUnavailable))
                             {
+                                if (exchangeIsUnavailable) Outlook.Calendar.ExchangeUnavailable = true;
                                 Forms.Main.Instance.Console.UpdateWithError("Cannot continue synchronising.", ex);
                                 return SyncResult.AutoRetry;
                             } else if (ex.GetErrorCode(0x0000FFFF) == "0x00004005") { //You must specify a time/hour

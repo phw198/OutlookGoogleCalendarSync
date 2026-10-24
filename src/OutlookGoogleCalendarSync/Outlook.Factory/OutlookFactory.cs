@@ -9,6 +9,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(Factory));
         /// <summary>Full Outlook version number, eg: 16.0.0.5562</summary>
         private static String outlookVersionFull;
+        private static volatile Boolean versionResolved;
+        public static Boolean IsVersionKnown { get { return versionResolved; } }
         /// <summary>Major Outlook version number, eg: 16</summary>
         private static Int16 outlookVersion;
 
@@ -16,7 +18,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static String outlookVersionNameFull;
         public static String OutlookVersionNameFull {
             get {
-                if (string.IsNullOrEmpty(outlookVersionNameFull)) {
+                if (!IsVersionKnown) {
                     getOutlookVersion();
                     Telemetry.Instance.OutlookVersion = outlookVersionFull;
                     Telemetry.Instance.OutlookVersionName = outlookVersionNameFull.Replace("Outlook", "");
@@ -27,7 +29,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static OutlookVersionNames outlookVersionName;
         public static OutlookVersionNames OutlookVersionName {
             get {
-                if (string.IsNullOrEmpty(outlookVersionFull)) getOutlookVersion();
+                if (!IsVersionKnown) getOutlookVersion();
                 return outlookVersionName;
             }
         }
@@ -90,8 +92,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (NoClient()) {
                 outlookVersionFull = ((Int16)OutlookVersionNames.None).ToString();
             } else {
-                Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
                 try {
+                    Ogcs.Outlook.Calendar.AttachToOutlook(ref oApp);
                     int attempts = 1;
                     int maxAttempts = 3;
                     while (attempts <= maxAttempts) {
@@ -139,6 +141,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             log.Info("Outlook Version: " + outlookVersionFull);
             outlookVersion = Convert.ToInt16(outlookVersionFull.Split(Convert.ToChar("."))[0]);
             getOutlookVersionName(outlookVersion, outlookVersionFull);
+            versionResolved = true;
         }
 
         private static void getOutlookVersionName(Int16 version, String versionFull) {

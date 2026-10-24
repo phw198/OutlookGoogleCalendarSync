@@ -25,3 +25,7 @@ The `<No category assigned>` category can be used in either category filter mode
 When an error is explicitly marked to log as a failure, the failure status is
 applied to the aggregate exception and all of its inner exceptions, including
 nested aggregate exceptions.
+
+## Classic Outlook and Exchange Connectivity
+
+If classic Outlook cannot connect to Exchange when OGCS starts, OGCS remains open, retains the configured Outlook calendar and sync schedule, and reports the connection problem on the Sync tab and in a tray notification. It tries again when the next configured sync or push check runs, or when a sync is started manually. If the connection drops while scanning the Outlook calendar, the sync stops rather than treating missing appointments as deletions. A tray notification reports the failed sync, and the next scheduled sync tries again. Other Outlook errors continue to be reported separately.

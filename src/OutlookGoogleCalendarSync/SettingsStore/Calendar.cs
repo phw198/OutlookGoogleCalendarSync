@@ -334,7 +334,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 log.Info("  AddColours: " + AddColours);
                 if (ColourMaps.Count > 0) {
                     log.Info("  Custom Colour/Category Mapping:-");
-                    if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
+                    if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                         log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                     else
                         ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories?.OutlookColour(c.Key) + ":" + c.Key + " <=> " +
