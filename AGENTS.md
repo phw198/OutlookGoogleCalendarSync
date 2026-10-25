@@ -19,7 +19,7 @@
 - Keep [docs/testing.md](docs/testing.md) current as a user-focused reference for application behavior covered by automated tests. Do not include implementation, source-code, test-framework, or test-location details.
 
 ## C# Naming
-- Use PascalCase only for public members and types. Private and internal members must begin with a lower-case character.
+- Use PascalCase for public and internal members and types. Private methods use lower camelCase.
 - Use `using Ogcs = OutlookGoogleCalendarSync;` as the only import for the OGCS project namespace. Reference OGCS types with their fully qualified namespace from `Ogcs`.
 - For a function whose parameter list spans multiple lines, append `//` to the final parameter line and put the opening brace on the following line.
 
