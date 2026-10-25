@@ -12,19 +12,39 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(Recurrence));
 
         public static void BuildOutlookPattern(Event ev, AppointmentItem ai) {
-            RecurrencePattern ignore;
-            buildOutlookPattern(ev, ai, out ignore);
-            ignore = (RecurrencePattern)Outlook.Calendar.ReleaseObject(ignore);
+            RecurrencePattern ignore = null;
+            try {
+                buildOutlookPattern(ev, ai, ref ignore);
+            } finally {
+                ignore = (RecurrencePattern)Outlook.Calendar.ReleaseObject(ignore);
+            }
         }
 
-        private static void buildOutlookPattern(Event ev, AppointmentItem ai, out RecurrencePattern oPattern) {
-            if (ev.Recurrence == null) { oPattern = null; return; }
+        /// <summary>
+        /// Converts an instant to a local date and time in the specified Outlook timezone.
+        /// </summary>
+        internal static System.DateTime TimeInOutlookZone(System.DateTimeOffset instant, String windowsTimeZone) {
+            return TimeZoneInfo.ConvertTime(instant.UtcDateTime, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZone));
+        }
+
+        private static void buildOutlookPattern(Event ev, AppointmentItem ai, ref RecurrencePattern oPattern) {
+            if (ev.Recurrence == null) return;
 
             Dictionary<String, String> ruleBook = Google.Recurrence.ExplodeRrule(ev.Recurrence);
             if (ruleBook == null) {
                 throw new ApplicationException("WARNING: The recurrence pattern is not compatible with Outlook. This event cannot be synced.");
             }
             log.Fine("Building Outlook recurrence pattern");
+            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
+            System.DateTime patternStartDate = ev.Start.SafeDateTime();
+            System.DateTime? patternStartTime = null;
+            System.DateTime? patternEndTime = null;
+            if (!ev.AllDayEvent() && !(Outlook.Calendar.Instance.IOutlook is OutlookOld)) {
+                Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_get(ai, out String startTimeZone, out _);
+                patternStartTime = TimeInOutlookZone(ev.Start.SafeDateTimeOffset(), startTimeZone);
+                patternEndTime = TimeInOutlookZone(ev.End.SafeDateTimeOffset(), startTimeZone);
+                patternStartDate = patternStartTime.Value.Date;
+            }
             oPattern = ai.GetRecurrencePattern();
 
             #region RECURRENCE PATTERN
@@ -52,7 +72,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             int gInstance = Convert.ToInt16(ruleBook["BYSETPOS"]);
                             oPattern.Instance = (gInstance == -1) ? 5 : gInstance;
                             oPattern.DayOfWeekMask = getDOWmask(ruleBook);
-                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 && ev.Start.SafeDateTime().Day > 28) {
+                            if (oPattern.DayOfWeekMask == (OlDaysOfWeek)127 && gInstance == -1 && patternStartDate.Day > 28) {
                                 //In Outlook this is simply a monthly recurring
                                 oPattern.RecurrenceType = OlRecurrenceType.olRecursMonthly;
                             }
@@ -92,8 +112,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #endregion
 
             #region RANGE
-            ai = Outlook.Calendar.Instance.IOutlook.WindowsTimeZone_set(ai, ev);
-            oPattern.PatternStartDate = ev.Start.SafeDateTime();
+            oPattern.PatternStartDate = patternStartDate;
+            if (patternStartTime.HasValue) {
+                oPattern.StartTime = patternStartTime.Value;
+                oPattern.EndTime = patternEndTime.Value;
+            }
             if (ruleBook.ContainsKey("INTERVAL") && Convert.ToInt16(ruleBook["INTERVAL"]) > 1 && ruleBook["FREQ"] != "YEARLY")
                 oPattern.Interval = Convert.ToInt16(ruleBook["INTERVAL"]);
             if (ruleBook.ContainsKey("COUNT"))
@@ -130,7 +153,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             RecurrencePattern evOpattern = null;
             try {
-                buildOutlookPattern(ev, evAI, out evOpattern);
+                buildOutlookPattern(ev, evAI, ref evOpattern);
                 log.Fine("Comparing Google recurrence to Outlook equivalent");
 
                 //Some versions of Outlook are erroring when 2-way syncing weekday recurring series.
@@ -167,6 +190,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (Sync.Engine.CompareAttribute("Recurrence Occurences", syncDirection,
                     evOpattern.Occurrences.ToString(), aiOpattern.Occurrences.ToString(), sb, ref itemModified)) {
                     aiOpattern.Occurrences = evOpattern.Occurrences;
+                }
+                if (!evOpattern.NoEndDate && ev.Recurrence.Any(rule => rule.StartsWith("RRULE:") && rule.Contains("UNTIL=")) &&
+                    Sync.Engine.CompareAttribute("Recurrence End Date", syncDirection,
+                    evOpattern.PatternEndDate.Date.ToShortDateString(), aiOpattern.PatternEndDate.Date.ToShortDateString(), sb, ref itemModified)) {
+                    aiOpattern.PatternEndDate = evOpattern.PatternEndDate;
                 }
             } finally {
                 evOpattern = (RecurrencePattern)Outlook.Calendar.ReleaseObject(evOpattern);

@@ -598,14 +598,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             oPattern = ai.GetRecurrencePattern();
                             if (startChange) {
-                                System.DateTime convertedStart = TimeZoneInfo.ConvertTime(evStartParsedDate.UtcDateTime, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                System.DateTime convertedStart = Recurrence.TimeInOutlookZone(evStartParsedDate, newStartTZ);
                                 oPattern.PatternStartDate = convertedStart.Date;
                                 oPattern.StartTime = convertedStart;
                             }
                             if (endChange) {
-                                System.DateTime convertedEnd = TimeZoneInfo.ConvertTime(evEndParsedDate.UtcDateTime, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
-                                oPattern.PatternEndDate = convertedEnd.Date;
-                                oPattern.EndTime = convertedEnd;
+                                oPattern.EndTime = Recurrence.TimeInOutlookZone(evEndParsedDate, newStartTZ);
                             }
                         }
                     } else {
