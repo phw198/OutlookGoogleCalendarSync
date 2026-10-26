@@ -2,6 +2,12 @@
 
 This document records the calendar-sync behaviour users can expect.
 
+## Google To Outlook Recurring Events
+
+- When a timed recurring event crosses midnight in its Outlook timezone, its series begins on the date of the converted local start time, even if that is the previous or next calendar day.
+- A timed event's start and end can use different timezones; each instant is converted using the timezone rules at the event date, including daylight-saving transitions.
+- The series' final date follows the recurrence rule, not the end date of its first occurrence.
+
 ## Reminder Sync
 
 The Reminders option has three states:

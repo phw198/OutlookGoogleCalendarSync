@@ -253,7 +253,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 if (rruleUntil.EndsWith("T000000Z"))
                     return endDate.Date;
                 else
-                    return endDate.AddMinutes(TimezoneDB.GetUtcOffset(endTimeZone)).Date;
+                    return endDate.AddMinutes(TimezoneDB.GetUtcOffset(endTimeZone, endDate)).Date;
             }
         }
 
