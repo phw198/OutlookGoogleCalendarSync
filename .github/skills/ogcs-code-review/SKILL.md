@@ -34,6 +34,17 @@ Each parameter may appear at most once and must have a non-empty value. Reject m
    - Compliance with the repository's coding standards where it affects maintainability or correctness.
 5. Do not modify files, create commits, or make formatting-only suggestions. Do not report speculative style preferences as findings. Do not report pre-existing defects unless the reviewed changes make them worse or directly expose them.
 
+## Post-review knowledge and backlog check
+
+After completing the technical review, check whether it surfaced verified, durable knowledge that would help future AI context windows understand OGCS. Consider relevant architecture, UI or user-visible behaviour, important invariants, and project-specific code paths or conventions. Check the relevant existing AI guidance before recommending additions; avoid duplicating it or recording review-specific progress. Keep any proposed knowledge concise but sufficiently explanatory to provide useful context.
+
+Also consider whether the review revealed worthwhile longer-term product improvements outside the reviewed change:
+- For a small reminder, provide a concise title and description suitable for manual entry into the GitHub Project.
+- For a substantial enhancement, suggest a GitHub Issue with a concise title and draft description. Do not create an issue unless the user explicitly approves it.
+- Do not turn speculative ideas or unrelated pre-existing defects into backlog recommendations.
+
+The review remains read-only: identify and explain proposed AI-knowledge updates, but do not edit AI files or other repository files as part of the review.
+
 ## Response Format
 
 Present findings first, sorted by severity. Each finding must include:
@@ -47,5 +58,7 @@ Then include:
 - **Open questions / assumptions**: Only items that materially limit confidence.
 - **Summary**: Reviewed branch, comparison base, commit range, issue context (if supplied), and a brief assessment.
 - **Test gaps**: Focused tests or manual checks needed to cover risks not validated by the existing changes.
+- **AI knowledge**: Concise proposed updates with target AI file and rationale, or state that none were identified.
+- **Backlog suggestions**: Small reminders as a title and short description; substantial enhancements as a suggested issue title and draft description; or state that none were identified. Do not create an issue without explicit approval.
 
 If no findings are identified, state that clearly before the summary. Never claim to have run tests unless you actually ran them.
