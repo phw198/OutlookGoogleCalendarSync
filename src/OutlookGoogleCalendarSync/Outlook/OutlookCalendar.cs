@@ -18,8 +18,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
     public class Calendar {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
-        private static Calendar instance;
+        private static volatile Calendar instance;
+        private static readonly Object instanceLock = new Object();
         public static Boolean IsInstanceNull { get { return instance == null; } }
+        private static volatile Boolean connecting;
+        public static Boolean Connecting { get { return connecting; } }
+        private static volatile Boolean exchangeUnavailable;
+        public static Boolean ExchangeUnavailable {
+            get { return exchangeUnavailable; }
+            internal set { exchangeUnavailable = value; }
+        }
         public Interface IOutlook;
 
         /// <summary>Whether instance of OutlookCalendar class should connect to Outlook application</summary>
@@ -27,21 +35,40 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         public static Calendar Instance {
             get {
-                try {
-                    instance ??= new Ogcs.Outlook.Calendar();
-                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()) {
-                        instance.IOutlook.Connect();
+                lock (instanceLock) {
+                    connecting = true;
+                    try {
+                        instance ??= new Ogcs.Outlook.Calendar();
+                        if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()) {
+                            instance.IOutlook.Connect();
+                            ExchangeUnavailable = false;
+                        }
+                    } catch (System.ApplicationException ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex))
+                            ExchangeUnavailable = true;
+                        throw;
+                    } catch (System.Exception ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex)) {
+                            ExchangeUnavailable = true;
+                            throw;
+                        }
+                        if (ex is System.Runtime.InteropServices.COMException) Ogcs.Exception.LogAsFail(ref ex);
+                        Ogcs.Exception.Analyse(ex);
+                        log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
+                        instance = new Calendar();
+                        try {
+                            instance.IOutlook.Connect();
+                            ExchangeUnavailable = false;
+                        } catch (System.Exception reconnectException) {
+                            if (Outlook.Errors.IsExchangeUnavailable(reconnectException))
+                                ExchangeUnavailable = true;
+                            throw;
+                        }
+                    } finally {
+                        connecting = false;
                     }
-                } catch (System.ApplicationException) {
-                    throw;
-                } catch (System.Exception ex) {
-                    if (ex is System.Runtime.InteropServices.COMException) Ogcs.Exception.LogAsFail(ref ex);
-                    Ogcs.Exception.Analyse(ex);
-                    log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
-                    instance = new Calendar();
-                    instance.IOutlook.Connect();
+                    return instance;
                 }
-                return instance;
             }
         }
         
@@ -94,7 +121,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             try {
                 InstanceConnect = false;
-                Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+                instance.IOutlook.Disconnect(onlyWhenNoGUI);
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not disconnect from Outlook.");
             } finally {
@@ -194,6 +221,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
+                    } catch (System.Runtime.InteropServices.COMException ex) when (Outlook.Errors.IsExchangeUnavailable(ex)) {
+                        throw;
                     } catch {
                         log.Warn("Encountered a non-appointment item in the calendar.");
                         if (obj is MeetingItem) log.Debug("It is a meeting item.");
@@ -222,6 +251,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         continue;
 
                     } catch (System.Exception ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex))
+                            throw;
                         Ogcs.Exception.Analyse(ex, true);
                         log.Debug("Unable to get End date for: " + GetEventSummary(ai));
                         continue;
@@ -236,6 +267,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             try {
                                 filtered = Categories.isExcludedByFilter(ai.Categories, profile.Categories, profile.CategoriesRestrictBy);
                             } catch (System.Runtime.InteropServices.COMException ex) {
+                                if (Outlook.Errors.IsExchangeUnavailable(ex))
+                                    throw;
                                 if (ex.TargetSite.Name == "get_Categories") {
                                     log.Warn("Could not access Categories property for " + GetEventSummary(ai));
                                     filtered = Categories.isExcludedByFilter(null, profile.Categories, profile.CategoriesRestrictBy);
@@ -1242,6 +1275,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if (oApp == null)
                         throw new ApplicationException("GetActiveObject() returned NULL without throwing an error.");
                 } catch (System.Exception ex) {
+                    if (Outlook.Errors.IsExchangeUnavailable(ex))
+                        throw;
                     if (ex is ApplicationException) {
                         log.Warn(ex.Message);
                     } else if (ex is ArgumentNullException) {
@@ -1329,17 +1364,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } catch (System.Runtime.InteropServices.COMException ex) {
                 Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex, out String hResult);
 
-                if (error == Outlook.Errors.ErrorType.RpcRejected ||
+                if (error == Outlook.Errors.ErrorType.ExchangeUnavailable) {
+                    throw;
+
+                } else if (error == Outlook.Errors.ErrorType.RpcRejected ||
                     error == Outlook.Errors.ErrorType.PermissionFailure ||
                     error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                     error == Outlook.Errors.ErrorType.RpcFailed) //
                 {
                     log.Warn(ex.Message);
-                    throw new ApplicationException("Outlook is busy.", ex);
-
-                } else if (ex.GetErrorCode(0x000FFFFF) == "0x00040115") {
-                    log.Warn(ex.Message);
-                    log.Debug("OGCS is not able to run as Outlook is not properly connected to the Exchange server?");
                     throw new ApplicationException("Outlook is busy.", ex);
 
                 } else if (ex.GetErrorCode(0x000FFFFF) == "0x000702E4") {

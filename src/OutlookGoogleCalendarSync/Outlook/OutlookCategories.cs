@@ -177,7 +177,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                 } catch (System.Exception ex) {
                     Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
-                    if (error == Outlook.Errors.ErrorType.RpcServerUnavailable || error == Outlook.Errors.ErrorType.WrongThread)
+                    if (error == Outlook.Errors.ErrorType.ExchangeUnavailable ||
+                        Outlook.Errors.IsExchangeUnavailable(ex) ||
+                        error == Outlook.Errors.ErrorType.RpcServerUnavailable || error == Outlook.Errors.ErrorType.WrongThread)
                         throw;
 
                     log.Warn("Failed getting non-default mailbox categories. " + ex.Message);
@@ -229,6 +231,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             try {
                 if (this._categories != null && this._categories.Count > 0) { }
             } catch (System.Exception ex) {
+                if (Outlook.Errors.IsExchangeUnavailable(ex))
+                    throw;
                 ex.LogAsFail().Analyse("Categories are not accessible!");
                 this._categories = null;
             }
@@ -242,6 +246,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         OutlookCOM.OlCategoryColor catColour = cat.Color;
                     }
                 } catch (System.Exception ex) {
+                    if (Outlook.Errors.IsExchangeUnavailable(ex))
+                        throw;
                     if (ex.GetErrorCode(0x0000FFFF) == "0x00004005" && ex.TargetSite.Name == "get_Color") {
                         log.Warn("Outlook category '" + catName + "' seems to have changed!");
                         Calendar.Instance.IOutlook.RefreshCategories();

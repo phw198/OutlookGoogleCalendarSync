@@ -324,7 +324,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         rbOutlookAltMB.Checked = false;
                         rbOutlookSharedCal.Checked = false;
                         if (!this.Visible) rbOutlookOnline_CheckedChanged(null, null);
-                    } else if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
+                    } else if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
                         rbOutlookDefaultMB.Checked = true;
                         rbOutlookAltMB.Enabled = false;
                         rbOutlookSharedCal.Enabled = false;
@@ -361,12 +361,15 @@ namespace OutlookGoogleCalendarSync.Forms {
                     if (!profile.IsOutlookOnline) {
                         //Mailboxes the user has access to
                         log.Debug("Find calendar folders");
-                        if (Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None ||
-                            (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.Folders.Count == 1)) {
+                        if ((Ogcs.Outlook.Factory.IsVersionKnown && Ogcs.Outlook.Factory.OutlookVersionName == Ogcs.Outlook.Factory.OutlookVersionNames.None) ||
+                            (!Ogcs.Outlook.Calendar.IsInstanceNull && !Ogcs.Outlook.Calendar.Connecting &&
+                             !Ogcs.Outlook.Calendar.ExchangeUnavailable && Ogcs.Outlook.Calendar.Instance.Folders.Count == 1)) {
                             rbOutlookAltMB.Enabled = false;
                             rbOutlookAltMB.Checked = false;
                         }
-                        if (Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None) {
+                        if (Ogcs.Outlook.Factory.IsVersionKnown && !Ogcs.Outlook.Calendar.IsInstanceNull &&
+                            !Ogcs.Outlook.Calendar.Connecting &&
+                            !Ogcs.Outlook.Calendar.ExchangeUnavailable && Ogcs.Outlook.Factory.OutlookVersionName > Ogcs.Outlook.Factory.OutlookVersionNames.None) {
                             getAlternateMailboxes(profile);
                         }
                     }
@@ -395,7 +398,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     cbCategoryFilter.SelectedItem = profile.CategoriesRestrictBy == SettingsStore.Calendar.RestrictBy.Include ? "Include" : "Exclude";
                     if (profile.IsOutlookOnline) {
                         //***Categories still to do
-                    } else if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
+                    } else if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003) {
                         clbCategories.Items.Clear();
                         clbCategories.Items.Add("Outlook 2003 has no categories");
                         cbCategoryFilter.Enabled = false;
@@ -1053,6 +1056,40 @@ namespace OutlookGoogleCalendarSync.Forms {
 
         private void Main_Load(object sender, EventArgs e) {
             this.Activate();
+            if (!Outlook.Factory.NoClient() && Settings.Instance.Calendars.Any(profile => !profile.IsOutlookOnline))
+                System.Threading.Tasks.Task.Run(() => {
+                    try {
+                        if (this.IsDisposed) return;
+                        if (Outlook.Calendar.Instance.Folders == null)
+                            throw new ApplicationException("Classic Outlook did not return a calendar folder list.");
+                        if (this.IsDisposed || !this.IsHandleCreated) return;
+                        this.BeginInvoke((System.Action)(() => {
+                            if (!this.IsDisposed && !ActiveCalendarProfile.IsOutlookOnline)
+                                cbOutlookCalendars_BuildList();
+                        }));
+                    } catch (System.Exception ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex)) {
+                            Outlook.Calendar.ExchangeUnavailable = true;
+                            ex.LogAsFail().Analyse("Classic Outlook is unavailable at startup.");
+                            if (this.IsDisposed || !this.IsHandleCreated) return;
+                            this.BeginInvoke((System.Action)(() => {
+                                if (!this.IsDisposed)
+                                    console.UpdateAndNotify("Classic Outlook cannot connect to Exchange.<br/>" +
+                                        "Connection will be attempted again at the next sync.",
+                                        "outlook-exchange-offline", Console.Markup.fail);
+                            }));
+                        } else {
+                            ex.Analyse("Failed initializing classic Outlook.");
+                            if (this.IsDisposed || !this.IsHandleCreated) return;
+                            this.BeginInvoke((System.Action)(() => {
+                                if (this.IsDisposed) return;
+                                Ogcs.Extensions.MessageBox.Show(ex.Message, "Application terminated!",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.Close();
+                            }));
+                        }
+                    }
+                });
         }
 
         public void MainFormShow(Boolean forceToTop = false) {
@@ -1510,7 +1547,9 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
 
                 } else {
-                    if (!Ogcs.Outlook.Calendar.IsInstanceNull && Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count > 0) {
+                    if (!Ogcs.Outlook.Calendar.IsInstanceNull && !Ogcs.Outlook.Calendar.Connecting && !Ogcs.Outlook.Calendar.ExchangeUnavailable &&
+                        Ogcs.Outlook.Calendar.Instance.CalendarFolders.Count > 0) //
+                    {
                         cbOutlookCalendars.DataSource = new BindingSource(Ogcs.Outlook.Calendar.Instance.CalendarFolders, null);
                     } else {
                         if (ActiveCalendarProfile.UseOutlookCalendar?.Id != null) {
@@ -2238,7 +2277,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         this.ddGoogleColour.Visible = false;
                         this.ddOutlookColour.Visible = true;
                         this.ddOutlookColour.Enabled = cbColour.Checked;
-                        if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
+                        if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                             this.cbColour.Checked = false;
                         break;
                     }
@@ -2247,7 +2286,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                         this.ddGoogleColour.Visible = false;
                         this.ddOutlookColour.Visible = true;
                         this.ddOutlookColour.Enabled = cbColour.Checked;
-                        if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
+                        if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                             this.cbColour.Checked = false;
                         break;
                     }
