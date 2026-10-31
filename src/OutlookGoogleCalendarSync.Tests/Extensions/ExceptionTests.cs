@@ -76,6 +76,63 @@ namespace OutlookGoogleCalendarSync.Tests.Extensions {
         }
 
         [TestMethod]
+        public void IsUserCancellation_DirectOperationCanceledException_WhenCancellationRequested_ReturnsTrue() {
+            System.Exception exception = new OperationCanceledException();
+
+            Assert.IsTrue(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: true));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_DirectOperationCanceledExceptionWithoutRequest_ReturnsFalse() {
+            System.Exception exception = new OperationCanceledException();
+
+            Assert.IsFalse(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: false));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_AggregateWithOnlyNestedCancellations_ReturnsTrue() {
+            System.Exception exception = new AggregateException(
+                new OperationCanceledException(),
+                new AggregateException(new System.Threading.Tasks.TaskCanceledException()));
+
+            Assert.IsTrue(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: true));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_MixedAggregate_ReturnsFalse() {
+            System.Exception exception = new AggregateException(
+                new System.Threading.Tasks.TaskCanceledException(),
+                new InvalidOperationException("non-cancellation failure"));
+
+            Assert.IsFalse(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: true));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_OperationCanceledExceptionWithFailureInner_ReturnsFalse() {
+            System.Exception exception = new OperationCanceledException(
+                "operation aborted",
+                new InvalidOperationException("underlying failure"));
+
+            Assert.IsFalse(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: true));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_WrappedCancellation_WhenCancellationRequested_ReturnsTrue() {
+            System.Exception exception = new System.Net.Http.HttpRequestException(
+                "request cancelled",
+                new System.Threading.Tasks.TaskCanceledException());
+
+            Assert.IsTrue(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: true));
+        }
+
+        [TestMethod]
+        public void IsUserCancellation_UserCancelledSyncException_ReturnsTrueWithoutTokenRequest() {
+            System.Exception exception = new global::OutlookGoogleCalendarSync.UserCancelledSyncException("user declined to continue");
+
+            Assert.IsTrue(Ogcs.Exception.IsUserCancellation(exception, cancellationRequested: false));
+        }
+
+        [TestMethod]
         public void IsTransientNetworkError_TaskCanceledExceptionWithoutCancellationRequest_ReturnsTrue() {
             System.Threading.CancellationTokenSource originalCancelToken = Ogcs.Sync.Engine.CancelToken;
             try {

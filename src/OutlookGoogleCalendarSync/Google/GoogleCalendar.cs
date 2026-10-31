@@ -69,7 +69,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         _ = ColourPalette;
                     } else {
                         if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException().LogAsFail();
+                            throw new UserCancelledSyncException("Google authorisation was cancelled.");
                         else if (!Authenticator.SufficientPermissions) {
                             throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
                                 "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.").LogAsFail();

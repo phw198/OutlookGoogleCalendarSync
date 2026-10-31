@@ -160,12 +160,30 @@ namespace OutlookGoogleCalendarSync {
             return false;
         }
 
+        /// <summary>
+        /// Whether this exception (or any exception in its chain) represents a task cancellation, 
+        /// as opposed to a genuine application/configuration error that a user needs to look at.
+        /// </summary>
         public static Boolean IsTaskCancellation(this System.Exception ex) {
             if (ex is System.Threading.Tasks.TaskCanceledException)
                 return true;
             if (ex is AggregateException aex)
                 return aex.InnerExceptions.Any(IsTaskCancellation);
             return ex.InnerException != null && IsTaskCancellation(ex.InnerException);
+        }
+
+        /// <summary>
+        /// Whether this exception (and all inner exceptions) represents a user cancellation of the sync operation, 
+        /// as opposed to a genuine application/configuration error that a user needs to look at.
+        /// </summary>
+        public static Boolean IsUserCancellation(this System.Exception ex, Boolean cancellationRequested) {
+            if (ex is UserCancelledSyncException)
+                return true;
+            if (ex is AggregateException aex)
+                return aex.InnerExceptions.Count > 0 && aex.InnerExceptions.All(inner => inner.IsUserCancellation(cancellationRequested));
+            if (ex is System.OperationCanceledException)
+                return cancellationRequested && (ex.InnerException == null || ex.InnerException.IsUserCancellation(cancellationRequested));
+            return ex.InnerException != null && ex.InnerException.IsUserCancellation(cancellationRequested);
         }
 
         public static String FriendlyMessage(this System.Exception ex) {

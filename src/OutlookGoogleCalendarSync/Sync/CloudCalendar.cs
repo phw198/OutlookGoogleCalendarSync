@@ -191,7 +191,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Calendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to delete obsolete entries in Google calendar.", ex);
                             throw;
@@ -209,7 +209,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Graph.Calendar.CreateCalendarEntries(googleEntriesToBeCreated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to add new entries into the Google Calendar.", ex);
                             throw;
@@ -227,7 +227,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Graph.Calendar.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to update existing entries in the Google calendar.", ex);
                             throw;
@@ -299,7 +299,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Graph.Calendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to delete obsolete entries in Google calendar.", Console.Markup.error);
                             throw;
@@ -317,7 +317,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Graph.Calendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to add new entries into the Outlook Calendar.", Console.Markup.error);
                             throw;
@@ -335,7 +335,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Graph.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
                             throw;
@@ -381,6 +381,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return returnVal;
 
                 } catch (System.Exception ex) {
+                    if (ex.IsUserCancellation(Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested)) {
+                        log.Info("Metadata cleanup cancelled by user.");
+                        return SyncResult.UserCancelled;
+                    }
                     ex.Analyse("Failed to fully cleanse metadata!");
                     console.UpdateWithError(null, ex);
                     returnVal = SyncResult.Fail;

@@ -138,6 +138,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                                     else
                                         syncResult = manualIgnition ? manualSynchronize() : synchronize();
                                 } catch (System.Exception ex) {
+                                    if (ex.IsUserCancellation(Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested)) {
+                                        syncResult = SyncResult.UserCancelled;
+                                        return;
+                                    }
+
                                     if (ex.Data.Count > 0 && ex.Data.Contains("OGCS")) {
                                         sb = new StringBuilder();
                                         mainFrm.Console.BuildOutput("The following error was encountered during sync:-", ref sb);
@@ -183,8 +188,6 @@ namespace OutlookGoogleCalendarSync.Sync {
                                             syncResult = SyncResult.Fail;
                                         }
                                     }
-                                    if ((Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested) && ex.IsTaskCancellation())
-                                        syncResult = SyncResult.UserCancelled;
                                 }
                             }
                         );
@@ -201,7 +204,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                                 while (DateTime.Now < waitUntil) {
                                     System.Windows.Forms.Application.DoEvents();
                                     System.Threading.Thread.Sleep(100);
-                                }                                
+                                }
                                 mainFrm.Console.Update("Attempting to reconnect to Outlook...");
                                 try {
                                     Outlook.Calendar.Instance.Reset();
@@ -229,7 +232,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                         log.Info(duration);
                         String syncStats = $"<div style='color: grey; font-size: 11px'>{duration}<br/>Syncs completed: {Settings.Instance.CompletedSyncs}";
                         if (!Settings.Instance.UserIsBenefactor()) {
-                            syncStats += $"<br/><a href='{Program.OgcsWebsite}/donate?id=" + Extensions.OgcsString.ToBase64String(Settings.Instance.GaccountEmail) + 
+                            syncStats += $"<br/><a href='{Program.OgcsWebsite}/donate?id=" + Extensions.OgcsString.ToBase64String(Settings.Instance.GaccountEmail) +
                                 "' onClick='javascript:window.external.SendAnalytics(donateEvent);' style='color: grey'>Donate</a>";
                             Telemetry.GA4Event donateEvent = new(Telemetry.GA4Event.Event.Name.donate, out Telemetry.GA4Event.Event eventData);
                             eventData
@@ -247,6 +250,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                             log.Debug("The next sync has already been set (likely through auto retry for new quota at 8AM GMT): " + this.Profile.OgcsTimer.NextSyncDateText);
                             updateSyncSchedule = false;
                         }
+                    } else if (syncResult == SyncResult.UserCancelled) {
+                        mainFrm.Console.Update("Sync cancelled by user.", Console.Markup.warning);
                     } else {
                         this.consecutiveSyncFails += failedAttempts;
                         mainFrm.Console.Update("Sync aborted after " + failedAttempts + " failed attempts!", syncResult == Sync.Engine.SyncResult.UserCancelled ? Console.Markup.fail : Console.Markup.error);
@@ -543,12 +548,12 @@ namespace OutlookGoogleCalendarSync.Sync {
                     Ogcs.Google.Calendar.Instance.GetSettings();
                     Ogcs.Google.Recurrence.GoogleExceptionsReset();
                     googleEntries = Ogcs.Google.Calendar.Instance.GetCalendarEntriesInRange();
-                } catch (AggregateException agex) {
-                    agex.Analyse();
                 } catch (global::Google.Apis.Auth.OAuth2.Responses.TokenResponseException ex) {
                     ex.AnalyseTokenResponse(false);
                     return SyncResult.Fail;
                 } catch (System.Net.Http.HttpRequestException ex) {
+                    if (ex.IsUserCancellation(Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested))
+                        throw;
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar. Please try again. " + ((ex.InnerException != null) ? ex.InnerException.Message : ex.Message));
                     throw;
                 } catch (System.ApplicationException ex) {
@@ -570,6 +575,8 @@ namespace OutlookGoogleCalendarSync.Sync {
                     }
                     throw;
                 } catch (System.Exception ex) {
+                    if (ex.IsUserCancellation(Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested))
+                        throw;
                     ex.Analyse();
                     ex.Data.Add("OGCS", "ERROR: Unable to connect to the Google calendar.");
                     throw;
@@ -642,7 +649,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Calendar.Instance.DeleteCalendarEntries(googleEntriesToBeDeleted);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to delete obsolete entries in Google calendar.", ex);
                             throw;
@@ -660,7 +667,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Calendar.Instance.CreateCalendarEntries(googleEntriesToBeCreated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to add new entries into the Google Calendar.", ex);
                             throw;
@@ -678,7 +685,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Ogcs.Google.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception ex) {
                             console.UpdateWithError("Unable to update existing entries in the Google calendar.", ex);
                             throw;
@@ -750,7 +757,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Calendar.Instance.DeleteCalendarEntries(outlookEntriesToBeDeleted);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to delete obsolete entries in Google calendar.", Console.Markup.error);
                             throw;
@@ -768,7 +775,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Calendar.Instance.CreateCalendarEntries(outlookEntriesToBeCreated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to add new entries into the Outlook Calendar.", Console.Markup.error);
                             throw;
@@ -786,7 +793,7 @@ namespace OutlookGoogleCalendarSync.Sync {
                             Outlook.Calendar.Instance.UpdateCalendarEntries(entriesToBeCompared, ref entriesUpdated);
                         } catch (UserCancelledSyncException ex) {
                             log.Info(ex.Message);
-                            return false;
+                            throw;
                         } catch (System.Exception) {
                             console.Update("Unable to update existing entries in the Outlook calendar.", Console.Markup.error);
                             throw;
@@ -851,6 +858,10 @@ namespace OutlookGoogleCalendarSync.Sync {
                     return returnVal;
 
                 } catch (System.Exception ex) {
+                    if (ex.IsUserCancellation(Sync.Engine.Instance.CancellationPending || Sync.Engine.CancelToken.IsCancellationRequested)) {
+                        log.Info("Metadata cleanup cancelled by user.");
+                        return SyncResult.UserCancelled;
+                    }
                     ex.Analyse("Failed to fully cleanse metadata!");
                     console.UpdateWithError(null, ex);
                     returnVal = SyncResult.Fail;
