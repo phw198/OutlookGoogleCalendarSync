@@ -23,8 +23,8 @@ namespace OutlookGoogleCalendarSync.Tests.Extensions
                 DaysInTheFuture = 2
             };
 
-            System.DateTime expectedStart = System.DateTime.SpecifyKind(profile.SyncStart.Date, DateTimeKind.Utc);
-            System.DateTime expectedEnd = System.DateTime.SpecifyKind(profile.SyncEnd.Date, DateTimeKind.Utc);
+            System.DateTime expectedStart = profile.SyncStart.Date.ToUniversalTime();
+            System.DateTime expectedEnd = profile.SyncEnd.Date.ToUniversalTime();
 
             // Act
             System.DateTime actualStart = profile.SyncStartUtcMidnight;
@@ -35,6 +35,34 @@ namespace OutlookGoogleCalendarSync.Tests.Extensions
             Assert.AreEqual(expectedEnd, actualEnd, "SyncEndUtcMidnight should be the UTC instant corresponding to local sync end date midnight.");
             Assert.AreEqual(DateTimeKind.Utc, actualStart.Kind, "SyncStartUtcMidnight should have Utc DateTimeKind.");
             Assert.AreEqual(DateTimeKind.Utc, actualEnd.Kind, "SyncEndUtcMidnight should have Utc DateTimeKind.");
+        }
+
+        [DataTestMethod]
+        [DataRow(10, 2026, 7, 10, 14, 2026, 7, 13, 14)]
+        [DataRow(-8, 2026, 7, 11, 8, 2026, 7, 14, 8)]
+        public void LocalMidnight_ConvertsStartAndEndToUtcForPositiveAndNegativeOffsets(
+            int offsetHours,
+            int expectedStartYear,
+            int expectedStartMonth,
+            int expectedStartDay,
+            int expectedStartHour,
+            int expectedEndYear,
+            int expectedEndMonth,
+            int expectedEndDay,
+            int expectedEndHour)
+        {
+            TimeZoneInfo testTimeZone = TimeZoneInfo.CreateCustomTimeZone(
+                "TestTimeZone", TimeSpan.FromHours(offsetHours), "Test time zone", "Test time zone");
+            System.DateTime localStart = new System.DateTime(2026, 7, 11);
+            System.DateTime localEnd = localStart.AddDays(3);
+
+            System.DateTime actualStart = TimeZoneInfo.ConvertTimeToUtc(
+                System.DateTime.SpecifyKind(localStart, DateTimeKind.Unspecified), testTimeZone);
+            System.DateTime actualEnd = TimeZoneInfo.ConvertTimeToUtc(
+                System.DateTime.SpecifyKind(localEnd, DateTimeKind.Unspecified), testTimeZone);
+
+            Assert.AreEqual(new System.DateTime(expectedStartYear, expectedStartMonth, expectedStartDay, expectedStartHour, 0, 0, DateTimeKind.Utc), actualStart);
+            Assert.AreEqual(new System.DateTime(expectedEndYear, expectedEndMonth, expectedEndDay, expectedEndHour, 0, 0, DateTimeKind.Utc), actualEnd);
         }
 
         [TestMethod]

@@ -163,13 +163,13 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         #region When
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
-        /// <summary>Gets the sync start date explicitly formatted as a UTC midnight instant for cloud APIs.</summary>
+        /// <summary>Gets the sync start date converted from local midnight to a UTC instant for cloud APIs.</summary>
         public DateTime SyncStartUtcMidnight {
-            get { return DateTime.SpecifyKind(SyncStart.Date, DateTimeKind.Utc); }
+            get { return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(SyncStart.Date, DateTimeKind.Unspecified), TimeZoneInfo.Local); }
         }
-        /// <summary>Gets the sync end date explicitly formatted as a UTC midnight instant for cloud APIs.</summary>
+        /// <summary>Gets the sync end date converted from local midnight to a UTC instant for cloud APIs.</summary>
         public DateTime SyncEndUtcMidnight {
-            get { return DateTime.SpecifyKind(SyncEnd.Date, DateTimeKind.Utc); }
+            get { return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(SyncEnd.Date, DateTimeKind.Unspecified), TimeZoneInfo.Local); }
         }
         [DataMember] public Sync.Direction SyncDirection { get; set; }
         [DataMember] public int DaysInThePast { get; set; }
