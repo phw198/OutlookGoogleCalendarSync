@@ -131,8 +131,8 @@
     <Compile Include="Outlook\CalendarCategorySyncTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\DateTime.cs" />
     <Compile Include="Outlook\CategoryFilteringTests.cs" />
+    <Compile Include="Notifications\ModernToastNotificationHandlerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
