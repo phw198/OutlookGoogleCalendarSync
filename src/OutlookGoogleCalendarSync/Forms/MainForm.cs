@@ -266,8 +266,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             dgAbout.Rows[r].Cells[1].Value = TimezoneDB.Instance.Version;
             dgAbout.Height = (dgAbout.Rows[r].Height * (r + 1)) + 2;
 
-            this.lAboutMain.Text = this.lAboutMain.Text.Replace("20xx",
-                (new DateTime(2000, 1, 1).Add(new TimeSpan(TimeSpan.TicksPerDay * System.Reflection.Assembly.GetEntryAssembly().GetName().Version.Build))).Year.ToString());
+            this.lAboutMain.Text = this.lAboutMain.Text.Replace("20xx", DateTime.Now.Year.ToString());
 
             cbAlphaReleases.Checked = Settings.Instance.AlphaReleases;
             cbIgnoreSkipPrefs.Visible = !string.IsNullOrEmpty(Settings.Instance.SkipVersion) || !string.IsNullOrEmpty(Settings.Instance.SkipVersion2);
