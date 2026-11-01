@@ -682,7 +682,6 @@
     <Compile Include="Outlook.Graph\O365Errors.cs" />
     <Compile Include="Outlook.Graph\O365Recurrence.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
-    <Compile Include="Outlook\ExplorerWatcher.cs" />
     <Compile Include="Outlook\GMeet.cs" />
     <Compile Include="Outlook\OutlookRecurrence.cs" />
     <Compile Include="Outlook\OutlookCalendar.cs" />

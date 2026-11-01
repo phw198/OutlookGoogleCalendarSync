@@ -13,7 +13,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(OutlookNew));
 
         private Microsoft.Office.Interop.Outlook.Application oApp;
-        private ExplorerWatcher explorerWatcher;
         private String currentUserSMTP;  //SMTP of account owner that has Outlook open
         private String currentUserName;  //Name of account owner - used to determine if attendee is "self"
         private Folders folders;
@@ -92,8 +91,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 Outlook.Calendar.Categories = new Outlook.Categories();
                 Calendar.Categories.Get(oApp, profile.UseOutlookCalendar);
 
-                //Set up event handlers
-                explorerWatcher = new ExplorerWatcher(oApp);
                 connected = true;
 
             } catch (System.Runtime.InteropServices.COMException ex) {
@@ -125,7 +122,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     }
                     calendarFolders = new Dictionary<string, OutlookCalendarListEntry>();
                     Calendar.Categories?.Dispose();
-                    explorerWatcher = (ExplorerWatcher)Calendar.ReleaseObject(explorerWatcher);
                 } catch (System.Exception ex) {
                     log.Debug(ex.Message);
                 }
