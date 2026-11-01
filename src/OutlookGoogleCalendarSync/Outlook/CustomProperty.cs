@@ -143,6 +143,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String propertyName = null;
             Dictionary<String, String> calendarKeys = new Dictionary<string, string>();
             UserProperties ups = null;
+            Boolean propertyUnreadable = false;
             try {
                 ups = ai.UserProperties;
                 for (int p = 1; p <= ups.Count; p++) {
@@ -153,6 +154,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             propertyName = up.Name;
                             calendarKeys.Add(up.Name, up.Value.ToString());
                         }
+                    } catch (System.Runtime.InteropServices.COMException ex) {
+                        //Eg "The object does not support this method." - some legacy/incompatible custom properties can't be read (issue #1158)
+                        propertyUnreadable = true;
+                        string propName = "<unknown>";
+                        try { propName = up.Name; } catch { }
+                        ex.LogAsFail().Analyse($"Could not access value of custom property '{propName}' (#{p}/{ups.Count})");
                     } finally {
                         up = (UserProperty)Calendar.ReleaseObject(up);
                     }
@@ -169,12 +176,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
 
             try {
+                if (propertyUnreadable && calendarKeys.Count == 0) {
+                    log.Warn("Could not identify any userProperty calendar key for this appointment. It may be corrupted or have legacy properties that cannot be read.");
+                }
+
                 //For backward compatibility, always default to key names with no set number appended
                 if (calendarKeys.Count == 0 ||
                     (calendarKeys.Count == 1 && calendarKeys.ContainsKey(calendarKeyName) && calendarKeys[calendarKeyName] == profile.UseGoogleCalendar.Id)) //
                 {
                     maxSet = -1;
-                    return returnVal;
+                    return null;
                 }
 
                 foreach (KeyValuePair<String, String> kvp in calendarKeys.OrderBy(k => k.Key)) {

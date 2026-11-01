@@ -318,7 +318,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                     newAiExcp.Save();
                                     updatesMade++;
                                 } catch (System.Exception ex) {
-                                    Ogcs.Exception.Analyse(ex);
+                                    ex.Analyse("Failed to save Outlook recurrence exception: " + gExcpDetails);
                                     if (ex.Message == "Cannot save this item.") {
                                         Forms.Main.Instance.Console.Update(
                                             Outlook.Calendar.GetEventSummary("Uh oh! Outlook wasn't able to save this recurrence exception! " +
