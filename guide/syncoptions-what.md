@@ -39,13 +39,13 @@ When turning sync **off** data already synced will not be removed - this will ne
 <p style="margin-left:40px; margin-top:-10px"><b>Single category only:</b> Google only allows a single colour, so this would enforce only one Outlook category. If unchecked, the sync will create new categories for each synced colour, with a name prefixed by "OGCS ".</p>
 
 
-**Reminders:** Include reminders/alerts in order to be notified of upcoming meetings. 
+**Reminders:** Include reminders/alerts in order to be notified of upcoming meetings. The three-state setting can sync reminders, leave target-calendar reminders untouched (new items inherit its defaults), or select **No Reminders** to remove explicit reminders and calendar defaults from synced items. The **No Reminders** mode is only available for one-way sync, to prevent removal from propagating in two-way sync.
 
 <p style="margin-left:40px; margin-top:-20px"><b>Use Google Default:</b> It is possible to configure a default reminder within a Google calendar that all items within it will inherit. Check this option to allow this behaviour to continue when the Outlook item has no reminder set or reminders are not being synced. With the option unchecked, only the Outlook reminder will sync and appear on the Google event, and if none is set in Outlook or reminders are not being synced, Google will not have a reminder either.</p>
 
 <p style="margin-left:40px; margin-top:-10px"><b>Use Outlook Default:</b> It is possible to configure a default reminder within Outlook settings that all items will inherit. Check this option to allow this behaviour to continue when the Google event has no reminder set or reminders are not being synced. With the option unchecked, the Google reminder with the shortice notice period will take precedence and appear on the Outlook appointment, and if none is set in Google or reminders are not being synced, Outlook will not have a reminder either.</p>
 
-<p style="margin-left:40px; margin-top:-10px"><b>DND between hours x and y:</b> Syncing from Outlook to Google is the most popular option, usually in order to see work commitments on an Android phone. For all-day appointments especially, this can mean an unnecessary midnight alert (thanks to the default Microsoft reminder of 15 minutes)! To avoid this, configure a “do not disturb” window in which reminders will not be synced.</p>
+<p style="margin-left:40px; margin-top:-10px"><b>DND between hours x and y:</b> During one-way sync, configure a “do not disturb” window in which reminders will not be synced. This works for both Outlook-to-Google and Google-to-Outlook sync (Classic Outlook and Outlook Online), but is not available for two-way sync. For all-day appointments especially, this can avoid an unnecessary alert (for example, from Outlook's default 15-minute reminder).</p>
 
 ### Exclusions
 _Specify which calendar items to exclude from the sync._

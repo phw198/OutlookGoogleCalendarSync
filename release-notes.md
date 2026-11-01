@@ -64,6 +64,43 @@ img.emoji {
 </script>
 </div>
 
+## v3.0.6.0 - Alpha
+
+:high_brightness: **Enhancements**
+- Application
+    - Removal of OGCS auto-start registry keys upon uninstall [[#2386](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2386)]
+- Sync Engine
+    - Option to remove reminders from destination calendar items [[#2382](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2382)]
+        - Do Not Disturb windows now support Google&rarr;Outlook sync, Classic &amp; Online
+        - Reminder removal and Do Not Disturb are unavailable for two-way sync (prevents propagation to both calendars)
+    - Improved detection of copied Outlook appointments; prevent duplicate sync handling [[#2352](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2352)]
+
+:beetle: **Bugfix**
+- Application
+    - Automatically retry transient network failures without a blocking retry user prompt [[#2359](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2359)]
+    - Handle Outlook connectivity failures without cascading popups [[#1150](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1150)]
+    - Open web browser links correctly from modern toast notifications
+- Sync Engine
+    - Fix Google "Updated event failed to save" (`PreconditionFailed`) [[#2383](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2383)]
+    - Handle Outlook recurrence series correctly when UTC offsets cross midnight [[#2391](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2391)]
+    - Continue processing when an Outlook custom property is inaccessible [[#1178](https://github.com/phw198/OutlookGoogleCalendarSync/issues/1178)]
+    - Safely handle non-appointment items in Outlook calendars [[#2389](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2389)]
+    - Correct UTC offsets at sync-window boundaries [[#2396](https://github.com/phw198/OutlookGoogleCalendarSync/issues/2396)]
+    - Display local times and UTC offsets accurately in sync comparison output
+
+<br/>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="{{ site.google_ad_client }}"
+     data-ad-slot="7911595401"
+     data-adtest="{{ site.google_ad_testing }}"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+
 ## v3.0.5.0 - Alpha
 
 :high_brightness: **Enhancements**
