@@ -3,6 +3,7 @@ using OutlookGoogleCalendarSync.Extensions;
 using OutlookGoogleCalendarSync.GraphExtension;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -174,8 +175,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
                 MsGraph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder itemInstancesReq = GraphClient.Me.Calendars[profile.UseOutlookCalendar.Id].Events[seriesId].Instances;
                 Kiota.RequestConfiguration<MsGraph.Me.Calendars.Item.Events.Item.Instances.InstancesRequestBuilder.InstancesRequestBuilderGetQueryParameters> reqCfg = new();
-                reqCfg.QueryParameters.StartDateTime = profile.SyncStartUtcMidnight.ToString("yyyy-MM-dd");
-                reqCfg.QueryParameters.EndDateTime = profile.SyncEndUtcMidnight.ToString("yyyy-MM-dd");
+                reqCfg.QueryParameters.StartDateTime = profile.SyncStart.ToString("yyyy-MM-dd'T'HH:mm:sszzz", CultureInfo.InvariantCulture);
+                reqCfg.QueryParameters.EndDateTime = profile.SyncEnd.ToString("yyyy-MM-dd'T'HH:mm:sszzz", CultureInfo.InvariantCulture);
                 reqCfg.QueryParameters.Top = 250;
                 reqCfg.QueryParameters.Select = new string[] { "*" };
                 reqCfg.QueryParameters.Expand = new string[] { $"extensions($filter=Id eq '{CustomProperty.ExtensionName()}')" };
