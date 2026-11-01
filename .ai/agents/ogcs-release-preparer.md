@@ -69,6 +69,8 @@ Update version references in the build script so that packages are packaged, zip
      - Output this list as part of your final response to the user for manual review so they can decide if any of these changes need to be manually documented or categorised in the release notes.
 
 5. Ensure the resulting XML is valid and formatted cleanly with CRLF line endings.
+   - The `<releaseNotes>` body is XML text: use only XML predefined entities or numeric character references. HTML-only named entities such as `&rarr;` are not valid unless declared; use `&#8594;` for a right-pointed arrow.
+   - Parse the completed NuSpec to verify that it is well-formed XML.
 
 ### Step 4: Update Main README (`README.md`)
 1. Locate `README.md`.
@@ -102,6 +104,7 @@ Update `release-notes.md` on the current `gh-pages` branch by copying the releas
    - If the ZIP exists, compare its contents to the actual files in the `src/OutlookGoogleCalendarSync/bin/Release-v3` folder, **excluding** the `app.publish` subdirectory and any other `.zip` files from the comparison.
    - Report any differences (extra files in ZIP, missing files from ZIP, or files with different binary content).
    - For `.dll` files, perform a binary comparison to ensure they are identical.
+   - Also compare the new ZIP with the previous release ZIP, `Portable_OGCS_v{CURRENT_VERSION}.zip`. Exclude `app.publish` and `.zip` entries, compare common files byte-for-byte, and include this comparison in the final report with separate **Changed**, **Added**, and **Removed** filename lists. State `None` for any empty list, or report if the previous ZIP is unavailable.
    - **Cleanup**: After the comparison, delete the temporary directory created for extracting the ZIP contents (e.g., `/tmp/ogcs_zip_compare`).
 
 ## Agent Self-Correction Notes
