@@ -77,6 +77,24 @@ Update version references in the build script so that packages are packaged, zip
 ### Step 5: Update Documentation Release Notes (`docs/Release Notes.md`)
 Copy the generated release notes from `src/OutlookGoogleCalendarSync/OutlookGoogleCalendarSync.nuspec` into `docs/Release Notes.md` as a new top-level entry, maintaining the existing Markdown heading and bullet-point formatting. Ensure that the new release notes are placed above the previous release's notes.
 
+### Shared gh-pages prerequisite for Steps 5a and 5b
+Before making either website documentation change, fast-forward the local `gh-pages` branch from its remote, preserving any intentional local work. Keep both the User Guide and release-notes changes isolated to the `gh-pages` branch.
+
+### Step 5a: Review the gh-pages User Guide
+Always inspect the current `gh-pages` branch User Guide against the user-facing changes identified from the release commit history. Review the relevant pages under `guide/` for changed settings, workflows, notifications, integrations, and troubleshooting behaviour.
+1. Update the relevant User Guide pages when the release changes documented application behaviour or user-visible options.
+2. If no User Guide update is needed, record that review and the reason in the branch-scoped WIP note and final release summary.
+3. Validate Markdown and line endings, and keep any User Guide changes isolated to the `gh-pages` branch.
+
+### Step 5b: Update gh-pages Release Notes (`release-notes.md`)
+Update `release-notes.md` on the current `gh-pages` branch by copying the release notes from the nuspec into a new release section above the previous release.
+1. Preserve the existing Jekyll page wrapper and release-note formatting.
+2. Insert the site's standard advert block between the new release and the previous release; every release boundary must have an advert section.
+3. For a beta release, add a Markdown horizontal rule (`----`) immediately below the beta release section, in addition to the advert separation.
+4. Preserve the release-note heading emojis when copying the nuspec notes; enhancement and bugfix headings must use the site's established `:high_brightness:` and `:beetle:` markers (or the equivalent rendered syntax), rather than plain headings.
+5. Ensure the resulting page retains the release heading, copied enhancement/bugfix notes, advert section, and required beta separator in the correct order.
+6. Validate Markdown and line endings, and keep this file change isolated to the `gh-pages` branch.
+
 ### Step 6: Validate Portable ZIP Contents
 1. If the `NEW_VERSION` has a major release number of `3` (using semver):
    - Locate the `Portable_OGCS_v{NEW_VERSION}.zip` file (expected in `src/OutlookGoogleCalendarSync/bin/Release-v3`).
