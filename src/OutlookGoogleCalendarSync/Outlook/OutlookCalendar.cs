@@ -221,6 +221,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
+                        if (ai == null) throw new System.InvalidCastException("Item is not an AppointmentItem.");
                     } catch (System.Runtime.InteropServices.COMException ex) when (Outlook.Errors.IsExchangeUnavailable(ex)) {
                         throw;
                     } catch {
