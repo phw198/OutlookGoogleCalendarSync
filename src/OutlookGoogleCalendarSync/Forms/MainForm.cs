@@ -368,7 +368,6 @@ namespace OutlookGoogleCalendarSync.Forms {
                         }
                     }
 
-                    log.Debug("List Calendar folders");
                     this.cbOutlookCalendars_BuildList();
                     if (cbOutlookCalendars.SelectedIndex == -1 && cbOutlookCalendars.Enabled) {
                         Boolean fallbackCalendar = false;
