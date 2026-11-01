@@ -4,8 +4,9 @@
 - C# WinForms background tray application. See [.ai/architecture.md](.ai/architecture.md) for full architectural mapping.
 
 ## Local WIP Memory
-- The active work-in-progress note is branch-scoped: resolve the current branch name, then read the matching note under [.ai/work-in-progress](.ai/work-in-progress) using that branch name as the category. For example, `dev/ai` maps to [.ai/work-in-progress/dev/ai.md](.ai/work-in-progress/dev/ai.md).
-- The shared index at [.ai/work-in-progress.md](.ai/work-in-progress.md) helps discover the active branch note, but each branch keeps its own isolated task log so parallel development does not overwrite the same notes.
+- Before editing WIP notes, run `git branch --show-current` and read the matching branch-scoped note under [.ai/work-in-progress](.ai/work-in-progress). Preserve slashes in branch names as nested directories, such as `dev/ai` mapping to `.ai/work-in-progress/dev/ai.md`; create the note if it does not exist.
+- Before completing work, update the active branch note with current task progress. Keep granular progress, changed-file summaries, and next steps there; update `AGENTS.md` only for significant project milestones or durable guidance.
+- The shared index at [.ai/work-in-progress.md](.ai/work-in-progress.md) is for discovering branch notes; each branch keeps its own isolated task log.
 
 ## Release Build Note
 - Excluded the test project from Release solution builds so the app can keep the required embedded Outlook interop settings in Release without tripping the `CS1769` generic interop-type boundary error when the tests are compiled in the same solution.
