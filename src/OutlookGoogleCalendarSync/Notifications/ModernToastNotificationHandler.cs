@@ -190,20 +190,20 @@ namespace OutlookGoogleCalendarSync {
             }
         }
 
-        private static Dictionary<string, string> getTriggerArguments(string argument) {
+        internal static Dictionary<string, string> getTriggerArguments(string argument) {
             Dictionary<string, string> arguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (string.IsNullOrWhiteSpace(argument)) return arguments;
 
             foreach (string part in argument.Split(new[] { '&', ';' }, StringSplitOptions.RemoveEmptyEntries)) {
                 string[] keyValue = part.Trim().Split(new[] { '=' }, 2);
                 if (keyValue.Length == 2 && (new string[] { "action", "instance", "url" }.Contains(keyValue[0]))) {
-                    arguments[keyValue[0]] = keyValue[1];
+                    arguments[keyValue[0]] = Uri.UnescapeDataString(keyValue[1]);
                 }
             }
             return arguments;
         }
 
-        private static string getBrowserUrl(Dictionary<string, string> arguments) {
+        internal static string getBrowserUrl(Dictionary<string, string> arguments) {
             if (!arguments.TryGetValue("url", out string encodedUrl) || string.IsNullOrEmpty(encodedUrl)) return string.Empty;
             try {
                 return System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedUrl));
