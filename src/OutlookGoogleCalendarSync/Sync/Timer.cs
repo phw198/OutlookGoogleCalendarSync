@@ -164,10 +164,14 @@ namespace OutlookGoogleCalendarSync.Sync {
         /// Recalculate item count as of now.
         /// </summary>
         public void ResetLastRun() {
-            this.lastRunTime = DateTime.Now;
+            if (this.owningProfile is SettingsStore.Calendar profile && !profile.IsOutlookOnline &&
+                (Outlook.Calendar.IsInstanceNull || Outlook.Calendar.Connecting || Outlook.Calendar.ExchangeUnavailable))
+                return;
+
             try {
                 log.Fine("Updating calendar item count following Push Sync.");
                 this.lastRunItemCount = Outlook.Calendar.Instance.GetCalendarEntriesInRange(this.owningProfile as SettingsStore.Calendar, true).Count;
+                this.lastRunTime = DateTime.Now;
             } catch (System.Exception ex) {
                 ex.Analyse("Failed to update item count following a Push Sync.");
             }
@@ -177,11 +181,19 @@ namespace OutlookGoogleCalendarSync.Sync {
             if (Forms.ErrorReporting.Instance.Visible) return;
             if ((DateTime.Now - TimezoneDB.LastSystemResume).TotalSeconds < 60 || (TimezoneDB.LastSystemSleep != null && TimezoneDB.LastSystemSleep > TimezoneDB.LastSystemResume))
                 return;
-            
-            log.UltraFine("Push sync triggered.");
-            try {
-                SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
 
+            log.UltraFine("Push sync triggered.");
+
+            SettingsStore.Calendar profile = this.owningProfile as SettingsStore.Calendar;
+
+            if (profile != null && !profile.IsOutlookOnline &&
+                (Outlook.Calendar.IsInstanceNull || Outlook.Calendar.Connecting || Outlook.Calendar.ExchangeUnavailable)) {
+                if (!Sync.Engine.Instance.SyncingNow)
+                    Forms.Main.Instance.Sync_Click(sender, null);
+                return;
+            }
+            
+            try {
                 //In case the IOutlook.Connect() has to be called which needs an active profile
                 if (Sync.Engine.Calendar.Instance.Profile == null)
                     //Force in the push sync profile
@@ -218,6 +230,11 @@ namespace OutlookGoogleCalendarSync.Sync {
                 log.Warn("Push Sync failed " + failures + " times to check for changed items.");
 
                 Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex);
+                if (profile != null && !profile.IsOutlookOnline && Outlook.Errors.IsExchangeUnavailable(ex)) {
+                    Outlook.Calendar.ExchangeUnavailable = true;
+                    ex.LogAsFail().Analyse("Classic Outlook is unavailable during push sync.");
+                    return;
+                }
                 if (error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                     error == Outlook.Errors.ErrorType.InvokedObjectDisconnectedFromClients ||
                     error == Outlook.Errors.ErrorType.RpcFailed) //

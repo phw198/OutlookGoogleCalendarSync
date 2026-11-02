@@ -69,7 +69,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         _ = ColourPalette;
                     } else {
                         if (Forms.Main.Instance.Console.DocumentText.Contains("Authorisation to allow OGCS to manage your Google calendar was cancelled."))
-                            throw new OperationCanceledException().LogAsFail();
+                            throw new UserCancelledSyncException("Google authorisation was cancelled.");
                         else if (!Authenticator.SufficientPermissions) {
                             throw new ApplicationException("OGCS has not been granted permission to manage your calendars. " +
                                 "When authorising access to your Google account, please ensure permission is granted to <b>all the items</b> requested.").LogAsFail();
@@ -714,8 +714,10 @@ namespace OutlookGoogleCalendarSync.Google {
             }
 
             //Reminder alert
-            ev.Reminders = new Event.RemindersData();
-            if (profile.AddReminders) {
+            if (profile.AddReminders != SettingsStore.Calendar.AddReminderModes.Inherit) {
+                ev.Reminders = new Event.RemindersData();
+            }
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 if (Outlook.Calendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.ReminderSet) {
                         ev.Reminders.UseDefault = false;
@@ -730,6 +732,8 @@ namespace OutlookGoogleCalendarSync.Google {
                 } else {
                     ev.Reminders.UseDefault = false; // No reminder to be set in Google due to DND
                 }
+            } else if (profile.NoRemindersConfigPermitted) {
+                ev.Reminders.UseDefault = false;
             }
 
             //Add the Outlook appointment ID into Google event
@@ -1069,7 +1073,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
 
             #region Reminders
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 Boolean OKtoSyncReminder = Outlook.Calendar.Instance.IsOKtoSyncReminder(ai);
                 bool hasGooglePopupOverrides = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
                 bool hasGoogleEmailOverrides = ev.Reminders?.Overrides?.Any(r => r.Method == "email") ?? false;
@@ -1138,6 +1142,18 @@ namespace OutlookGoogleCalendarSync.Google {
                         }
                     }
                 }
+            } else if (profile.NoRemindersConfigPermitted &&
+                (ev.Reminders == null || (bool)ev.Reminders.UseDefault || ev.Reminders.Overrides?.Count > 0)) {
+                Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? true;
+                ev.Reminders ??= new Event.RemindersData();
+                for (int r = (ev.Reminders.Overrides?.Count ?? 0) - 1; r >= 0; r--) {
+                    EventReminder reminder = ev.Reminders.Overrides[r];
+                    sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
+                    ev.Reminders.Overrides.Remove(reminder);
+                    itemModified++;
+                }
+                if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, googleUsesDefaultReminders.ToString(), false.ToString(), sb, ref itemModified))
+                    ev.Reminders.UseDefault = false;
             }
             #endregion
 
@@ -1955,7 +1971,7 @@ namespace OutlookGoogleCalendarSync.Google {
             }
             log.Info("Google calendar timezone: " + cal.TimeZone);
 
-            if (!profile.AddReminders) return;
+            if (profile.AddReminders != SettingsStore.Calendar.AddReminderModes.Sync) return;
 
             if (cal.DefaultReminders.Count == 0)
                 this.MinDefaultReminder = int.MinValue;

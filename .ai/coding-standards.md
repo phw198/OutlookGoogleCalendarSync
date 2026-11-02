@@ -4,9 +4,10 @@ Please adhere to these coding standards when developing or modifying code for OG
 
 ## C# Coding Conventions
 - **Naming Conventions**:
-  - Use PascalCase for class names, methods, and public properties (e.g., `NotificationTray`, `SyncEngine`).
+  - Use PascalCase for class names, public members, and internal members used by other classes (e.g., `NotificationTray`, `SyncEngine`, `TimeInOutlookZone`).
   - Use camelCase for local variables, method parameters, and private methods (e.g., `eventItem`, `syncDirection`, `notificationClicked`).
   - Prefix private class fields with an underscore (e.g., `_notifyIcon`, `_settings`).
+- **Method Documentation**: Add an XML documentation summary block (`<summary>`) to every new function or method, briefly describing its purpose and behavior.
 - **Explicit Types**:
   - Prefer explicit type declarations over `var` for local variables. Only use `var` when the type is obvious from the right-hand side (e.g., `var x = new Exception("...")`) or the type is extremely verbose; explicit types improve readability in this codebase.
 - **Avoid Redundant Locals**:

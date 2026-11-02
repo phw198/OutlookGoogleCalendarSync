@@ -18,8 +18,16 @@ namespace OutlookGoogleCalendarSync.Outlook {
     public class Calendar {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
-        private static Calendar instance;
+        private static volatile Calendar instance;
+        private static readonly Object instanceLock = new Object();
         public static Boolean IsInstanceNull { get { return instance == null; } }
+        private static volatile Boolean connecting;
+        public static Boolean Connecting { get { return connecting; } }
+        private static volatile Boolean exchangeUnavailable;
+        public static Boolean ExchangeUnavailable {
+            get { return exchangeUnavailable; }
+            internal set { exchangeUnavailable = value; }
+        }
         public Interface IOutlook;
 
         /// <summary>Whether instance of OutlookCalendar class should connect to Outlook application</summary>
@@ -27,21 +35,40 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
         public static Calendar Instance {
             get {
-                try {
-                    instance ??= new Ogcs.Outlook.Calendar();
-                    if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()) {
-                        instance.IOutlook.Connect();
+                lock (instanceLock) {
+                    connecting = true;
+                    try {
+                        instance ??= new Ogcs.Outlook.Calendar();
+                        if (instance.Folders == null && !Ogcs.Outlook.Factory.NoClient()) {
+                            instance.IOutlook.Connect();
+                            ExchangeUnavailable = false;
+                        }
+                    } catch (System.ApplicationException ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex))
+                            ExchangeUnavailable = true;
+                        throw;
+                    } catch (System.Exception ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex)) {
+                            ExchangeUnavailable = true;
+                            throw;
+                        }
+                        if (ex is System.Runtime.InteropServices.COMException) Ogcs.Exception.LogAsFail(ref ex);
+                        Ogcs.Exception.Analyse(ex);
+                        log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
+                        instance = new Calendar();
+                        try {
+                            instance.IOutlook.Connect();
+                            ExchangeUnavailable = false;
+                        } catch (System.Exception reconnectException) {
+                            if (Outlook.Errors.IsExchangeUnavailable(reconnectException))
+                                ExchangeUnavailable = true;
+                            throw;
+                        }
+                    } finally {
+                        connecting = false;
                     }
-                } catch (System.ApplicationException) {
-                    throw;
-                } catch (System.Exception ex) {
-                    if (ex is System.Runtime.InteropServices.COMException) Ogcs.Exception.LogAsFail(ref ex);
-                    Ogcs.Exception.Analyse(ex);
-                    log.Info("It appears Outlook has been closed/restarted after OGCS was started. Reconnecting...");
-                    instance = new Calendar();
-                    instance.IOutlook.Connect();
+                    return instance;
                 }
-                return instance;
             }
         }
         
@@ -94,7 +121,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
 
             try {
                 InstanceConnect = false;
-                Instance.IOutlook.Disconnect(onlyWhenNoGUI);
+                instance.IOutlook.Disconnect(onlyWhenNoGUI);
             } catch (System.Exception ex) {
                 ex.LogAsFail().Analyse("Could not disconnect from Outlook.");
             } finally {
@@ -194,6 +221,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     AppointmentItem ai;
                     try {
                         ai = obj as AppointmentItem;
+                        if (ai == null) throw new System.InvalidCastException("Item is not an AppointmentItem.");
+                    } catch (System.Runtime.InteropServices.COMException ex) when (Outlook.Errors.IsExchangeUnavailable(ex)) {
+                        throw;
                     } catch {
                         log.Warn("Encountered a non-appointment item in the calendar.");
                         if (obj is MeetingItem) log.Debug("It is a meeting item.");
@@ -222,6 +252,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         continue;
 
                     } catch (System.Exception ex) {
+                        if (Outlook.Errors.IsExchangeUnavailable(ex))
+                            throw;
                         Ogcs.Exception.Analyse(ex, true);
                         log.Debug("Unable to get End date for: " + GetEventSummary(ai));
                         continue;
@@ -236,6 +268,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                             try {
                                 filtered = Categories.isExcludedByFilter(ai.Categories, profile.Categories, profile.CategoriesRestrictBy);
                             } catch (System.Runtime.InteropServices.COMException ex) {
+                                if (Outlook.Errors.IsExchangeUnavailable(ex))
+                                    throw;
                                 if (ex.TargetSite.Name == "get_Categories") {
                                     log.Warn("Could not access Categories property for " + GetEventSummary(ai));
                                     filtered = Categories.isExcludedByFilter(null, profile.Categories, profile.CategoriesRestrictBy);
@@ -419,21 +453,31 @@ namespace OutlookGoogleCalendarSync.Outlook {
             }
 
             //Reminder alert
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
+                int googleReminderMinutes = int.MinValue;
                 if (ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false) {
-                    ai.ReminderSet = true;
                     try {
                         EventReminder reminder = ev.Reminders.Overrides.Where(r => r.Method == "popup").OrderBy(x => x.Minutes).First();
-                        ai.ReminderMinutesBeforeStart = (int)reminder.Minutes;
+                        googleReminderMinutes = (int)reminder.Minutes;
                     } catch (System.Exception ex) {
                         ex.Analyse("Failed setting Outlook reminder for final popup Google notification.");
                     }
                 } else if ((ev.Reminders?.UseDefault ?? false) && Ogcs.Google.Calendar.Instance.MinDefaultReminder != int.MinValue) {
+                    googleReminderMinutes = Ogcs.Google.Calendar.Instance.MinDefaultReminder;
+                }
+
+                Boolean googleReminderBlockedByDnd = googleReminderMinutes != int.MinValue &&
+                    profile.IsReminderDNDActive(ev.Start.SafeDateTimeOffset().AddMinutes(-googleReminderMinutes).LocalDateTime);
+                if (googleReminderBlockedByDnd) {
+                    ai.ReminderSet = false;
+                } else if (googleReminderMinutes != int.MinValue) {
                     ai.ReminderSet = true;
-                    ai.ReminderMinutesBeforeStart = Ogcs.Google.Calendar.Instance.MinDefaultReminder;
+                    ai.ReminderMinutesBeforeStart = googleReminderMinutes;
                 } else {
                     ai.ReminderSet = profile.UseOutlookDefaultReminder;
                 }
+            } else if (profile.NoRemindersConfigPermitted) {
+                ai.ReminderSet = false;
             }
 
             if (profile.AddGMeet && !String.IsNullOrEmpty(ev.HangoutLink)) {
@@ -604,12 +648,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         } else {
                             oPattern = ai.GetRecurrencePattern();
                             if (startChange) {
-                                oPattern.PatternStartDate = evStartParsedDate.Date;
-                                oPattern.StartTime = TimeZoneInfo.ConvertTime(evStartParsedDate.Date, TimeZoneInfo.FindSystemTimeZoneById(newStartTZ));
+                                System.DateTime convertedStart = Recurrence.TimeInOutlookZone(evStartParsedDate, newStartTZ);
+                                oPattern.PatternStartDate = convertedStart.Date;
+                                oPattern.StartTime = convertedStart;
                             }
                             if (endChange) {
-                                oPattern.PatternEndDate = evEndParsedDate.Date;
-                                oPattern.EndTime = TimeZoneInfo.ConvertTime(evEndParsedDate.Date, TimeZoneInfo.FindSystemTimeZoneById(newEndTZ));
+                                oPattern.EndTime = Recurrence.TimeInOutlookZone(evEndParsedDate, newStartTZ);
                             }
                         }
                     } else {
@@ -811,7 +855,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             #endregion
 
             #region Reminders
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 Boolean googleHasExplicitPopupReminder = ev.Reminders?.Overrides?.Any(r => r.Method == "popup") ?? false;
                 Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? false;
 
@@ -829,6 +873,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     shouldOutlookReminderBeSet = true;
                 } else {
                     shouldOutlookReminderBeSet = profile.UseOutlookDefaultReminder;
+                }
+
+                if (googleProvidedReminderMinutes != int.MinValue &&
+                    profile.IsReminderDNDActive(ev.Start.SafeDateTimeOffset().AddMinutes(-googleProvidedReminderMinutes).LocalDateTime)) {
+                    shouldOutlookReminderBeSet = false;
                 }
 
                 if (shouldOutlookReminderBeSet) {
@@ -852,11 +901,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         ai.ReminderSet = true;
                         itemModified++;
                     }
-                } else if (ai.ReminderSet) { // No Google reminder and UseOutlookDefaultReminder is false, but Outlook has a reminder set
+                } else if (ai.ReminderSet) { // No effective Google reminder (or DND is active) and Outlook has a reminder set
                     sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
                     ai.ReminderSet = false;
                     itemModified++;
                 }
+            } else if (profile.NoRemindersConfigPermitted && ai.ReminderSet) {
+                sb.AppendLine("Reminder: " + ai.ReminderMinutesBeforeStart + " => removed");
+                ai.ReminderSet = false;
+                itemModified++;
             }
             #endregion
 
@@ -1232,6 +1285,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if (oApp == null)
                         throw new ApplicationException("GetActiveObject() returned NULL without throwing an error.");
                 } catch (System.Exception ex) {
+                    if (Outlook.Errors.IsExchangeUnavailable(ex))
+                        throw;
                     if (ex is ApplicationException) {
                         log.Warn(ex.Message);
                     } else if (ex is ArgumentNullException) {
@@ -1319,17 +1374,15 @@ namespace OutlookGoogleCalendarSync.Outlook {
             } catch (System.Runtime.InteropServices.COMException ex) {
                 Outlook.Errors.ErrorType error = Outlook.Errors.HandleComError(ex, out String hResult);
 
-                if (error == Outlook.Errors.ErrorType.RpcRejected ||
+                if (error == Outlook.Errors.ErrorType.ExchangeUnavailable) {
+                    throw;
+
+                } else if (error == Outlook.Errors.ErrorType.RpcRejected ||
                     error == Outlook.Errors.ErrorType.PermissionFailure ||
                     error == Outlook.Errors.ErrorType.RpcServerUnavailable ||
                     error == Outlook.Errors.ErrorType.RpcFailed) //
                 {
                     log.Warn(ex.Message);
-                    throw new ApplicationException("Outlook is busy.", ex);
-
-                } else if (ex.GetErrorCode(0x000FFFFF) == "0x00040115") {
-                    log.Warn(ex.Message);
-                    log.Debug("OGCS is not able to run as Outlook is not properly connected to the Exchange server?");
                     throw new ApplicationException("Outlook is busy.", ex);
 
                 } else if (ex.GetErrorCode(0x000FFFFF) == "0x000702E4") {
@@ -1798,7 +1851,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Boolean IsOKtoSyncReminder(AppointmentItem ai) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.ReminderDND) {
+            if (profile.ReminderDNDConfigPermitted) {
                 System.DateTime alarm;
                 if (ai.ReminderSet)
                     alarm = ai.Start.AddMinutes(-ai.ReminderMinutesBeforeStart);
@@ -1816,31 +1869,11 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public Boolean IsOKtoSyncReminder(System.DateTime alarm) {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
 
-            if (profile.ReminderDNDstart.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {
-                //eg 22:00 to 06:00
-                //Make sure end time is the day following the start time
-                int shiftDay = 0;
-                System.DateTime dndStart;
-                System.DateTime dndEnd;
-                if (alarm.TimeOfDay < profile.ReminderDNDstart.TimeOfDay) shiftDay = -1;
-                dndStart = alarm.Date.AddDays(shiftDay).Add(profile.ReminderDNDstart.TimeOfDay);
-                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(profile.ReminderDNDend.TimeOfDay);
-                if (alarm > dndStart && alarm < dndEnd) {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                } else
-                    return true;
-
-            } else {
-                //eg 01:00 to 06:00
-                if (alarm.TimeOfDay < profile.ReminderDNDstart.TimeOfDay ||
-                    alarm.TimeOfDay > profile.ReminderDNDend.TimeOfDay) {
-                    return true;
-                } else {
-                    log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
-                    return false;
-                }
+            if (profile.IsReminderDNDActive(alarm)) {
+                log.Debug("Reminder (@" + alarm.ToString("HH:mm") + ") falls in DND range - not synced.");
+                return false;
             }
+            return true;
         }
         #endregion
 

@@ -8,6 +8,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         private static readonly ILog log = LogManager.GetLogger(typeof(Errors));
 
         public enum ErrorType {
+            ExchangeUnavailable,
             InvokedObjectDisconnectedFromClients,
             ObjectSeparatedFromRcw,
             OperationFailed,
@@ -18,6 +19,17 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Unavailable,
             WrongThread,
             Unhandled
+        }
+
+        public static Boolean IsExchangeUnavailable(System.Exception ex) {
+            if (ex is System.Runtime.InteropServices.COMException comEx &&
+                (comEx.GetErrorCode() == "0x8004011D" || comEx.GetErrorCode() == "0xC204011D" ||
+                 comEx.GetErrorCode(0x000FFFFF) == "0x00040115" ||
+                 comEx.Message.StartsWith("Network problems are preventing connection to Microsoft Exchange.")))
+                return true;
+            if (ex is AggregateException aggregate)
+                return aggregate.InnerExceptions.Any(IsExchangeUnavailable);
+            return ex.InnerException != null && IsExchangeUnavailable(ex.InnerException);
         }
 
         public static ErrorType HandleComError(System.Exception ex) {
@@ -40,6 +52,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 }
 
                 if (ex is System.Runtime.InteropServices.COMException) {
+                    if (IsExchangeUnavailable(ex))
+                        return retVal = ErrorType.ExchangeUnavailable;
+
                     if (hResult == "0x80004002" && ex.Message.Contains("0x8001010E (RPC_E_WRONG_THREAD")) return retVal = ErrorType.WrongThread;
 
                     if (hResult == "0x80010001" && ex.Message.Contains("RPC_E_CALL_REJECTED")) return retVal = ErrorType.RpcRejected;
@@ -69,6 +84,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
         public static Boolean LogAsFail(System.Exception ex) {
             if (ex is not System.Runtime.InteropServices.COMException) return false;
             return (new ErrorType[] { 
+                ErrorType.ExchangeUnavailable,
                 ErrorType.OperationFailed,
                 ErrorType.PermissionFailure, 
                 ErrorType.RpcFailed, 

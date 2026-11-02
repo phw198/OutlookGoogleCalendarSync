@@ -64,4 +64,5 @@ sequenceDiagram
 ## Data Consistency & Timezones
 - **Timestamp Strategy**: The application prioritizes `DateTimeOffset` for all calendar event timestamps to ensure unambiguous point-in-time representation across different timezones.
 - **Comparison Logic**: To avoid local clock-time bugs, comparisons between local `DateTime` variables and API-sourced `DateTimeOffset` values must explicitly specify whether they are comparing the clock face (`.DateTime`), the calendar date (`.Date`), or the universal instant (`.UtcDateTime`).
+- **Sync Window Boundaries**: `SyncStart` and `SyncEnd` represent local midnight boundaries for classic Outlook and recurrence queries. Cloud range filters use the corresponding UTC instants, while Graph recurrence queries use local midnight with the system offset in ISO 8601 format.
 - **Standardized Extensions**: Custom extension methods (e.g., `SafeDateTimeOffset()`) are used to normalize date parsing from various API formats into a consistent internal representation.

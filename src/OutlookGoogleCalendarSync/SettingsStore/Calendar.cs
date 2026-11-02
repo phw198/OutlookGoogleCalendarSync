@@ -79,7 +79,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
             AddLocation = true;
             AddDescription = true;
             AddDescription_OnlyToGoogle = true;
-            AddReminders = false;
+            AddReminders = AddReminderModes.Inherit;
             UseGoogleDefaultReminder = false;
             UseOutlookDefaultReminder = false;
             ReminderDND = false;
@@ -165,13 +165,13 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         #region When
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
-        /// <summary>Gets the sync start date explicitly formatted as a UTC midnight instant for cloud APIs.</summary>
+        /// <summary>Gets the sync start date converted from local midnight to a UTC instant for cloud APIs.</summary>
         public DateTime SyncStartUtcMidnight {
-            get { return DateTime.SpecifyKind(SyncStart.Date, DateTimeKind.Utc); }
+            get { return SyncStart.Date.ToUniversalTime(); }
         }
-        /// <summary>Gets the sync end date explicitly formatted as a UTC midnight instant for cloud APIs.</summary>
+        /// <summary>Gets the sync end date converted from local midnight to a UTC instant for cloud APIs.</summary>
         public DateTime SyncEndUtcMidnight {
-            get { return DateTime.SpecifyKind(SyncEnd.Date, DateTimeKind.Utc); }
+            get { return SyncEnd.Date.ToUniversalTime(); }
         }
         [DataMember] public Sync.Direction SyncDirection { get; set; }
         [DataMember] public int DaysInThePast { get; set; }
@@ -184,7 +184,45 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         [DataMember] public bool AddLocation { get; set; }
         [DataMember] public bool AddDescription { get; set; }
         [DataMember] public bool AddDescription_OnlyToGoogle { get; set; }
-        [DataMember] public bool AddReminders { get; set; }
+        public enum AddReminderModes {
+            Inherit,        //From the calendar's default reminder settings
+            NoReminders,    //Remove any existing reminders, including defaults
+            Sync            //Sync reminders according to source calendar event and OGCS's settings
+        }
+        [DataMember] public AddReminderModes AddReminders { get; set; }
+        /// <summary>Don't allow removal of reminders for bi-directional sync</summary>
+        public Boolean NoRemindersConfigPermitted {
+            get {
+                return AddReminders == AddReminderModes.NoReminders &&
+                    SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            }
+        }
+        /// <summary>Don't allow Do Not Disturb for bi-directional sync</summary>
+        public Boolean ReminderDNDConfigPermitted {
+            get {
+                return ReminderDND && SyncDirection.Id != Sync.Direction.Bidirectional.Id;
+            }
+        }
+        public Boolean IsReminderDNDActive(DateTime alarm) {
+            if (!ReminderDNDConfigPermitted)
+                return false;
+
+            if (ReminderDNDstart.TimeOfDay > ReminderDNDend.TimeOfDay) {
+                //eg 22:00 to 06:00
+                //Make sure end time is the day following the start time
+                int shiftDay = 0;
+                DateTime dndStart;
+                DateTime dndEnd;
+                if (alarm.TimeOfDay < ReminderDNDstart.TimeOfDay) shiftDay = -1;
+                dndStart = alarm.Date.AddDays(shiftDay).Add(ReminderDNDstart.TimeOfDay);
+                dndEnd = alarm.Date.AddDays(shiftDay + 1).Add(ReminderDNDend.TimeOfDay);
+                return alarm >= dndStart && alarm <= dndEnd;
+            }
+
+            //eg 01:00 to 06:00
+            return alarm.TimeOfDay >= ReminderDNDstart.TimeOfDay &&
+                alarm.TimeOfDay <= ReminderDNDend.TimeOfDay;
+        }
         [DataMember] public bool UseGoogleDefaultReminder { get; set; }
         [DataMember] public bool UseOutlookDefaultReminder { get; set; }
         [DataMember] public bool ReminderDND { get; set; }
@@ -345,7 +383,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 log.Info("  AddColours: " + AddColours);
                 if (ColourMaps.Count > 0) {
                     log.Info("  Custom Colour/Category Mapping:-");
-                    if (Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
+                    if (Outlook.Factory.IsVersionKnown && Outlook.Factory.OutlookVersionName == Outlook.Factory.OutlookVersionNames.Outlook2003)
                         log.Fail("    Using Outlook2003 - categories not supported, although mapping exists");
                     else
                         ColourMaps.ToList().ForEach(c => log.Info("    " + Outlook.Calendar.Categories?.OutlookColour(c.Key) + ":" + c.Key + " <=> " +

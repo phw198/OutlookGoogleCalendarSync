@@ -598,8 +598,10 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
 
             //Reminder alert
-            ev.Reminders = new Event.RemindersData();
-            if (profile.AddReminders) {
+            if (profile.AddReminders != SettingsStore.Calendar.AddReminderModes.Inherit) {
+                ev.Reminders = new Event.RemindersData();
+            }
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 if (Outlook.Graph.Calendar.Instance.IsOKtoSyncReminder(ai)) {
                     if (ai.IsReminderOn ?? false) {
                         ev.Reminders.UseDefault = false;
@@ -614,8 +616,8 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                 } else {
                     ev.Reminders.UseDefault = false;
                 }
-            } else
-                ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
+            } else if (profile.NoRemindersConfigPermitted)
+                ev.Reminders.UseDefault = false;
 
             //Add the Outlook appointment ID into Google event
             CustomProperty.AddOutlookIDs(ref ev, ai);
@@ -960,7 +962,7 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
             }
 
             #region Reminders
-            if (profile.AddReminders) {
+            if (profile.AddReminders == SettingsStore.Calendar.AddReminderModes.Sync) {
                 Boolean OKtoSyncReminder = Outlook.Graph.Calendar.Instance.IsOKtoSyncReminder(ai);
                 if (ev.Reminders.Overrides != null && ev.Reminders.Overrides.Any(r => r.Method == "popup")) {
                     //Find the popup reminder(s) in Google
@@ -1012,11 +1014,18 @@ namespace OutlookGoogleCalendarSync.Google.Graph {
                         }
                     }
                 }
-            } else {
-                if (ev.Reminders.Overrides == null) {
-                    if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, ev.Reminders.UseDefault.ToString(), profile.UseGoogleDefaultReminder.ToString(), sb, ref itemModified))
-                        ev.Reminders.UseDefault = profile.UseGoogleDefaultReminder;
+            } else if (profile.NoRemindersConfigPermitted &&
+                (ev.Reminders == null || (bool)ev.Reminders.UseDefault || ev.Reminders.Overrides?.Count > 0)) {
+                Boolean googleUsesDefaultReminders = ev.Reminders?.UseDefault ?? true;
+                ev.Reminders ??= new Event.RemindersData();
+                for (int r = (ev.Reminders.Overrides?.Count ?? 0) - 1; r >= 0; r--) {
+                    EventReminder reminder = ev.Reminders.Overrides[r];
+                    sb.AppendLine("Reminder: " + reminder.Minutes + " => removed");
+                    ev.Reminders.Overrides.Remove(reminder);
+                    itemModified++;
                 }
+                if (Sync.Engine.CompareAttribute("Reminder Default", Sync.Direction.OutlookToGoogle, googleUsesDefaultReminders.ToString(), false.ToString(), sb, ref itemModified))
+                    ev.Reminders.UseDefault = false;
             }
             #endregion
 
