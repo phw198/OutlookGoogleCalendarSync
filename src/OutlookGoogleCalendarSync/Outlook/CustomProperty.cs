@@ -257,7 +257,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
         /// <returns>True: proven by copied items having different entry IDs</returns>
         public static Boolean HasDifferentSourceEntryID(AppointmentItem ai, SettingsStore.Calendar profile = null) {
             String oEntryID = Get(ai, MetadataId.oEntryID, profile);
-            return !String.IsNullOrEmpty(oEntryID) && oEntryID != ai.EntryID;
+            Boolean differentEntryID = !String.IsNullOrEmpty(oEntryID) && oEntryID != ai.EntryID;
+            if (differentEntryID)
+                log.Info("Detected copied Outlook appointment: stored EntryID " + oEntryID + ", current EntryID " + ai.EntryID + ".");
+            return differentEntryID;
         }
 
         /// <summary>

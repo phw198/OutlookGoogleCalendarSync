@@ -1027,7 +1027,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         CustomProperty.LogProperties(ai, Program.MyFineLevel);
 
                         //Find entries with no Google ID
-                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID)) {
+                        if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.gEventID) &&
+                            !CustomProperty.HasDifferentSourceEntryID(ai, profile)) //
+                        {
                             String sigAi = signature(ai);
                             unclaimedAi.Add(ai);
 
@@ -1792,6 +1794,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 //Don't delete any items that aren't yet in Google or just created in Google during this sync
                 for (int o = outlook.Count - 1; o >= 0; o--) {
                     if (!CustomProperty.Exists(outlook[o], CustomProperty.MetadataId.gEventID) ||
+                        CustomProperty.HasDifferentSourceEntryID(outlook[o], profile) ||
                         CustomProperty.GetOGCSlastModified(outlook[o]) > Sync.Engine.Instance.SyncStarted)
                         //OGCSlastModified must be used, not LastModificationTime, as the latter may inexplicably (Exchange caching?) be prior to the sync start
                         //Evidenced by issue #2268
@@ -1820,8 +1823,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
             SettingsStore.Calendar profile = Sync.Engine.Calendar.Instance.Profile;
             if (CustomProperty.Get(ai, CustomProperty.MetadataId.gEventID) == ev.Id) {
                 log.Fine("Comparing Google Calendar ID");
-                if (CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) == profile.UseGoogleCalendar.Id)
+                if (CustomProperty.Get(ai, CustomProperty.MetadataId.gCalendarId) == profile.UseGoogleCalendar.Id) {
+                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
+                        CustomProperty.HasDifferentSourceEntryID(ai, profile))
+                        return false;
                     return true;
+                }
                 else {
                     log.Warn("Could not find Google calendar ID against Outlook appointment item.");
                     return true;

@@ -1698,6 +1698,21 @@ namespace OutlookGoogleCalendarSync.Google {
             }
         }
 
+        private static Boolean IsCurrentUserOrganiser(AppointmentItem ai, SettingsStore.Calendar profile) {
+            if (profile.OutlookGalBlocked) return false;
+
+            try {
+                return ai.Organizer == Outlook.Calendar.Instance.IOutlook.CurrentUserName();
+            } catch (System.Runtime.InteropServices.COMException ex) {
+                if (ex.GetErrorCode() == "0x80004004")
+                    log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
+                else
+                    Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
+                profile.OutlookGalBlocked = true;
+                return false;
+            }
+        }
+
         public static Boolean ItemIDsMatch(ref Event ev, AppointmentItem ai) {
             //AppointmentItem Entry IDs change when accepting invites; causes item to be recreated if only match on that
             //So first match on the Global Appointment ID
@@ -1738,6 +1753,7 @@ namespace OutlookGoogleCalendarSync.Google {
                         //So now compare the Entry ID too.
                         log.Fine("Comparing Outlook EntryID");
                         gCompareID = CustomProperty.Get(ev, CustomProperty.MetadataId.oEntryId);
+                        Boolean sourceEntryIDChanged = Outlook.CustomProperty.HasDifferentSourceEntryID(ai, profile);
                         if (gCompareID == ai.EntryID) {
                             return true;
                         } else if (!string.IsNullOrEmpty(gCompareID) &&
@@ -1745,24 +1761,20 @@ namespace OutlookGoogleCalendarSync.Google {
                         {
                             //Worse still, both a copied item AND a rescheduled appointment by someone else
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
-                            String aiOrganiser = "";
-                            if (!profile.OutlookGalBlocked) {
-                                try {
-                                    aiOrganiser = ai.Organizer;
-                                } catch (System.Runtime.InteropServices.COMException ex) {
-                                    if (ex.GetErrorCode() == "0x80004004") { //E_ABORT
-                                        log.Warn("Corporate policy or possibly anti-virus is blocking access to GAL.");
-                                    } else Ogcs.Exception.Analyse(Ogcs.Exception.LogAsFail(ex));
-                                    profile.OutlookGalBlocked = true;
-                                }
+                            Boolean currentUserIsOrganiser = IsCurrentUserOrganiser(ai, profile);
+                            if (sourceEntryIDChanged && currentUserIsOrganiser) {
+                                log.Info("Rejected copied Outlook appointment while matching an existing Google event.");
+                                return false;
                             }
-                            if (profile.OutlookGalBlocked || aiOrganiser != Outlook.Calendar.Instance.IOutlook.CurrentUserName()) {
+                            if (profile.OutlookGalBlocked || !currentUserIsOrganiser) {
                                 if (profile.OutlookGalBlocked)
                                     log.Warn("It looks like the organiser changed time of appointment, but due to GAL policy we can't check who they are.");
                                 else
                                     log.Fine("Organiser changed time of appointment.");
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
+                                if (sourceEntryIDChanged)
+                                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
                                 return true;
                             } else {
                                 log.Warn("Organiser changed time of appointment...but the organiser is you! (Shouldn't have ended up here)");
@@ -1770,9 +1782,15 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
                         } else {
                             log.Warn("EntryID has changed - invite accepted?");
+                            if (sourceEntryIDChanged && IsCurrentUserOrganiser(ai, profile)) {
+                                log.Info("Rejected copied Outlook appointment while matching an existing Google event.");
+                                return false;
+                            }
                             if (SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
+                                if (sourceEntryIDChanged)
+                                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
                                 return true;
                             }
                         }
@@ -1785,12 +1803,18 @@ namespace OutlookGoogleCalendarSync.Google {
                     Outlook.CustomProperty.Get(ai, Outlook.CustomProperty.MetadataId.gEventID) == ev.Id &&
                     SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) 
                 {
+                    if (Outlook.CustomProperty.HasDifferentSourceEntryID(ai, profile) && IsCurrentUserOrganiser(ai, profile)) {
+                        log.Info("Rejected copied Outlook appointment while recovering a changed GlobalID.");
+                        return false;
+                    }
+
                     //Apple iCloud completely recreates the GlobalID and zeros out the timestamp element! Issue #447.
                     log.Warn("Appointment GlobalID has completely changed, but Google Event ID matches so relying on that!");
                     log.Debug("Google's Event Id: " + ev.Id);
                     log.Debug("Google's Outlook Global Id: " + gCompareID);
                     log.Debug("Outlook's new Global Id: " + oGlobalID);
                     CustomProperty.AddOutlookIDs(ref ev, ai); //update GlobalID
+                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
                     CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
                     return true;
                 }
