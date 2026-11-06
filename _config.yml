@@ -9,7 +9,7 @@
 # 'bundle exec jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-# These are used to personalize your new site. If you look in the HTML files,
+# These are used to personalize your new site. If you look at the HTML files,
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
@@ -41,8 +41,8 @@ google_ad_testing: "off"
 release-date-recency: 40  #Number of days to redirect to the MS Defender SmartScreen blog
 
 show_alpha_downloads: true
-alpha-version: 3.0.5
-alpha-release-date: 20261011
+alpha-version: 3.0.6
+alpha-release-date: 20261105
 
 show_v2_alpha_downloads: true
 beta-version: 2.12.0
