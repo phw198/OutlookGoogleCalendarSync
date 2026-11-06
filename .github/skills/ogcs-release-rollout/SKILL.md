@@ -1,6 +1,6 @@
 ---
 name: ogcs-release-rollout
-description: Roll out an OGCS Squirrel release by checking and aligning the full and delta NUPKG percentages in its GitHub RELEASES asset.
+description: Roll out an OGCS Squirrel release by aligning full and delta NUPKG percentages and optionally updating GitHub Pages release pointers after completion.
 user-invocable: true
 disable-model-invocation: true
 ---

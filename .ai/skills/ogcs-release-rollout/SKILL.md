@@ -1,6 +1,6 @@
 ---
 name: ogcs-release-rollout
-description: 'Use when gradually rolling out an OGCS Squirrel release, checking rollout percentages, or updating both full and delta NUPKG entries in the GitHub RELEASES asset through the 10%, 25%, 50%, 75%, and 100% stages.'
+description: 'Use when gradually rolling out an OGCS Squirrel release, aligning full and delta NUPKG percentages, or optionally updating GitHub Pages release pointers after rollout completion.'
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "VERSION=<release-tag> (optional)"
@@ -42,6 +42,19 @@ Use this workflow to inspect and advance the staged rollout recorded in a GitHub
    - If neither replacement method is available and the GitHub web UI is used, keep a local backup, then in one edit remove the existing `RELEASES` asset, upload the candidate whose local basename is exactly `RELEASES`, and save once. The browser uploads using the selected local filename immediately; do not upload a differently named temporary file and try to rename it in the filename textbox, because that can trigger a duplicate-name validation error. If the single-save replacement fails, stop and report the current remote asset state rather than retrying with a different sequence without approval.
    - Download the final asset again from GitHub and compare it byte-for-byte with the approved candidate. Verify that exactly one asset named `RELEASES` remains and both package lines have matching percentages. Report success only if all checks pass.
    - If upload or verification fails, report the exact failure, preserve the local backup and candidate, and do not claim that the release was updated. Do not retry a destructive replacement without explaining the failure and obtaining approval.
+6. **Offer the optional GitHub Pages update after completing rollout.**
+   - Only after the completed `RELEASES` asset has been verified, ask whether the user also wants the GitHub Pages release pointer updated. If they decline, finish without changing the website.
+   - If they agree, derive the bare release number and channel from the release (for example, `v3.0.6-alpha` becomes version `3.0.6`, channel `alpha`). Propose today's date as `YYYYMMDD` and ask whether they want a different date.
+   - Read the current `_config.yml` and `_includes/downloads.html` directly from the remote `gh-pages` branch. Use the template's displayed major-version and channel sections to map to the exact existing version/date key pair; do not infer the mapping from a key name alone. The current mapping is:
+     - v3 Alpha: `alpha-version` and `alpha-release-date`.
+     - v2 Beta: `beta-version` and `beta-release-date`.
+     - v2 Alpha: `v2-alpha-version` and `v2-alpha-release-date`.
+     - No v3 Beta section/key pair currently exists. If the release has no matching section or the required key pair is absent or ambiguous, stop and ask; do not create or repurpose keys.
+   - Replace only the matching version and date values. Store the bare version without a leading `v` or `-alpha`/`-beta` suffix, and the selected date as exactly eight digits (`YYYYMMDD`).
+   - Make targeted edits to those two key/value lines only. Never select all and retype or reformat `_config.yml`, or alter adjacent comments, whitespace, or other settings. Before committing, inspect the diff and confirm it contains only the selected release version/date lines. If any other line or formatting changed, cancel the pending edit and retry with targeted edits; do not commit until the diff is limited to the intended release fields.
+   - Show the exact before/after values and use commit message `v<release-number>` (for example, `v3.0.6`). Commit directly to the remote `gh-pages` branch using the GitHub web UI or an authenticated API tool with the branch explicitly set to `gh-pages`.
+   - Do not checkout or switch the local VS Code working branch, edit a local `_config.yml`, or use a workflow that leaves the active branch changed. If a direct remote-branch edit is unavailable, stop and ask rather than switching branches.
+   - After committing, read `_config.yml` from remote `gh-pages` again and verify the selected values, commit message, and commit diff. If an unrelated change is found after a commit, stop and report it rather than silently creating a corrective commit. Report the website update separately from the release asset update.
 
 ## GitHub CLI fallback
 
