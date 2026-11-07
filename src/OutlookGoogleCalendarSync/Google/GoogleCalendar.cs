@@ -792,9 +792,8 @@ namespace OutlookGoogleCalendarSync.Google {
 
             if (!String.IsNullOrEmpty(createdEvent.Id) && (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai))) {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
-                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id)
-                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
                 Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
+                Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
                 Outlook.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
@@ -864,7 +863,6 @@ namespace OutlookGoogleCalendarSync.Google {
                         else
                             throw new UserCancelledSyncException("User chose not to continue sync.");
                     }
-
                 }
 
                 //Have to do this *before* any dummy update, else all the exceptions inherit the updated timestamp of the parent recurring event
@@ -1762,7 +1760,7 @@ namespace OutlookGoogleCalendarSync.Google {
                             //Worse still, both a copied item AND a rescheduled appointment by someone else
                             //will have the MessageGlobalCounter bytes incremented (last 8-bytes)
                             Boolean currentUserIsOrganiser = IsCurrentUserOrganiser(ai, profile);
-                            if (sourceEntryIDChanged && currentUserIsOrganiser) {
+                            if (sourceEntryIDChanged && currentUserIsOrganiser && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                                 log.Info("Rejected copied Outlook appointment while matching an existing Google event.");
                                 return false;
                             }
@@ -1773,8 +1771,10 @@ namespace OutlookGoogleCalendarSync.Google {
                                     log.Fine("Organiser changed time of appointment.");
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
-                                if (sourceEntryIDChanged)
-                                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                                if (sourceEntryIDChanged && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.forceSave, true.ToString());
+                                }
                                 return true;
                             } else {
                                 log.Warn("Organiser changed time of appointment...but the organiser is you! (Shouldn't have ended up here)");
@@ -1782,15 +1782,17 @@ namespace OutlookGoogleCalendarSync.Google {
                             }
                         } else {
                             log.Warn("EntryID has changed - invite accepted?");
-                            if (sourceEntryIDChanged && IsCurrentUserOrganiser(ai, profile)) {
+                            if (sourceEntryIDChanged && IsCurrentUserOrganiser(ai, profile) && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                                 log.Info("Rejected copied Outlook appointment while matching an existing Google event.");
                                 return false;
                             }
                             if (SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) {
                                 CustomProperty.AddOutlookIDs(ref ev, ai); //update EntryID
                                 CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
-                                if (sourceEntryIDChanged)
-                                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                                if (sourceEntryIDChanged && profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                                    Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.forceSave, true.ToString());
+                                }
                                 return true;
                             }
                         }
@@ -1804,7 +1806,9 @@ namespace OutlookGoogleCalendarSync.Google {
                     SignaturesMatch(Signature(ev), Outlook.Calendar.signature(ai))) 
                 {
                     if (Outlook.CustomProperty.HasDifferentSourceEntryID(ai, profile) && IsCurrentUserOrganiser(ai, profile)) {
-                        log.Info("Rejected copied Outlook appointment while recovering a changed GlobalID.");
+                        //If a legitimate iCloud GlobalID change also changes the Outlook EntryID on an appointment organized by the current user,
+                        //the item could be treated as a copy despite the matching Google ID and signature, potentially leading to a duplicate.
+                        log.Warn("Rejected copied Outlook appointment while recovering from a changed GlobalID.");
                         return false;
                     }
 
@@ -1814,7 +1818,10 @@ namespace OutlookGoogleCalendarSync.Google {
                     log.Debug("Google's Outlook Global Id: " + gCompareID);
                     log.Debug("Outlook's new Global Id: " + oGlobalID);
                     CustomProperty.AddOutlookIDs(ref ev, ai); //update GlobalID
-                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                    if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
+                        Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                        Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.forceSave, true.ToString());
+                    }
                     CustomProperty.Add(ref ev, CustomProperty.MetadataId.forceSave, "True");
                     return true;
                 }

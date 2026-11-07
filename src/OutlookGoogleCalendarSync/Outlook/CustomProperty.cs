@@ -321,37 +321,39 @@ namespace OutlookGoogleCalendarSync.Outlook {
             String addkeyName = metadataIdKeyName(key);
 
             UserProperties ups = null;
+            UserProperty prop = null;
             try {
                 int maxSet;
-                int? keySet = null;
+                int? keySet = getKeySet(ai, out maxSet);
                 String currentKeyName = null;
                 if (!Exists(ai, key, out currentKeyName)) {
-                    keySet = getKeySet(ai, out maxSet);
-                    if (key == MetadataId.gCalendarId && (keySet ?? 0) == 0) //Couldn't find key set for calendar
+                    if (key == MetadataId.gCalendarId && (keySet ?? 0) == 0) { //Couldn't find key set for calendar
                         keySet = maxSet + 1; //So start a new one
-                    else if (key != MetadataId.gCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
+                        maxSet = keySet.Value;
+                    } else if (key != MetadataId.gCalendarId && keySet == null) //Couldn't find non-calendar key in the current set
                         keySet = 0; //Add them in to the default key set
 
                     if (keySet.HasValue && keySet.Value != 0) addkeyName += "-" + keySet.Value.ToString("D2");
 
                     try {
                         ups = ai.UserProperties;
-                        ups.Add(addkeyName, keyType);
+                        prop = ups.Add(addkeyName, keyType);
                     } catch (System.Exception ex) {
                         Ogcs.Exception.Analyse(ex);
-                        ups.Add(addkeyName, keyType, false);
-                    } finally {
-                        ups = (UserProperties)Calendar.ReleaseObject(ups);
+                        prop = ups.Add(addkeyName, keyType, false);
                     }
-                } else
+                } else {
                     addkeyName = currentKeyName; //Might be suffixed with "-01"
-                ups = ai.UserProperties;
-                ups[addkeyName].Value = keyValue;
+                    ups = ai.UserProperties;
+                    prop = ups[addkeyName];
+                }
+                prop.Value = keyValue;
                 Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.KeySet, keySet));
-                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, keySet));
+                Calendar.Instance.EphemeralProperties.Add(ai, new EphemeralProperty(EphemeralProperty.PropertyName.MaxSet, maxSet));
                 log.Fine("Set userproperty " + addkeyName + "=" + keyValue.ToString());
 
             } finally {
+                prop = (UserProperty)Calendar.ReleaseObject(prop);
                 ups = (UserProperties)Calendar.ReleaseObject(ups);
             }
         }
