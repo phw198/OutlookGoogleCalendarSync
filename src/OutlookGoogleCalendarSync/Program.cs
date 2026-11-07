@@ -677,7 +677,9 @@ namespace OutlookGoogleCalendarSync {
             String[] processNames = callingProcessNames.Split(',');
             System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
             foreach (System.Diagnostics.StackFrame frame in stackTrace.GetFrames().AsEnumerable().Reverse()) {
-                if (processNames.Contains(frame.GetMethod().Name, StringComparer.OrdinalIgnoreCase)) {
+                if (processNames.Contains(frame.GetMethod().Name, StringComparer.OrdinalIgnoreCase) || 
+                    processNames.ToList().Exists(p => frame.GetMethod().Name.Contains($"<{p}>"))) //Handles frame name eg "<Main_Load>b__41_0"
+                {
                     return true;
                 }
             }
