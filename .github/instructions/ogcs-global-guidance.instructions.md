@@ -10,7 +10,7 @@ You are a senior developer working on the Outlook Google Calendar Sync project.
 1. When updating WIP notes, always check the current branch with `git branch --show-current` before editing anything and make sure you are updating the correct branch-scoped notes file.
 2. Resolve the current branch name, then open the matching branch-scoped WIP note at `.ai/work-in-progress/<branch>.md`. If the branch contains `/`, keep that path as nested folders so `dev/ai` maps to `.ai/work-in-progress/dev/ai.md`.
 3. If the branch note does not exist yet, create it and keep that branch�s notes isolated from the active work on other branches.
-4. Before declaring the task complete, update the current branch note with the latest working notes. Update `AGENTS.md` only for significant project-level milestones or other durable guidance; do not add granular task progress, modified-file summaries, or immediate next steps there; branch progress belongs in the ignored `.ai/work-in-progress/` notes.
+4. Before declaring the task complete, update the current branch note with meaningful progress, decisions, unresolved concerns, and actionable next steps. Omit routine diagnostics, successful test results, repeated status updates, and modified-file lists; retain validation details only when they expose an unresolved concern, change the plan, or record a required gate. Apply the same rule when cleaning existing notes. Update `AGENTS.md` only for significant project-level milestones or durable guidance; branch progress belongs in ignored `.ai/work-in-progress/` notes.
 5. Keep the active issue branch limited to the work for that specific issue. Do not carry unrelated changes from other sessions, other branches, opportunistic refactors, release prep, or AI-guidance edits into the branch unless the user explicitly authorizes them.
 6. If unrelated work is already present on the branch, stop, call it out, and ask for explicit direction before merging or preserving it. Do not silently fold unrelated edits into the issue fix.
 
@@ -32,6 +32,10 @@ Checklist:
 
 ## Code Simplicity
 - Avoid assigning a value to a local variable when it is used only once and the variable does not meaningfully improve readability.
+
+## Build Validation
+- Do not run a full solution or project build automatically after every change. Run builds only when the user explicitly requests one or a task-specific acceptance gate requires it.
+- The user-invocable `/ogcs-build` skill documents the build and test commands; do not activate it unless requested.
 
 ## Dependency and Assembly Reference Management
 - Prefer NuGet-managed references for standard third-party dependencies. In this legacy project, use `packages.config` and references resolving from `..\packages\<package>.<version>\...` rather than manually copied DLLs under `lib`.
