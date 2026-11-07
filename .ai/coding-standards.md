@@ -11,7 +11,7 @@ Please adhere to these coding standards when developing or modifying code for OG
 - **Explicit Types**:
   - Prefer explicit type declarations over `var` for local variables. Only use `var` when the type is obvious from the right-hand side (e.g., `var x = new Exception("...")`) or the type is extremely verbose; explicit types improve readability in this codebase.
 - **Avoid Redundant Locals**:
-  - Avoid assigning a value to a local variable when it is used only once and the variable does not meaningfully improve readability.
+  - Do not introduce a temporary local for a straightforward value used only once; inline it unless naming the value materially improves readability or avoids repeating expensive or side-effecting work.
 - **Dependency and Assembly References**:
   - Prefer NuGet-managed references for standard third-party dependencies. Because this is a legacy project, continue using `packages.config` and reference restored assemblies from `..\packages\<package>.<version>\...` instead of manually copying them into `lib`.
   - Reserve `lib` for bespoke, patched, generated, or configuration-specific assemblies, including explicitly selected Outlook interop variants.

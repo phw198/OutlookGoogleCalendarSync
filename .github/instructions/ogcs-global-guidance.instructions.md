@@ -31,7 +31,7 @@ Checklist:
 - If a change introduces an Outlook COM dependency, call out in the completion notes whether cleanup was verified, and note any remaining Windows-only validation required.
 
 ## Code Simplicity
-- Avoid assigning a value to a local variable when it is used only once and the variable does not meaningfully improve readability.
+- Do not introduce a temporary local for a straightforward value used only once; inline it unless naming the value materially improves readability or avoids repeating expensive or side-effecting work.
 
 ## Build Validation
 - Do not run a full solution or project build automatically after every change. Run builds only when the user explicitly requests one or a task-specific acceptance gate requires it.
