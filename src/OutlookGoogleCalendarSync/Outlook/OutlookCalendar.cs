@@ -500,6 +500,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 //Now there's an entryID, cache it in the custom property
                 CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
                 ai.Save();
             }
 
@@ -929,6 +930,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile))
                     CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
             }
+            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ||
+                (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id && CustomProperty.ExistAnyGoogleIDs(ai, profile)))
+                CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
             ai.Save();
         }

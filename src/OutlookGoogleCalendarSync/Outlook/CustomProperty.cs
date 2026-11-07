@@ -299,6 +299,94 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         /// <summary>
+        /// Attempt to fill missing source EntryID properties (across all calendar sets) during sync. 
+        /// Log failures without interrupting the sync save.
+        /// </summary>
+        public static void PopulateMissingSourceEntryIDsDuringSync(AppointmentItem ai) {
+            try {
+                PopulateMissingSourceEntryIDs(ai);
+            } catch (System.Exception ex) {
+                ex.LogAsFail().Analyse("Failed to populate missing source EntryIDs during sync.");
+            }
+        }
+
+        /// <summary>
+        /// Fill missing source EntryID properties for every nonempty Google calendar key set on an appointment.
+        /// Populated markers are preserved, and property access or write failures are propagated to the caller.
+        /// Cached source EntryIDs are used to detect copy and pasted items.
+        /// </summary>
+        public static Boolean PopulateMissingSourceEntryIDs(AppointmentItem ai) {
+            Dictionary<String, String> calendarKeys = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<String, String> sourceEntryIDs = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+            UserProperties ups = null;
+            Boolean changed = false;
+            try {
+                ups = ai.UserProperties;
+                for (Int32 index = 1; index <= ups.Count; index++) {
+                    UserProperty property = null;
+                    try {
+                        property = ups[index];
+                        String propertyName = property.Name;
+                        if (TryGetGoogleCalendarKeySet(propertyName, out _)) {
+                            String googleCalendarID = property.Value?.ToString();
+                            if (!String.IsNullOrEmpty(googleCalendarID))
+                                calendarKeys.Add(propertyName, googleCalendarID);
+                        } else if (propertyName.StartsWith(metadataIdKeyName(MetadataId.oEntryID)))
+                            sourceEntryIDs.Add(propertyName, property.Value?.ToString());
+                    } finally {
+                        property = (UserProperty)Calendar.ReleaseObject(property);
+                    }
+                }
+
+                String entryID = ai.EntryID;
+                foreach (KeyValuePair<String, String> calendarKey in calendarKeys) {
+                    TryGetGoogleCalendarKeySet(calendarKey.Key, out String suffix);
+                    String sourceEntryIDKey = metadataIdKeyName(MetadataId.oEntryID) + suffix;
+                    if (sourceEntryIDs.TryGetValue(sourceEntryIDKey, out String existingEntryID) &&
+                        !String.IsNullOrEmpty(existingEntryID)) continue;
+
+                    UserProperty property = null;
+                    try {
+                        property = ups.Find(sourceEntryIDKey);
+                        if (property == null) {
+                            try {
+                                property = ups.Add(sourceEntryIDKey, OlUserPropertyType.olText);
+                            } catch (System.Exception ex) {
+                                ex.Analyse($"Could not add user property '{sourceEntryIDKey}'");
+                                property = ups.Add(sourceEntryIDKey, OlUserPropertyType.olText, false);
+                            }
+                        }
+                        property.Value = entryID;
+                        sourceEntryIDs[sourceEntryIDKey] = entryID;
+                        changed = true;
+                    } finally {
+                        property = (UserProperty)Calendar.ReleaseObject(property);
+                    }
+                }
+                return changed;
+            } finally {
+                ups = (UserProperties)Calendar.ReleaseObject(ups);
+            }
+        }
+
+        /// <summary>
+        /// Parse the suffix from an exact Google calendar key-set property name.
+        /// </summary>
+        /// <returns>False if property name not found; true if found, even with no suffix</returns>
+        internal static Boolean TryGetGoogleCalendarKeySet(String propertyName, out String suffix) {
+            suffix = String.Empty;
+            Match match = Regex.Match(propertyName ?? String.Empty,
+                "^" + Regex.Escape(calendarKeyName) + "(?:-(\\d{2}))?$", RegexOptions.IgnoreCase);
+            if (!match.Success) return false;
+
+            if (match.Groups[1].Success) {
+                if (match.Groups[1].Value == "00") return false;
+                suffix = "-" + match.Groups[1].Value;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Remove the Google event IDs from an Outlook appointment.
         /// </summary>
         public static void RemoveGoogleIDs(ref AppointmentItem ai, SettingsStore.Calendar profile = null) {

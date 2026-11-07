@@ -794,6 +794,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 log.Debug("Storing the Google event IDs in Outlook appointment.");
                 Outlook.CustomProperty.AddGoogleIDs(ref ai, createdEvent);
                 Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.oEntryID, ai.EntryID);
+                Outlook.CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
                 Outlook.CustomProperty.SetOGCSlastModified(ref ai);
                 ai.Save();
             }
@@ -1395,6 +1396,7 @@ namespace OutlookGoogleCalendarSync.Google {
                                     if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Outlook.CustomProperty.ExistAnyGoogleIDs(ai)) {
                                         log.Debug("Updating the Google event IDs in Outlook appointment.");
                                         Outlook.CustomProperty.AddGoogleIDs(ref ai, ev);
+                                        Outlook.CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
                                         ai.Save();
                                     }
                                 } catch (System.Exception ex) {
