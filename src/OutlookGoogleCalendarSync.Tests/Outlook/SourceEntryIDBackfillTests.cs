@@ -49,11 +49,32 @@ namespace OutlookGoogleCalendarSync.Tests.Outlook {
             Assert.IsFalse(state.Matches("other-outlook", "google/calendar"));
         }
 
+        /// <summary>Verify a valid state for another calendar pair starts with a fresh attempt budget.</summary>
+        [TestMethod]
+        public void BackfillState_ValidDifferentCalendarPairStartsFreshAttempt() {
+            String serialized = Ogcs.SettingsStore.SourceEntryIDBackfillState.Serialize(
+                "previous-outlook", "previous-google", Ogcs.SettingsStore.SourceEntryIDBackfillStatus.Running, 2);
+
+            Boolean stateIsValid = Ogcs.SettingsStore.SourceEntryIDBackfillState.TryParse(serialized, out Ogcs.SettingsStore.SourceEntryIDBackfillState state);
+            Boolean stateMatches = stateIsValid && state.Matches("selected-outlook", "selected-google");
+            Int32 attempt = Ogcs.SettingsStore.SourceEntryIDBackfillState.GetNextAttempt(state, stateMatches);
+            Int32 samePairAttempt = Ogcs.SettingsStore.SourceEntryIDBackfillState.GetNextAttempt(state,
+                state.Matches("previous-outlook", "previous-google"));
+
+            Assert.IsTrue(stateIsValid);
+            Assert.IsFalse(stateMatches);
+            Assert.IsFalse(Ogcs.SettingsStore.SourceEntryIDBackfillState.IsMalformedVersionedState(serialized, state));
+            Assert.AreEqual(1, attempt);
+            Assert.AreEqual(3, samePairAttempt);
+        }
+
         /// <summary>Verify legacy, malformed, and out-of-range backfill state values are rejected.</summary>
         [TestMethod]
         public void BackfillState_RejectsLegacyAndOutOfRangeAttempts() {
             Assert.IsFalse(Ogcs.SettingsStore.SourceEntryIDBackfillState.TryParse("outlook|google", out _));
-            Assert.IsFalse(Ogcs.SettingsStore.SourceEntryIDBackfillState.TryParse("v2|%%%|%%%|Running|1", out _));
+            String malformedState = "v2|%%%|%%%|Running|1";
+            Assert.IsFalse(Ogcs.SettingsStore.SourceEntryIDBackfillState.TryParse(malformedState, out Ogcs.SettingsStore.SourceEntryIDBackfillState state));
+            Assert.IsTrue(Ogcs.SettingsStore.SourceEntryIDBackfillState.IsMalformedVersionedState(malformedState, state));
             Assert.IsFalse(Ogcs.SettingsStore.SourceEntryIDBackfillState.TryParse("v2|||Running|4", out _));
             Assert.ThrowsException<System.ArgumentOutOfRangeException>(() =>
                 Ogcs.SettingsStore.SourceEntryIDBackfillState.Serialize(

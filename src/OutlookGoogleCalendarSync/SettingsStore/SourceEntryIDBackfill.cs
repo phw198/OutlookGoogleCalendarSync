@@ -89,6 +89,20 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         }
 
         /// <summary>
+        /// Determine whether a versioned state is malformed rather than valid for another calendar pair.
+        /// </summary>
+        internal static Boolean IsMalformedVersionedState(String value, SourceEntryIDBackfillState state) {
+            return (value ?? String.Empty).StartsWith(Version + "|", StringComparison.Ordinal) && state == null;
+        }
+
+        /// <summary>
+        /// Select the next attempt number for the selected calendar pair.
+        /// </summary>
+        internal static Int32 GetNextAttempt(SourceEntryIDBackfillState state, Boolean stateMatches) {
+            return stateMatches ? state.Attempts + 1 : 1;
+        }
+
+        /// <summary>
         /// Select the persisted status after a backfill pass completes or fails.
         /// </summary>
         internal static SourceEntryIDBackfillStatus GetResultStatus(Boolean passComplete, Int32 attempts) {

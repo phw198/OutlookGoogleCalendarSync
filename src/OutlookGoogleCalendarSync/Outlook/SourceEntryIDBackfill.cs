@@ -16,7 +16,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean stateMatches = SettingsStore.SourceEntryIDBackfillState.TryParse(profile.SourceEntryIDBackfillProfile, out state) &&
                 state.Matches(outlookCalendarId, googleCalendarId);
 
-            if (!stateMatches && (profile.SourceEntryIDBackfillProfile ?? String.Empty).StartsWith("v2|", StringComparison.Ordinal)) {
+            if (SettingsStore.SourceEntryIDBackfillState.IsMalformedVersionedState(profile.SourceEntryIDBackfillProfile, state)) {
                 String invalidStateWarning = "The source EntryID backfill state for profile '" + profile._ProfileName +
                     "' is invalid. No automatic backfill will run; close OGCS, back up settings.xml, and clear this profile's " +
                     "SourceEntryIDBackfillProfile setting to retry.";
@@ -40,7 +40,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 return;
             }
 
-            Int32 attempt = stateMatches ? state.Attempts + 1 : 1;
+            Int32 attempt = SettingsStore.SourceEntryIDBackfillState.GetNextAttempt(state, stateMatches);
             String runningState = SettingsStore.SourceEntryIDBackfillState.Serialize(outlookCalendarId, googleCalendarId,
                 SettingsStore.SourceEntryIDBackfillStatus.Running, attempt);
             if (!profile.TryPersistSourceEntryIDBackfillProfile(runningState)) {
