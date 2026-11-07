@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace OutlookGoogleCalendarSync.SettingsStore {
     [DataContract(Namespace = "http://schemas.datacontract.org/2004/07/OutlookGoogleCalendarSync")]
-    public class Calendar {
+    public partial class Calendar {
         private static readonly ILog log = LogManager.GetLogger(typeof(Calendar));
 
         public Sync.SyncTimer OgcsTimer;
@@ -15,7 +15,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         //Settings saved immediately
         private DateTime lastSyncDate;
-        private String sourceEntryIDBackfillProfile;
 
         public Calendar() {
             setDefaults();
@@ -269,15 +268,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
 
         public String LastSyncDateText {
             get { return lastSyncDate.ToLongDateString() + " @ " + lastSyncDate.ToLongTimeString(); }
-        }
-
-        [DataMember] public String SourceEntryIDBackfillProfile {
-            get { return sourceEntryIDBackfillProfile; }
-            set {
-                sourceEntryIDBackfillProfile = value;
-                if (!Settings.Instance.Loading())
-                    XMLManager.ExportElement(this, "SourceEntryIDBackfillProfile", value ?? "", Settings.ConfigFile);
-            }
         }
 
         /// <summary>

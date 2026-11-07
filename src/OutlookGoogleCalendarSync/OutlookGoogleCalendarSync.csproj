@@ -683,12 +683,14 @@
     <Compile Include="Outlook.Graph\O365Recurrence.cs" />
     <Compile Include="Outlook\CustomProperty.cs" />
     <Compile Include="Outlook\GMeet.cs" />
+    <Compile Include="Outlook\SourceEntryIDBackfill.cs" />
     <Compile Include="Outlook\OutlookRecurrence.cs" />
     <Compile Include="Outlook\OutlookCalendar.cs" />
     <Compile Include="Outlook\OutlookCategories.cs" />
     <Compile Include="Outlook\OutlookErrors.cs" />
     <Compile Include="Outlook.Graph\O365Calendar.cs" />
     <Compile Include="SettingsStore\Calendar.cs" />
+    <Compile Include="SettingsStore\SourceEntryIDBackfill.cs" />
     <Compile Include="SettingsStore\Proxy.cs" />
     <Compile Include="SettingsStore\Upgrade.cs" />
     <Compile Include="Sync\AbortableBackgroundWorker.cs">
