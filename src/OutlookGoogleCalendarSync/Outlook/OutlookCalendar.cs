@@ -562,6 +562,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         if (ai.RecurrenceState == OlRecurrenceState.olApptMaster && compare.Value.Recurrence != null && compare.Value.RecurringEventId == null) {
                             log.Debug(Ogcs.Google.Calendar.GetEventSummary(compare.Value));
                             entriesUpdated += Recurrence.UpdateOutlookExceptions(compare.Value, ref ai, forceCompare: false);
+                            if (CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
+                                updateCalendarEntry_save(ref ai);
 
                         } else if (needsUpdating || CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave)) {
                             if (ai.LastModificationTime > compare.Value.UpdatedDateTimeOffset && !CustomProperty.Exists(ai, CustomProperty.MetadataId.forceSave))
