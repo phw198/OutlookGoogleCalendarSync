@@ -63,13 +63,14 @@ sequenceDiagram
 
 ### 6. Classic Outlook/Google Sync Snapshot and Copy Identity
 - A Classic sync collects `outlookEntries` once before either direction runs. In bidirectional mode, Outlook-to-Google runs first and Google-to-Outlook reuses the same Outlook appointment snapshot; the second phase does not rescan Outlook. An item copied after collection is therefore invisible until the next sync.
-- A pasted copy of an already-synchronized Outlook appointment can inherit OGCS Google event and calendar IDs while receiving a new Outlook `EntryID`. The durable `outlookEntryID` source marker is what distinguishes the copied item from the original.
-- The bidirectional failure mode is a two-phase matching problem. If the copied item is allowed to consume the original Google event match, the original Outlook item remains unmatched. The later Outlook deletion list can then contain the original, while the copied item has been removed as an apparent match rather than being created as a new Google event.
+- Simple Match is designed primarily for Apple iCal, where Outlook `EntryID`s can change between syncs. It pairs Google events and Outlook appointments by signatures based on summary/subject and start/end timing, not by stored IDs or the source marker. `GoogleCalendar.Signature` has special handling for cancelled recurring instances and all-day out-of-office events. Matched items are removed from the pending create/delete lists; unmatched items remain candidates for creation or deletion, subject to merge settings and later safety filters.
+- In ID-based matching, a pasted copy can inherit OGCS Google event and calendar IDs while receiving a new Outlook `EntryID`. There, the `outlookEntryID` source marker helps distinguish a copied item from the original; it is not a valid candidate-rejection rule for Simple Match.
+- The bidirectional ID-based failure mode is a two-phase matching problem. If the copied item is allowed to consume the original Google event match, the original Outlook item remains unmatched. The later Outlook deletion list can then contain the original, while the copied item has been removed as an apparent match rather than being created as a new Google event.
 - New Google event creation establishes the active calendar key set before writing its source marker. A suffix-aware fill then populates missing source markers for every existing calendar key set, without replacing populated markers or changing the active-keyset cache. The existing active-keyset write still refreshes the marker when a copy is linked to a newly created Google event.
 - The one-time migration scans the selected Outlook folder and repairs missing markers across all valid key sets, including `-01`-only and noncontiguous suffixes. Its per-profile, calendar-pair state is versioned and persisted before each full scan. It makes at most three started attempts across restarts, marks only a clean full scan complete, and reports exhaustion instead of rescanning indefinitely. Clearing `SourceEntryIDBackfillProfile` for that profile in `settings.xml` is the documented manual retry.
 - A missing marker on an already-copied item cannot recover its former EntryID; when repaired, the current EntryID is stored. Future copies can then inherit the marker and be detected. The fill helper never overwrites a populated marker, including one that differs from the current EntryID.
 - Outlook-to-Google-only sync leaves previously untagged Outlook appointments without OGCS Google or source EntryID properties. Existing copied appointments that already carry OGCS metadata retain the established behavior of refreshing those IDs when a separate Google event is created. After switching the profile to bidirectional sync, the standard in-range O->G matcher can match existing Google events through their stored Outlook IDs. Only after a match succeeds does OGCS hydrate missing Google IDs and source markers on the Outlook appointment, then mark it for the ordinary G->O Outlook save path. This continues after the one-time backfill is complete; items outside the configured window are hydrated on a later sync.
-- The correct invariant is that bidirectional copied-item protection must be established before matching, must use `Outlook.CustomProperty` on the Outlook `AppointmentItem`, and must be persisted through the Outlook save path. Source-mismatched items must be excluded from both reverse matching and bidirectional deletion. One-way Outlook-to-Google behavior is intentionally unchanged: a copied item that is not already represented in Google is allowed to sync as a new Google event.
+- For ID-based matching, copied-item protection must use `Outlook.CustomProperty` on the Outlook `AppointmentItem` and be persisted through the Outlook save path. Apply source-marker checks in the ID-based matching and relevant deletion guards, but do not use source EntryID mismatch to reject a Simple Match candidate. One-way Outlook-to-Google behavior is intentionally unchanged: a copied item that is not already represented in Google is allowed to sync as a new Google event.
 
 ```mermaid
 sequenceDiagram
@@ -79,10 +80,14 @@ sequenceDiagram
     participant D as Bidirectional deletion filter
 
     O->>OG: Collect original and copied items once
-    OG->>OG: Use source EntryID to reject copied item as original match
-    OG->>OG: Mark repaired source metadata for Outlook save when needed
+    alt ID-based matching
+        OG->>OG: Use IDs and source marker to distinguish copied candidates
+        OG->>OG: Mark repaired source metadata for Outlook save when needed
+    else Simple Match (Apple iCal)
+        OG->>OG: Pair by summary and start/end signature
+    end
     OG->>GO: Reuse the same Outlook snapshot
-    GO->>GO: Save source marker through existing Outlook updater
+    GO->>GO: Persist queued source-marker repair through existing updater
     GO->>D: Keep source-mismatched copied items out of deletion
 ```
 
