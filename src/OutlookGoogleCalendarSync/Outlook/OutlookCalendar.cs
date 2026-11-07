@@ -494,15 +494,12 @@ namespace OutlookGoogleCalendarSync.Outlook {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
             }
-
             ai.Save();
 
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
-                //Now there's an entryID, cache it in the custom property
-                CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
-                CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
-                ai.Save();
-            }
+            //Now there's an entryID, cache it in the custom property
+            CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+            CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
+            ai.Save();
 
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id || Ogcs.Google.CustomProperty.ExistAnyOutlookIDs(ev)) {
                 log.Debug("Storing the Outlook appointment IDs in Google event.");
@@ -927,12 +924,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
             if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id) {
                 log.Debug("Saving timestamp when OGCS updated appointment.");
                 CustomProperty.SetOGCSlastModified(ref ai);
-                if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile))
-                    CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
             }
-            if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ||
-                (profile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id && CustomProperty.ExistAnyGoogleIDs(ai, profile)))
-                CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
+            if (!CustomProperty.Exists(ai, CustomProperty.MetadataId.oEntryID, profile))
+                CustomProperty.Add(ref ai, CustomProperty.MetadataId.oEntryID, ai.EntryID);
+            CustomProperty.PopulateMissingSourceEntryIDsDuringSync(ai);
             CustomProperty.Remove(ref ai, CustomProperty.MetadataId.forceSave);
             ai.Save();
         }

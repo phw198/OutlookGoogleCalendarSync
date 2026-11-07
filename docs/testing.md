@@ -25,3 +25,15 @@ The `<No category assigned>` category can be used in either category filter mode
 When an error is explicitly marked to log as a failure, the failure status is
 applied to the aggregate exception and all of its inner exceptions, including
 nested aggregate exceptions.
+
+## Classic Outlook Copy Protection
+
+When OGCS saves Google IDs to an Outlook appointment, it fills missing source EntryIDs for the appointment's existing calendar key sets without replacing populated markers. This happens during bidirectional sync and during one-way sync when the Outlook item already contains Google metadata, helping later syncs distinguish future copies from their originals.
+
+Outlook-to-Google-only sync leaves previously untagged Outlook appointments free of OGCS Google and source EntryID properties. Existing copied appointments that already carry OGCS metadata continue to have those IDs refreshed when a separate Google event is created. If the profile later switches to bidirectional sync, the normal sync matches existing Google events to Outlook appointments using the Outlook IDs stored in Google, then adds missing Outlook metadata to successfully matched items. This repair is automatic and progressive within the configured sync window; items outside the window are repaired when a later sync includes them.
+
+The full-folder, three-attempt backfill is limited to bidirectional sync.
+
+- The full-folder backfill makes at most three attempts for a profile and calendar pair. If it cannot complete, OGCS reports the problem and stops automatic rescans.
+- To retry after resolving the issue, close OGCS, back up `settings.xml`, and clear `SourceEntryIDBackfillProfile` only in the affected calendar profile. The settings file location depends on the installation.
+- If a marker is missing on an appointment that was already copied, its original EntryID cannot be recovered; OGCS records the current EntryID when filling that marker.

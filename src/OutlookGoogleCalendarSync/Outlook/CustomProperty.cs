@@ -260,6 +260,8 @@ namespace OutlookGoogleCalendarSync.Outlook {
             Boolean differentEntryID = !String.IsNullOrEmpty(oEntryID) && oEntryID != ai.EntryID;
             if (differentEntryID)
                 log.Info("Detected copied Outlook appointment: stored EntryID " + oEntryID + ", current EntryID " + ai.EntryID + ".");
+            else if (String.IsNullOrEmpty(oEntryID) && ExistAnyGoogleIDs(ai, profile) && log.IsFineEnabled())
+                log.Fine("Cannot verify copy status because the Google-linked Outlook appointment has no source EntryID marker.");
             return differentEntryID;
         }
 
@@ -345,6 +347,9 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     if (sourceEntryIDs.TryGetValue(sourceEntryIDKey, out String existingEntryID) &&
                         !String.IsNullOrEmpty(existingEntryID)) continue;
 
+                    if (String.IsNullOrEmpty(existingEntryID) && log.IsFineEnabled())
+                        log.Fine("Source EntryID marker '" + sourceEntryIDKey + "' is missing or empty for a Google-linked Outlook appointment.");
+
                     UserProperty property = null;
                     try {
                         property = ups.Find(sourceEntryIDKey);
@@ -359,6 +364,7 @@ namespace OutlookGoogleCalendarSync.Outlook {
                         property.Value = entryID;
                         sourceEntryIDs[sourceEntryIDKey] = entryID;
                         changed = true;
+                        log.Fine("Populated source EntryID marker '" + sourceEntryIDKey + "'.");
                     } finally {
                         property = (UserProperty)Calendar.ReleaseObject(property);
                     }

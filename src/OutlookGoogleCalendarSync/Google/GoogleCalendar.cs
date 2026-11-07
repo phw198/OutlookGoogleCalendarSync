@@ -1581,6 +1581,30 @@ namespace OutlookGoogleCalendarSync.Google {
 
                             Event evCheck = google[g];
                             if (ItemIDsMatch(ref evCheck, outlook[o])) {
+                                if (profile.SyncDirection.Id == Sync.Direction.Bidirectional.Id &&
+                                    CustomProperty.Get(evCheck, CustomProperty.MetadataId.oCalendarId) == profile.UseOutlookCalendar.Id &&
+                                    CustomProperty.Get(evCheck, CustomProperty.MetadataId.oEntryId) == outlook[o].EntryID) {
+                                    AppointmentItem ai = outlook[o];
+                                    try {
+                                        Boolean googleIDsMissing = Outlook.CustomProperty.GoogleIdMissing(ai);
+                                        if (googleIDsMissing)
+                                            Outlook.CustomProperty.AddGoogleIDs(ref ai, evCheck);
+
+                                        Boolean sourceEntryIDsChanged = Outlook.CustomProperty.PopulateMissingSourceEntryIDs(ai);
+                                        if (googleIDsMissing || sourceEntryIDsChanged) {
+                                            Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.forceSave, true.ToString());
+                                            log.Fine("Restored missing Outlook metadata after matching a Google event by its Outlook IDs.");
+                                        }
+                                    } catch (System.Exception ex) {
+                                        ex.Analyse("Unable to hydrate/restore Outlook metadata after matching a Google event.");
+                                        try {
+                                            Outlook.CustomProperty.Add(ref ai, Outlook.CustomProperty.MetadataId.forceSave, true.ToString());
+                                        } catch (System.Exception saveEx) {
+                                            saveEx.Analyse("Unable to mark matched Outlook metadata for saving.");
+                                        }
+                                    }
+                                    outlook[o] = ai;
+                                }
                                 foundMatch = true;
                                 google[g] = evCheck;
                                 compare.Add(outlook[o], google[g]);
