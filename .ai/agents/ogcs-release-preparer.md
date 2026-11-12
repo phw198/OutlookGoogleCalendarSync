@@ -69,6 +69,8 @@ Update version references in the build script so that packages are packaged, zip
      - Output this list as part of your final response to the user for manual review so they can decide if any of these changes need to be manually documented or categorised in the release notes.
 
 5. Ensure the resulting XML is valid and formatted cleanly with CRLF line endings.
+   - The `<releaseNotes>` body is XML text: use only XML predefined entities or numeric character references. HTML-only named entities such as `&rarr;` are not valid unless declared; use `&#8594;` for a right-pointed arrow.
+   - Parse the completed NuSpec to verify that it is well-formed XML.
 
 ### Step 4: Update Main README (`README.md`)
 1. Locate `README.md`.
@@ -78,7 +80,12 @@ Update version references in the build script so that packages are packaged, zip
 Copy the generated release notes from `src/OutlookGoogleCalendarSync/OutlookGoogleCalendarSync.nuspec` into `docs/Release Notes.md` as a new top-level entry, maintaining the existing Markdown heading and bullet-point formatting. Ensure that the new release notes are placed above the previous release's notes.
 
 ### Shared gh-pages prerequisite for Steps 5a and 5b
-Before making either website documentation change, fast-forward the local `gh-pages` branch from its remote, preserving any intentional local work. Keep both the User Guide and release-notes changes isolated to the `gh-pages` branch.
+Use the primary worktree for website updates; do not create a linked worktree.
+1. Record the starting branch and inspect its status. If unrelated or ambiguous changes are present, stop and ask before switching. If known release-preparation changes must be temporarily stashed to switch branches, stash tracked changes with a descriptive message, record the stash commit ID, and leave untracked files alone. Restore the stash with `git stash apply --index <commit-id>` after returning to the starting branch; verify the original staged and unstaged state before dropping that backup stash.
+2. Switch to the local `gh-pages` branch, fetch its remote, and fast-forward only (for example, `git pull --ff-only origin gh-pages`). If `gh-pages` has local changes, stop and ask rather than overwriting or absorbing them.
+3. Review and edit the User Guide and `release-notes.md` on `gh-pages`, then validate them.
+4. Stash only the intended website documentation paths with a descriptive message, leaving the `gh-pages` branch clean. Record the stash commit ID and changed paths in the final report so the user can reapply the changes on `gh-pages`. Do not drop this website stash.
+5. Switch back to the starting branch and restore any temporary stash recorded in step 1. Do not leave a linked worktree behind.
 
 ### Step 5a: Review the gh-pages User Guide
 Always inspect the current `gh-pages` branch User Guide against the user-facing changes identified from the release commit history. Review the relevant pages under `guide/` for changed settings, workflows, notifications, integrations, and troubleshooting behaviour.
@@ -102,6 +109,7 @@ Update `release-notes.md` on the current `gh-pages` branch by copying the releas
    - If the ZIP exists, compare its contents to the actual files in the `src/OutlookGoogleCalendarSync/bin/Release-v3` folder, **excluding** the `app.publish` subdirectory and any other `.zip` files from the comparison.
    - Report any differences (extra files in ZIP, missing files from ZIP, or files with different binary content).
    - For `.dll` files, perform a binary comparison to ensure they are identical.
+   - Also compare the new ZIP with the previous release ZIP, `Portable_OGCS_v{CURRENT_VERSION}.zip`. Exclude `app.publish` and `.zip` entries, compare common files byte-for-byte, and include this comparison in the final report with separate **Changed**, **Added**, and **Removed** filename lists. State `None` for any empty list, or report if the previous ZIP is unavailable.
    - **Cleanup**: After the comparison, delete the temporary directory created for extracting the ZIP contents (e.g., `/tmp/ogcs_zip_compare`).
 
 ## Agent Self-Correction Notes
