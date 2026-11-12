@@ -76,12 +76,21 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// </summary>
         public void GetSettings() {
             _ = GraphClient; //Ensure we're authenticated, as this function doesn't use the Client, just RESTful API.
-            String mailboxSettingsStr = Authenticator.GetHttpContentWithToken("/me/mailboxSettings");
+            String mailboxSettingsStr = "";
+            try {
+                mailboxSettingsStr = Authenticator.GetHttpContentWithToken("/me/mailboxSettings");
+            } catch (System.Net.WebException ex) {
+                ex.Analyse("Could not retrieve the mailbox settings from Microsoft Graph: " + mailboxSettingsStr);
+                log.Warn("Falling back to UTC.");
+                this.mailboxTimeZone = "UTC";
+                return;
+            }
+
             try {
                 this.mailboxTimeZone = Newtonsoft.Json.Linq.JObject.Parse(mailboxSettingsStr)["timeZone"]?.ToString() ?? "";
                 log.Info("Microsoft mailbox timezone: " + this.mailboxTimeZone);
-            } catch (System.Exception ex) {
-                ex.Analyse("Could not determine the timezone of the mailbox: " + mailboxSettingsStr);
+            } catch (Newtonsoft.Json.JsonException ex) {
+                ex.Analyse("Could not parse the mailbox timezone response from Microsoft Graph; falling back to UTC.");
                 this.mailboxTimeZone = "UTC";
             }
         }

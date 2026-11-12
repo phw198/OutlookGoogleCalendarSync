@@ -183,12 +183,12 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         }
 
         private void getMSaccountEmail() {
-            String resultText = GetHttpContentWithToken(graphBaseUrl + "/me");
+            String resultText = null;
             try {
+                resultText = GetHttpContentWithToken(graphBaseUrl + "/me");
                 log.Debug("Microsoft UPN: " + EmailAddress.MaskAddress(Newtonsoft.Json.Linq.JObject.Parse(resultText)["userPrincipalName"]?.ToString() ?? ""));
-            } catch (System.Exception) {
-                log.Warn("Could not determine Microsoft UPN from response: " + resultText);
-                throw;
+            } catch (System.Exception ex) {
+                ex.LogAsFail().Analyse("Could not determine Microsoft UPN from response: " + resultText);
             }
         }
 
@@ -229,14 +229,9 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
         /// <returns>String containing the results of the GET operation</returns>
         public String GetHttpContentWithToken(String url) {
             Extensions.OgcsWebClient wc = new Extensions.OgcsWebClient();
-            try {
-                wc.Headers.Add("Authorization", "Bearer " + authResult?.AccessToken);
-                if (!url.StartsWith(graphBaseUrl)) url = graphBaseUrl + url;
-                String content = wc.DownloadString(url);
-                return content;
-            } catch (System.Exception ex) {
-                return ex.ToString();
-            }
+            wc.Headers.Add("Authorization", "Bearer " + authResult?.AccessToken);
+            if (!url.StartsWith(graphBaseUrl)) url = graphBaseUrl + url;
+            return wc.DownloadString(url);
         }
 
 
