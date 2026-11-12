@@ -1531,7 +1531,10 @@ namespace OutlookGoogleCalendarSync.Forms {
             try {
                 if (ActiveCalendarProfile.IsOutlookOnline) {
                     if (!Outlook.Graph.Calendar.IsInstanceNull && Outlook.Graph.Calendar.Instance.CalendarFolders.Count > 0) {
-                        cbOutlookCalendars.DataSource = new BindingSource(Outlook.Graph.Calendar.Instance.CalendarFolders, null);
+                        List<KeyValuePair<String, OutlookCalendarListEntry>> calendars = Outlook.Graph.Calendar.Instance.CalendarFolders
+                            .OrderBy(pair => pair.Value.Sorted(pair.Key), StringComparer.CurrentCulture)
+                            .ToList();
+                        cbOutlookCalendars.DataSource = new BindingSource(calendars, null);
                     } else {
                         Dictionary<String, OutlookCalendarListEntry> ds = new Dictionary<string, OutlookCalendarListEntry>();
                         if (ActiveCalendarProfile.UseOutlookCalendar?.Name != null) {
@@ -1563,7 +1566,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                     }
                 }
             } finally {
-                cbOutlookCalendars.DisplayMember = "Key";
+                cbOutlookCalendars.DisplayMember = ActiveCalendarProfile.IsOutlookOnline ? "Value" : "Key";
                 cbOutlookCalendars.ValueMember = "Value";
                 cbOutlookCalendars.SelectedIndex = -1; //Reset to nothing selected
                 cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
@@ -1723,9 +1726,24 @@ namespace OutlookGoogleCalendarSync.Forms {
             KeyValuePair<String, OutlookCalendarListEntry>? calendar = null;
             if (!string.IsNullOrEmpty(cbOutlookCalendars?.SelectedItem?.ToString()))
                 calendar = (KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.SelectedItem;
+
+            if (!this.LoadingProfileConfig && calendar.HasValue && calendar.Value.Value.ReadOnly &&
+                ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) //
+            {
+                Ogcs.Extensions.MessageBox.Show("You cannot " +
+                    (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.Bidirectional.Id ? "two-way " : "") +
+                    "sync with read-only Outlook calendar '" + calendar.Value.Value.Name + "'.\n" +
+                    "Please review your calendar selection.", "Read-only Sync", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                this.tabAppSettings.SelectedTab = this.tabAppSettings.TabPages["tabOutlook"];
+                this.cbOutlookCalendars.SelectedIndexChanged -= cbOutlookCalendar_SelectedIndexChanged;
+                this.cbOutlookCalendars.SelectedIndex = -1;
+                this.cbOutlookCalendars.SelectedIndexChanged += cbOutlookCalendar_SelectedIndexChanged;
+                calendar = null;
+            }
+
             ActiveCalendarProfile.UseOutlookCalendar = calendar?.Value;
 
-            log.Warn("Outlook calendar selection changed to: " + ActiveCalendarProfile.UseOutlookCalendar?.ToString());
+            log.Warn("Outlook calendar selection changed to: " + ActiveCalendarProfile.UseOutlookCalendar?.ToString(true));
         }
 
         #region Categories
@@ -1937,7 +1955,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 this.cbGoogleCalendars.SelectedIndexChanged += cbGoogleCalendars_SelectedIndexChanged;
             }
             ActiveCalendarProfile.UseGoogleCalendar = (GoogleCalendarListEntry)cbGoogleCalendars.SelectedItem;
-            cbExcludeOoO.Visible = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id || ActiveCalendarProfile.UseGoogleCalendar.Primary;
+            cbExcludeOoO.Visible = ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.GoogleToOutlook.Id || (ActiveCalendarProfile.UseGoogleCalendar?.Primary ?? true);
             if (!cbExcludeOoO.Visible) cbExcludeOoO.Checked = false;
             if (sender != null) {
                 log.Warn("Google calendar selection changed to: " + (ActiveCalendarProfile.UseGoogleCalendar?.ToString(true) ?? "<None>"));
@@ -2167,7 +2185,7 @@ namespace OutlookGoogleCalendarSync.Forms {
                 ddOutlookColour.Enabled = cbColour.Checked;
                 cbSingleCategoryOnly.Visible = true;
                 cbExcludeTentative.Visible = false;
-                cbExcludeOoO.Visible = ActiveCalendarProfile.UseGoogleCalendar.Primary;
+                cbExcludeOoO.Visible = ActiveCalendarProfile.UseGoogleCalendar?.Primary ?? true;
                 if (!cbExcludeOoO.Visible) cbExcludeOoO.Checked = false;
             }
             if (ActiveCalendarProfile.SyncDirection.Id == Sync.Direction.OutlookToGoogle.Id) {
@@ -2187,6 +2205,7 @@ namespace OutlookGoogleCalendarSync.Forms {
             cbAddAttendees_CheckedChanged(null, null);
             cbAddReminders_CheckedChanged(null, null);
             updateReminderDndToolTip();
+            cbOutlookCalendar_SelectedIndexChanged(null, null);
             cbGoogleCalendars_SelectedIndexChanged(null, null);
             buildAvailabilityDropdown();
             showWhatPostit("Description");

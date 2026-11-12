@@ -330,7 +330,7 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
                 } else if (new Object[] { Ogcs.Outlook.Calendar.Service.DefaultMailbox, Ogcs.Outlook.Calendar.Service.AlternativeMailbox }.Contains(OutlookService)) {
                     log.Info("  Mailbox/FolderStore Name: " + MailboxName);
                 }
-                log.Info("  Calendar: " + (UseOutlookCalendar?.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar?.ToString());
+                log.Info("  Calendar: " + (UseOutlookCalendar?.Name == "Calendar" ? "Default " : "") + UseOutlookCalendar?.ToString(true));
                 log.Info("  Category Filter: " + CategoriesRestrictBy.ToString());
                 log.Info("  Delete When Excluded: " + DeleteWhenCategoryExcluded);
                 log.Info("  Categories: " + String.Join(",", Categories.ToArray()));

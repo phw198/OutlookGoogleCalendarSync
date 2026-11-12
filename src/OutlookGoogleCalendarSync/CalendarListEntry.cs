@@ -89,6 +89,10 @@ namespace OutlookGoogleCalendarSync {
         [DataMember]
         public String Id { get; protected set; }
 
+
+        private Boolean primary { get; set; }
+        public Boolean ReadOnly {get; protected set; }
+
         public OutlookCalendarListEntry() {
         }
 
@@ -100,10 +104,28 @@ namespace OutlookGoogleCalendarSync {
         public OutlookCalendarListEntry(Outlook.Graph.CustomClient.Models.Calendar calendarFolder) {
             Id = calendarFolder.Id;
             Name = calendarFolder.Name;
+            primary = calendarFolder.IsDefaultCalendar ?? false;
+            ReadOnly = !calendarFolder.CanEdit ?? false;
         }
 
         public override String ToString() {
+            List<String> prefix = new List<String>();
+            if (ReadOnly) prefix.Add("Read Only");
+
+            if (prefix.Count > 0)
+                return "[" + string.Join(",", prefix) + "] " + Name;
+
+            return Name;
+        }
+
+        public String ToString(bool withId) {
             return EmailAddress.MaskAddressWithinText(Name) + " (ID: " + Id + ")";
+        }
+
+        public string Sorted(String key) {
+            if (this.primary) return "0-" + key;
+            if (this.ReadOnly) return "2-" + key;
+            return "1-" + key;
         }
     }
 }
