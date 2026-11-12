@@ -1727,7 +1727,8 @@ namespace OutlookGoogleCalendarSync.Forms {
             if (!string.IsNullOrEmpty(cbOutlookCalendars?.SelectedItem?.ToString()))
                 calendar = (KeyValuePair<String, OutlookCalendarListEntry>)cbOutlookCalendars.SelectedItem;
 
-            if (!this.LoadingProfileConfig && calendar.HasValue && calendar.Value.Value.ReadOnly &&
+            if (!this.LoadingProfileConfig && ActiveCalendarProfile.IsOutlookOnline &&
+                calendar.HasValue && calendar.Value.Value.ReadOnly &&
                 ActiveCalendarProfile.SyncDirection.Id != Sync.Direction.OutlookToGoogle.Id) //
             {
                 Ogcs.Extensions.MessageBox.Show("You cannot " +

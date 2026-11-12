@@ -84,14 +84,19 @@ namespace OutlookGoogleCalendarSync {
 
     [DataContract]
     public class OutlookCalendarListEntry {
+        #region Common attributes
         [DataMember]
         public String Name { get; protected set; }
         [DataMember]
         public String Id { get; protected set; }
+        #endregion
 
+        #region Graph-specific attributes
+        [DataMember]
+        public Boolean ReadOnly {get; protected set; }
+        #endregion
 
         private Boolean primary { get; set; }
-        public Boolean ReadOnly {get; protected set; }
 
         public OutlookCalendarListEntry() {
         }
@@ -99,6 +104,9 @@ namespace OutlookGoogleCalendarSync {
         public OutlookCalendarListEntry(MAPIFolder calendarFolder) {
             Id = calendarFolder.EntryID;
             Name = calendarFolder.Name;
+            
+            //Set default for irrelevant Graph attributes
+            ReadOnly = false;
         }
 
         public OutlookCalendarListEntry(Outlook.Graph.CustomClient.Models.Calendar calendarFolder) {
