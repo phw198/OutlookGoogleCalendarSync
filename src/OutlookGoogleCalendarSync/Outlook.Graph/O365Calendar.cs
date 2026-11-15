@@ -229,8 +229,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
 
             System.DateTimeOffset min = System.DateTimeOffset.MinValue;
             System.DateTimeOffset max = System.DateTimeOffset.MaxValue;
-            min = profile.SyncStartUtcMidnight;
-            max = profile.SyncEndUtcMidnight;
+            min = profile.SyncStart;
+            max = profile.SyncEnd;
 
             try {
                 // Code snippets are only available for the latest version. Current version is 5.x
@@ -282,7 +282,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
             result.Sort((x, y) => x.Start.SafeDateTimeOffset(x.AllDayEvent(), x.OriginalStartTimeZone).CompareTo(y.Start.SafeDateTimeOffset(y.AllDayEvent(), y.OriginalStartTimeZone)));
             log.Fine(seriesOccurrences.Count + " standard series occurrences removed.");
 
-            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone).UtcDateTime == min && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
+            List<MsGraph.Models.Event> endsOnSyncStart = result.Where(ai => (ai.End != null && ai.End.SafeDateTimeOffset(ai.AllDayEvent(), ai.OriginalEndTimeZone).UtcDateTime == min.UtcDateTime && ai.Type != MsGraph.Models.EventType.SeriesMaster)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Outlook Appointments end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();

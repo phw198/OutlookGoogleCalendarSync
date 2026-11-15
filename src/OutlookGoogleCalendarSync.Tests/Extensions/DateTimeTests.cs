@@ -14,27 +14,23 @@ namespace OutlookGoogleCalendarSync.Tests.Extensions
     {
         // Tests for SafeDateTimeOffset(this EventDateTime evDt)
         [TestMethod]
-        public void SyncWindow_UtcMidnightProperties_ReturnCorrectUtcInstants()
+        public void SyncWindow_DateTimeOffsets_PreserveLocalMidnightOffset()
         {
-            // Arrange
             Ogcs.SettingsStore.Calendar profile = new Ogcs.SettingsStore.Calendar
             {
                 DaysInThePast = 1,
                 DaysInTheFuture = 2
             };
 
-            System.DateTime expectedStart = profile.SyncStart.Date.ToUniversalTime();
-            System.DateTime expectedEnd = profile.SyncEnd.Date.ToUniversalTime();
+            DateTimeOffset actualStart = new DateTimeOffset(profile.SyncStart);
+            DateTimeOffset actualEnd = new DateTimeOffset(profile.SyncEnd);
 
-            // Act
-            System.DateTime actualStart = profile.SyncStartUtcMidnight;
-            System.DateTime actualEnd = profile.SyncEndUtcMidnight;
-
-            // Assert
-            Assert.AreEqual(expectedStart, actualStart, "SyncStartUtcMidnight should be the UTC instant corresponding to local sync start date midnight.");
-            Assert.AreEqual(expectedEnd, actualEnd, "SyncEndUtcMidnight should be the UTC instant corresponding to local sync end date midnight.");
-            Assert.AreEqual(DateTimeKind.Utc, actualStart.Kind, "SyncStartUtcMidnight should have Utc DateTimeKind.");
-            Assert.AreEqual(DateTimeKind.Utc, actualEnd.Kind, "SyncEndUtcMidnight should have Utc DateTimeKind.");
+            Assert.AreEqual(profile.SyncStart, actualStart.DateTime, "Start bound should remain local midnight.");
+            Assert.AreEqual(profile.SyncEnd, actualEnd.DateTime, "End bound should remain local midnight.");
+            Assert.AreEqual(TimeZoneInfo.Local.GetUtcOffset(profile.SyncStart), actualStart.Offset);
+            Assert.AreEqual(TimeZoneInfo.Local.GetUtcOffset(profile.SyncEnd), actualEnd.Offset);
+            Assert.AreEqual(profile.SyncStart.ToUniversalTime(), actualStart.UtcDateTime);
+            Assert.AreEqual(profile.SyncEnd.ToUniversalTime(), actualEnd.UtcDateTime);
         }
 
         [DataTestMethod]
@@ -104,6 +100,27 @@ namespace OutlookGoogleCalendarSync.Tests.Extensions
             Assert.AreEqual(expected.Date, actual.Date, "The date part should match for date-only event.");
             Assert.AreEqual(expected.Offset, actual.Offset, "The offset should be UTC for date-only event.");
             Assert.AreEqual(expected.TimeOfDay, actual.TimeOfDay, "The time should be midnight for date-only event.");
+        }
+
+        [TestMethod]
+        public void EventDateTime_MatchesBoundary_UsesDateForDateOnlyAndInstantForTimedValues()
+        {
+            DateTimeOffset boundary = new DateTimeOffset(2026, 7, 11, 0, 0, 0, TimeSpan.FromHours(-7));
+            EventDateTime allDayEnd = new EventDateTime { Date = "2026-07-11" };
+            EventDateTime nextDayEnd = new EventDateTime { Date = "2026-07-12" };
+            EventDateTime timedEnd = new EventDateTime {
+                DateTimeDateTimeOffset = new DateTimeOffset(2026, 7, 11, 7, 0, 0, TimeSpan.Zero),
+                TimeZone = "UTC"
+            };
+            EventDateTime laterTimedEnd = new EventDateTime {
+                DateTimeDateTimeOffset = new DateTimeOffset(2026, 7, 11, 7, 0, 1, TimeSpan.Zero),
+                TimeZone = "UTC"
+            };
+
+            Assert.IsTrue(allDayEnd.MatchesBoundary(boundary));
+            Assert.IsFalse(nextDayEnd.MatchesBoundary(boundary));
+            Assert.IsTrue(timedEnd.MatchesBoundary(boundary));
+            Assert.IsFalse(laterTimedEnd.MatchesBoundary(boundary));
         }
 
         [TestMethod]

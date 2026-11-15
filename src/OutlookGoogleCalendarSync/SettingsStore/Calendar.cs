@@ -165,14 +165,6 @@ namespace OutlookGoogleCalendarSync.SettingsStore {
         #region When
         public DateTime SyncStart { get { return DateTime.Today.AddDays(-DaysInThePast); } }
         public DateTime SyncEnd { get { return DateTime.Today.AddDays(+DaysInTheFuture + 1); } }
-        /// <summary>Gets the sync start date converted from local midnight to a UTC instant for cloud APIs.</summary>
-        public DateTime SyncStartUtcMidnight {
-            get { return SyncStart.Date.ToUniversalTime(); }
-        }
-        /// <summary>Gets the sync end date converted from local midnight to a UTC instant for cloud APIs.</summary>
-        public DateTime SyncEndUtcMidnight {
-            get { return SyncEnd.Date.ToUniversalTime(); }
-        }
         [DataMember] public Sync.Direction SyncDirection { get; set; }
         [DataMember] public int DaysInThePast { get; set; }
         [DataMember] public int DaysInTheFuture { get; set; }

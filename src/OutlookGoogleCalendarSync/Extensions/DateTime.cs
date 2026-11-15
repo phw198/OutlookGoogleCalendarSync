@@ -151,6 +151,15 @@ namespace OutlookGoogleCalendarSync.Extensions {
             return retDto.ToOffset(TimeSpan.FromMinutes(offset));
         }
 
+        /// <summary>Checks date-only values by local date and timed values by instant.</summary>
+        public static Boolean MatchesBoundary(this EventDateTime evDt, DateTimeOffset boundary) {
+            if (evDt.DateTimeDateTimeOffset == null) {
+                System.DateTime eventDate = System.DateTime.ParseExact(evDt.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                return eventDate.Date == boundary.Date;
+            }
+            return evDt.SafeDateTimeOffset() == boundary;
+        }
+
         /// <summary>
         /// Returns the DateTime for a Graph Date
         /// </summary>

@@ -200,8 +200,8 @@ namespace OutlookGoogleCalendarSync.Google {
                     ir.TimeZone = "UTC";
                     ir.MaxResults = 2500;
                     if (filterToSyncDates) {
-                        ir.TimeMinDateTimeOffset = profile.SyncStartUtcMidnight;
-                        ir.TimeMaxDateTimeOffset = profile.SyncEndUtcMidnight;
+                        ir.TimeMinDateTimeOffset = new DateTimeOffset(profile.SyncStart);
+                        ir.TimeMaxDateTimeOffset = new DateTimeOffset(profile.SyncEnd);
                         ir.MaxResults = 730; //2 years of daily
                     }
                     ir.PageToken = pageToken;
@@ -321,12 +321,12 @@ namespace OutlookGoogleCalendarSync.Google {
         /// <returns>Single events, recurring master and exceptions</returns>
         public List<Event> GetCalendarEntriesInRange(String recurringId = null) {
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
-            return GetCalendarEntriesInRange(profile.SyncStartUtcMidnight, profile.SyncEndUtcMidnight, false, recurringId);
+            return GetCalendarEntriesInRange(profile.SyncStart, profile.SyncEnd, false, recurringId);
         }
 
         /// <summary>Get calendar Events occurring between the specified dates</summary>
         /// <returns>Single events, recurring master and exceptions</returns>
-        public List<Event> GetCalendarEntriesInRange(System.DateTime from, System.DateTime to, Boolean suppressAdvisories = false, String recurringId = null) {
+        public List<Event> GetCalendarEntriesInRange(DateTimeOffset from, DateTimeOffset to, Boolean suppressAdvisories = false, String recurringId = null) {
             List<Event> result = new List<Event>();
             Events request = null;
             String pageToken = null;
@@ -334,7 +334,7 @@ namespace OutlookGoogleCalendarSync.Google {
 
             SettingsStore.Calendar profile = Settings.Profile.InPlay();
 
-            log.Debug("Retrieving all events from Google: " + from.ToShortDateString() + " -> " + to.ToShortDateString());
+            log.Debug("Retrieving all events from Google: " + from.LocalDateTime.ToShortDateString() + " -> " + to.LocalDateTime.ToShortDateString());
             do {
                 EventsResource.ListRequest lr = Service.Events.List(profile.UseGoogleCalendar.Id);
 
@@ -421,7 +421,7 @@ namespace OutlookGoogleCalendarSync.Google {
                     );
                 } else if (rules.ContainsKey("UNTIL")) {
                     System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
-                    if (endDate < from)
+                    if (endDate < from.UtcDateTime)
                         historicRecurring.Add(ev);
                 }
             }
@@ -430,7 +430,7 @@ namespace OutlookGoogleCalendarSync.Google {
                 result = result.Except(historicRecurring).ToList();
             }
 
-            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.SafeDateTimeOffset().UtcDateTime == from && ev.Recurrence == null)).ToList();
+            List<Event> endsOnSyncStart = result.Where(ev => (ev.End != null && ev.End.MatchesBoundary(from) && ev.Recurrence == null)).ToList();
             if (endsOnSyncStart.Count > 0) {
                 log.Debug(endsOnSyncStart.Count + " Google Events end at midnight of the sync start date window.");
                 result = result.Except(endsOnSyncStart).ToList();
