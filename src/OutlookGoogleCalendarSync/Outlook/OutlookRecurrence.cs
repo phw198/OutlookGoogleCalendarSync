@@ -5,6 +5,7 @@ using OutlookGoogleCalendarSync.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Windows.UI.Composition.Scenes;
 using Ogcs = OutlookGoogleCalendarSync;
 
 namespace OutlookGoogleCalendarSync.Outlook {
@@ -240,12 +241,22 @@ namespace OutlookGoogleCalendarSync.Outlook {
         }
 
         public static DeletionState ExceptionIsDeleted(Microsoft.Office.Interop.Outlook.Exception oExcp) {
-            if (oExcp.Deleted) return DeletionState.Deleted;
             AppointmentItem ai = null;
             try {
+                return ExceptionIsDeleted(oExcp, out ai);
+            } finally {
+                ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
+            }
+        }
+
+        public static DeletionState ExceptionIsDeleted(Microsoft.Office.Interop.Outlook.Exception oExcp, out AppointmentItem ai) {
+            ai = null;
+            try {
+                if (oExcp.Deleted) return DeletionState.Deleted;
                 ai = oExcp.AppointmentItem;
                 return DeletionState.NotDeleted;
             } catch (System.Exception ex) {
+                ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
                 Ogcs.Exception.LogAsFail(ref ex);
                 try {
                     String originalDate = oExcp.OriginalDate.ToString("dd/MM/yyyy");
@@ -262,8 +273,6 @@ namespace OutlookGoogleCalendarSync.Outlook {
                     Calendar.ForceClientReconnect = true;
                 }
                 return DeletionState.Inaccessible;
-            } finally {
-                ai = (AppointmentItem)Outlook.Calendar.ReleaseObject(ai);
             }
         }
 
@@ -400,6 +409,10 @@ namespace OutlookGoogleCalendarSync.Outlook {
                                 break;
                             }
                         } else if (isDeleted == DeletionState.Inaccessible) {
+                            if (processingDeletions) {
+                                log.Warn($"Skipping deletion of occurrence on {instanceOrigDate.Date} because an Outlook exception is inaccessible and may have moved there.");
+                                return;
+                            }
                             log.Warn($"The exception, originally on {oExcp.OriginalDate.Date}, is inaccessible.");
 
                         } else if (processingDeletions && isDeleted != DeletionState.Deleted) {
