@@ -32,7 +32,7 @@ Do not reinterpret a bare value, including a lone SHA, as `BRANCH`.
    - Outlook COM lifetime, Google/Graph API interactions, threading, WinForms UI responsiveness, and configuration compatibility.
    - Public contract changes, backwards compatibility, security/privacy concerns, and missing test coverage for meaningful risk.
    - Compliance with the repository's coding standards where it affects maintainability or correctness.
-5. Do not modify files, create commits, or make formatting-only suggestions. Do not report speculative style preferences as findings. Do not report pre-existing defects unless the reviewed changes make them worse or directly expose them.
+5. During the review, do not modify files, create commits, or make formatting-only suggestions. This review-only restriction applies only to the review task. If the user requests fixes or other edits in a later follow-up after the review is complete, treat that as a separate task and make the requested changes under the normal project instructions. Do not report speculative style preferences as findings. Do not report pre-existing defects unless the reviewed changes make them worse or directly expose them.
 
 ## Response Format
 
