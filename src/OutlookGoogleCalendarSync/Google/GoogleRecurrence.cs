@@ -245,7 +245,7 @@ namespace OutlookGoogleCalendarSync.Google {
             return dt.ToString("yyyyMMddTHHmmssZ");
         }
 
-        /// <summary>The UTC-based end date of a recurring series</summary>
+        /// <summary>The calendar end date of a recurring series, adjusted to its event timezone when UNTIL is a timestamp.</summary>
         public static System.DateTime EndDate(String rruleUntil, String endTimeZone) {
             if (rruleUntil.Length == 8 && !rruleUntil.EndsWith("Z"))
                 return System.DateTime.ParseExact(rruleUntil, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture).Date;

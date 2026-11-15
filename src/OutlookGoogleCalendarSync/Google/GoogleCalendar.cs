@@ -420,8 +420,11 @@ namespace OutlookGoogleCalendarSync.Google {
                         ev, out String anonSummary, appendContext: false), anonSummary, Console.Markup.warning
                     );
                 } else if (rules.ContainsKey("UNTIL")) {
-                    System.DateTime endDate = Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone);
-                    if (endDate < from.UtcDateTime)
+                    Boolean untilIsDate = rules["UNTIL"].Length == 8 && !rules["UNTIL"].EndsWith("Z");
+                    Boolean endsBeforeSyncStart = untilIsDate
+                        ? Recurrence.EndDate(rules["UNTIL"], ev.End.TimeZone).Date < from.Date
+                        : System.DateTime.ParseExact(rules["UNTIL"], "yyyyMMddTHHmmssZ", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal) < from.UtcDateTime;
+                    if (endsBeforeSyncStart)
                         historicRecurring.Add(ev);
                 }
             }
