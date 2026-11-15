@@ -18,7 +18,9 @@ _Specify when to run a sync._
 
 **Date Range:** Select the number of days into the past and future within which calendar items should be synced. Date ranges greater than a year into the past or future are not allowed. 
 
-If a recurring appointment spans the date range specified, then it will also be synced, although only _exceptions_ to the series that fall within the date range will be updated. A minor divergence to this are annual recurrence patterns - these will only sync if the month of the appointment falls into a month within the sync date range.
+If a recurring appointment spans the date range specified, then it will also be synced, although only _exceptions_ to an already-synced series that fall within the date range will normally be updated. When OGCS creates a recurring series in Google from Outlook, it also syncs all exceptions for that series, including those outside the date range. This ensures those exceptions are already present if their dates later enter the sync window.
+
+A minor divergence to this are annual recurrence patterns - these will only sync if the month of the appointment falls into a month within the sync date range.
 
 :bulb: To optimise the sync speed, the smaller the date range the better. Try to avoid a large date range combined with a frequent sync interval.
 {: .tip}
