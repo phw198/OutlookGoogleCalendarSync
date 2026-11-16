@@ -785,7 +785,7 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                 //String oGMeetUrl = CustomProperty.Get(ai, CustomProperty.MetadataId.gMeetUrl);
 
                 if (profile.SyncDirection.Id == Sync.Direction.GoogleToOutlook.Id || !profile.AddDescription_OnlyToGoogle) {
-                    String aiBody = ai.Body.BodyInnerHtml();
+                    String aiBody = ai.Body.BodyContentForSync();
                     Boolean descriptionChanged = false;
                     if (!String.IsNullOrEmpty(aiBody)) {
                         /*Regex htmlDataTag = new Regex(@"<data:image.*?>");
@@ -801,16 +801,8 @@ namespace OutlookGoogleCalendarSync.Outlook.Graph {
                         String evBodyForCompare = bodyObfuscated;
                         String aiBodyForCompare = aiBody;
                         //Remove HTML markup from Console output
-                        String evTagsStripped = Regex.Replace(evBodyForCompare, "<.*?>", String.Empty);
-                        String aiTagsStripped = Regex.Replace(aiBodyForCompare, "<.*?>", String.Empty);
-                        
-                        //Although there is a body type "Text" - MS automatically converts it to HTML!
-                        //So the real way of detecting it is looking in the converted HTML...
-                        Match plainText = Regex.Match(ai.Body.Content.RemoveLineBreaks(), @"<!-- converted from text -->.*</head><body>.*?<div class=\""PlainText\"">");
-                        if (ai.Body.ContentType == MsGraph.Models.BodyType.Text || plainText.Success) {
-                            aiBodyForCompare = ai.BodyPreview;
-                            aiTagsStripped = Regex.Replace(ai.BodyPreview, "<.*?>", String.Empty);
-                        }
+                        String evTagsStripped = evBodyForCompare.RemoveHtmlTags();
+                        String aiTagsStripped = aiBodyForCompare.RemoveHtmlTags();
                         /*switch (ai.BodyFormat()) {
                             case OlBodyFormat.olFormatHTML:
                                 evBodyForCompare = Regex.Replace(bodyObfuscated, "[\n]+", " "); break;
